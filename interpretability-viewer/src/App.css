@@ -33,7 +33,7 @@ body {
 .page-title span { display: inline; }
 .page-title span:first-child::after { content: ' '; }
 .page-subtitle, .panel-title p, .gallery-divider p, .empty-state p { margin: 0; color: var(--muted); }
-.page-subtitle { margin-top: 0.4rem; font-size: 0.9rem; max-width: 520px; }
+.page-subtitle { margin-top: 0.4rem; font-size: 1rem; max-width: 520px; }
 
 .viewer-layout { display: flex; flex: 1; min-height: 0; }
 .viewer-layout--collapsed .controls-panel { width: var(--sidebar-collapsed-width); }
@@ -63,22 +63,22 @@ body {
 
 .panel-toggle {
   display: flex; flex-direction: column; align-items: center;
-  gap: 0.3rem; padding: 0.5rem 0.25rem; border-radius: 8px; width: 100%;
+  gap: 0.3rem; padding: 0.6rem 0.3rem; border-radius: 8px; width: 100%;
 }
 .panel-toggle:hover { background: rgba(0, 0, 0, 0.05); }
 .panel-toggle__icon { font-size: 1.2rem; color: var(--accent); }
 .panel-toggle__label {
-  font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.05em;
+  font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em;
   color: var(--muted); writing-mode: vertical-rl; text-orientation: mixed;
 }
 
-.panel-title h2 { margin-bottom: 0.3rem; font-size: 1.1rem; }
-.panel-title p { font-size: 0.8rem; }
+.panel-title h2 { margin-bottom: 0.3rem; font-size: 1.3rem; }
+.panel-title p { font-size: 0.95rem; }
 .panel-fields { margin-top: 0.8rem; display: flex; flex-direction: column; gap: 0.6rem; }
 .tiny-form { text-align: left; display: flex; flex-direction: column; gap: 0.3rem; }
 
 .tiny-form__label { font-weight: 600;
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted);
@@ -152,7 +152,11 @@ body {
 
 .empty-state h3 {
   margin-bottom: 0.4rem;
-  font-size: 1rem;
+  font-size: 1.3rem;
+}
+
+.empty-state p {
+  font-size: 1.05rem;
 }
 
 .gallery-divider {
@@ -164,15 +168,11 @@ body {
 }
 
 .gallery-divider h2 {
-  font-size: 0.95rem;
+  font-size: 1.5rem;
 }
 
 .gallery-divider p {
-  font-size: 0.75rem;
-}
-
-.empty-state p {
-  font-size: 0.85rem;
+  font-size: 1rem;
 }
 
 .gallery-grid {
@@ -184,7 +184,7 @@ body {
 .image-card {
   padding: 0.6rem;
   border-radius: 12px;
-  border: 1px solid var(--border);
+  border: none;
   background: var(--surface);
   box-shadow: var(--shadow-soft);
   display: flex;
@@ -214,7 +214,7 @@ body {
 
 .image-card h3 {
   margin: 0;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
@@ -238,9 +238,9 @@ body {
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: 0.15rem 0.4rem;
+  padding: 0.2rem 0.5rem;
   border-radius: 999px;
-  font-size: 0.5rem;
+  font-size: 0.6rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   background: rgba(15, 107, 110, 0.15);
