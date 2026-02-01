@@ -6,7 +6,7 @@
   --accent: #0f6b6e; --accent-strong: #0a3f43;
   --border: #e2ddd3;
   --shadow-soft: 0 16px 30px rgba(18, 24, 38, 0.08);
-  --sidebar-width: 240px; --sidebar-collapsed-width: 56px;
+  --sidebar-width: 280px; --sidebar-collapsed-width: 56px;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -345,3 +345,95 @@ body {
     grid-column: span 1;
   }
 }
+
+.combo { position: relative; }
+
+.combo__input {
+  width: 100%;
+  appearance: none;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-family: 'Space Grotesk', sans-serif;
+  background-color: var(--surface);
+  color: var(--ink);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+
+.combo__input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(15, 107, 110, 0.15);
+}
+
+.combo__input:disabled {
+  background-color: rgba(226, 221, 211, 0.4);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+.combo__input::placeholder {
+  color: var(--muted);
+  opacity: 0.7;
+}
+
+.combo__list {
+  position: absolute;
+  z-index: 50;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  max-height: 280px;
+  overflow: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 6px;
+  box-shadow: 0 12px 32px rgba(18, 24, 38, 0.15), 0 4px 12px rgba(18, 24, 38, 0.08);
+  animation: combo-fade-in 150ms ease;
+}
+
+@keyframes combo-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.combo__option {
+  width: 100%;
+  text-align: left;
+  padding: 0.55rem 0.75rem;
+  border-radius: 8px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-family: 'Space Grotesk', sans-serif;
+  color: var(--ink);
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.combo__option:hover {
+  background: rgba(15, 107, 110, 0.1);
+  color: var(--accent-strong);
+}
+
+.combo__option:focus {
+  outline: none;
+  background: rgba(15, 107, 110, 0.15);
+}
+
+.combo__empty {
+  padding: 0.75rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-align: center;
+}
+

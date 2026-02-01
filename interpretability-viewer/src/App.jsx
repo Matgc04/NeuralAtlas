@@ -1,18 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useDeferredValue, useRef } from 'react'
 import './App.css'
-
-function TinyForm({ label, value, onChange, items }) {
-  const fieldId = label.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-  return (
-    <div className="tiny-form">
-      <label className="tiny-form__label" htmlFor={fieldId}>{label}</label>
-      <select id={fieldId} className="tiny-form__select" value={value ?? ""} onChange={onChange}>
-        <option value="" disabled>Select {label.slice(0,-1)}</option>
-        {items.map((it, i) => <option key={i} value={it}>{it}</option>)}
-      </select>
-    </div>
-  );
-}
 
 function ImageGallery({ imageData }) {
   if (!imageData?.original) {
@@ -58,6 +45,87 @@ function ImageGallery({ imageData }) {
   );
 }
 
+function normalize(s) {
+  return String(s ?? "")
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
+}
+
+function SearchableSelect({ label, value, items, onSelect, placeholder, disabled }) {
+  const fieldId = label.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+
+  const list = (items ?? []).map((it) =>
+    typeof it === "string" ? { value: it, label: it } : it
+  );
+
+  const selectedLabel =
+    value == null ? "" : (list.find((x) => x.value === value)?.label ?? String(value));
+
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+
+  const q = normalize(query);
+  const filtered = q ? list.filter((it) => normalize(it.label).includes(q)) : list;
+
+  const commit = (val) => {
+    onSelect(val);
+    setOpen(false);
+    setQuery("");
+  };
+
+  return (
+    <div className="tiny-form">
+      <label className="tiny-form__label" htmlFor={fieldId}>{label}</label>
+
+      <div className="combo">
+        <input
+          id={fieldId}
+          className="combo__input"
+          value={open ? query : selectedLabel}
+          placeholder={placeholder}
+          disabled={disabled}
+          onFocus={() => setOpen(true)}
+          onChange={(e) => {
+            setOpen(true);
+            setQuery(e.target.value);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setOpen(false);
+            if (e.key === "Enter" && filtered[0]) commit(filtered[0].value);
+          }}
+          onBlur={() => setOpen(false)}
+        />
+
+        {open && !disabled && (
+          <div
+            className="combo__list"
+            onMouseDown={(e) => e.preventDefault()} // prevents blur when clicking options
+          >
+            {filtered.length === 0 ? (
+              <div className="combo__empty">No matches</div>
+            ) : (
+              filtered.slice(0, 200).map((it) => (
+                <button
+                  type="button"
+                  key={it.value}
+                  className="combo__option"
+                  onClick={() => commit(it.value)}
+                >
+                  {it.label}
+                </button>
+              ))
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
+
 function ModelForm({outputStructure}) {
 
   console.log(outputStructure);
@@ -87,85 +155,59 @@ function ModelForm({outputStructure}) {
   options['model'] = Object.keys(outputStructure);
   options['dataset'] = model ? Object.keys(outputStructure[model]) : [];
   options['class'] = (model && dataset) ? Object.keys(outputStructure[model][dataset]) : [];
-  options['image'] = (model && dataset && classId) ? Object.keys(datasetImagesStructure[classId]) : [];
+  options['image'] = (model && dataset && classId && datasetImagesStructure?.[classId])
+  ? Object.keys(datasetImagesStructure[classId])
+  : [];
 
-  const handleModelChange = (e) => {
-    const value = e.target.value;
+  const imageItems = model && dataset && classId && datasetImagesStructure?.[classId]
+  ? Object.entries(datasetImagesStructure[classId]).map(([id, filename]) => ({
+      value: id,
+      label: `${id} — ${filename}`,
+    }))
+  : [];
+
+  const handleModelSelect = (value) => {
     setModel(value);
     setDataset(null);
     setClassId(null);
     setImageId(null);
     resetImageData();
-  };
+};
 
-  const handleDatasetChange = (e) => {
-    const value = e.target.value;
-    setDataset(value);
-    setClassId(null);
-    setImageId(null);
-    resetImageData();
+const handleDatasetSelect = (value) => {
+  setDataset(value);
+  setClassId(null);
+  setImageId(null);
+  resetImageData();
 
-    fetch(`/${value}/${value}_structure.json`)
-      .then(r => r.json())
-      .then(setDatasetImagesStructure)
-      .catch(err => console.error('Error loading dataset structure:', err));
-  };
+  fetch(`/${value}/${value}_structure.json`)
+    .then(r => r.json())
+    .then(setDatasetImagesStructure)
+    .catch(err => console.error('Error loading dataset structure:', err));
+};
 
-  const handleClassChange = (e) => {
-    const value = e.target.value;
-    setClassId(value);
-    setImageId(null);
-    resetImageData();
-  };
+const handleClassSelect = (value) => {
+  setClassId(value);
+  setImageId(null);
+  resetImageData();
+};
 
-  const handleImageChange = (e) => {
-    const value = e.target.value;
-    setImageId(value);
+ const handleImageSelect = (value) => {
+  setImageId(value);
 
+  const originalFilename = datasetImagesStructure?.[classId]?.[value];
+  const original = `/${dataset}/val/${classId}/${originalFilename}`;
 
-    const fetchBlobUrl = async (path) => {
-      const response = await fetch(path);
-      if (!response.ok) {
-        throw new Error(`Failed request ${path}: ${response.status}`);
-      }
-      const blob = await response.blob();
-      return URL.createObjectURL(blob);
-    };
+  const methods = outputStructure?.[model]?.[dataset]?.[classId] ?? {};
+  const outputs = Object.fromEntries(
+    Object.keys(methods).map((method) => [
+      method,
+      `/outputs/${model}/${dataset}/${classId}/${method}/${value}.jpg`,
+    ])
+  );
 
-    const originalFilename = datasetImagesStructure?.[classId]?.[value];
-    const originalFileUrl = `/${dataset}/val/${classId}/${originalFilename}`;
-
-    
-    const methods = outputStructure?.[model]?.[dataset]?.[classId] ?? {};
-    const methodNames = Object.keys(methods);
-    const derivedImageName = `${value}.jpg`;
-
-    const loadImages = async () => {
-      try {
-        const originalPromise = fetchBlobUrl(`${originalFileUrl}`);
-        const outputsPromise = methodNames.length
-          ? Promise.all(methodNames.map(async (method) => {
-              const url = await fetchBlobUrl(`/outputs/${model}/${dataset}/${classId}/${method}/${derivedImageName}`);
-              return [method, url];
-            }))
-          : Promise.resolve([]);
-
-        const [originalUrl, outputs] = await Promise.all([originalPromise, outputsPromise]);
-
-        setImageData({
-          original: originalUrl,
-          outputs: Object.fromEntries(outputs)
-        });
-      } catch (err) {
-        console.error('Error loading image assets:', err);
-      }
-    };
-
-    if (classId && value && model && dataset) {
-      loadImages();
-    }
-
-  };
+  setImageData({ original, outputs });
+};
 
   return (
     <div className={`viewer-layout ${panelCollapsed ? 'viewer-layout--collapsed' : ''}`}>
@@ -197,30 +239,40 @@ function ModelForm({outputStructure}) {
               )}
             </div>
             <div className="panel-fields">
-              <TinyForm 
+              <SearchableSelect
                 label="Model:"
-                onChange={handleModelChange}
-                items={options['model']}
                 value={model}
+                items={options['model']}
+                onSelect={handleModelSelect}
+                placeholder="Search model…"
               />
-              <TinyForm 
-                label="Dataset:"
-                onChange={handleDatasetChange}
-                items={options['dataset']}
-                value={dataset}
-              />
-              <TinyForm 
-                label="Class:"
-                onChange={handleClassChange}
-                items={options['class']}
-                value={classId}
-              />
-              <TinyForm 
-                label="Image:"
-                onChange={handleImageChange}
-                items={options['image']}
-                value={imageId}
-              />
+
+            <SearchableSelect
+              label="Dataset:"
+              value={dataset}
+              items={options['dataset']}
+              onSelect={handleDatasetSelect}
+              placeholder="Search dataset…"
+              disabled={!model}
+            />
+
+            <SearchableSelect
+              label="Class:"
+              value={classId}
+              items={options['class']}
+              onSelect={handleClassSelect}
+              placeholder="Search class…"
+              disabled={!model || !dataset}
+            />
+
+            <SearchableSelect
+              label="Image:"
+              value={imageId}
+              items={imageItems}
+              onSelect={handleImageSelect}
+              placeholder="Search image id / filename…"
+              disabled={!classId}
+            />
             </div>
           </>
         )}
