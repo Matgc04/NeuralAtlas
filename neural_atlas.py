@@ -63,25 +63,37 @@ class NeuralAtlas:
         total_num_attributions = sum(
             [len(attr) for target in attributions.values() for attr in target.values()]
         )
+
+        OUT_PX = 512
+        DPI = 128
+        SIDE_IN = OUT_PX / DPI
+
         with tqdm(total=total_num_attributions, desc="Plotting Attributions") as pbar:
             for target, interp_methods in attributions.items():
                 for interp_method, attr in interp_methods.items():
                     attr = torch.cat(attr, dim=0)
                     for i, attr in enumerate(attr):
-                        fig, ax = plt.subplots(figsize=(6, 6), dpi=300)
+                        fig, ax = plt.subplots(figsize=(SIDE_IN, SIDE_IN), dpi=DPI)
                         _ = viz.visualize_image_attr(
                             attr.permute(1, 2, 0).detach().cpu().numpy(),
-                            **kwargs,
-                            title=interp_method,
                             plt_fig_axis=(fig, ax),
+                            use_pyplot=False,
+                            title=None,           
+                            **kwargs,
                         )
+
                         ax.axis("off")
                         save_path = (
                             export_root_path / Path(target) / Path(interp_method)
                         )
                         save_path.mkdir(parents=True, exist_ok=True)
                         fig.savefig(
-                            save_path / f"{i}.jpg", bbox_inches="tight", dpi=300
+                            save_path / f"{i}.webp",
+                            format="webp",
+                            dpi=DPI,
+                            bbox_inches="tight",
+                            pad_inches=0,
+                            pil_kwargs={"quality": 95},
                         )
                         plt.close()
                         pbar.update(1)

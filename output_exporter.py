@@ -26,7 +26,7 @@ class OutputExporter:
                 continue
 
             model, dataset, class_name, method = parts
-            images = sorted([f for f in files if f.endswith(".jpg")])
+            images = sorted([f for f in files if (f.endswith(".jpg") or f.endswith(".webp"))])
 
             # Build nested data structure
             model_dict = structure.setdefault(model, {})
@@ -40,3 +40,9 @@ class OutputExporter:
         structure = self._build_structure()
         with open(Path(self.output_dir) / Path(output_file), "w") as f:
             json.dump(structure, f, indent=4)
+
+if __name__ == "__main__":
+    BASE_PATH = "interpretability-viewer/public/"
+    OUTPUT_PATH = BASE_PATH + "outputs"
+    exporter = OutputExporter(OUTPUT_PATH)
+    exporter.export_to_json("outputs_structure.json")

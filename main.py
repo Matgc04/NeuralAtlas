@@ -31,8 +31,12 @@ DEVICE, DTYPE = (
     torch.device("cuda" if torch.cuda.is_available() else "cpu"),
     torch.float32,
 )
-MODEL_NAME = "resnet18"
-OUTPUT_PATH = "outputs"
+
+print(f"Using device: {DEVICE}, dtype: {DTYPE}")
+
+MODEL_NAME = "alexnet"
+BASE_PATH = "interpretability-viewer/public/"
+OUTPUT_PATH = BASE_PATH + "outputs"
 
 num_samples = 20
 
@@ -56,7 +60,7 @@ transform = transforms.Compose(
         transforms.Lambda(lambda x: x.to(device=DEVICE, dtype=DTYPE)),
     ]
 )
-data = "imagenet-pico/val"
+data = BASE_PATH + "imagenet-pico/val"
 # data = datasets.CIFAR10(root='./data', train=True, download=True, transform=transform)
 
 pytorch_total_params = sum(p.numel() for p in model.parameters())
@@ -119,4 +123,4 @@ natlas.visualize(
 )
 
 exporter = OutputExporter(OUTPUT_PATH)
-exporter.export_to_json(f"{OUTPUT_PATH}_structure.json")
+exporter.export_to_json("outputs_structure.json")
