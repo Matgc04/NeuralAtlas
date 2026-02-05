@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useDeferredValue, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 
 function ImageGallery({ imageData }) {
@@ -133,6 +133,7 @@ function ModelForm({outputStructure}) {
   const [model, setModel] = useState(null);
   const [dataset, setDataset] = useState(null);
   const [datasetImagesStructure, setDatasetImagesStructure] = useState(null);
+  const [datasetLabels, setDatasetLabels] = useState(null);
   const [classId, setClassId] = useState(null);
   const [imageId, setImageId] = useState(null);
   const [imageData, setImageData] = useState(null);
@@ -154,12 +155,17 @@ function ModelForm({outputStructure}) {
 
   options['model'] = Object.keys(outputStructure);
   options['dataset'] = model ? Object.keys(outputStructure[model]) : [];
-  options['class'] = (model && dataset) ? Object.keys(outputStructure[model][dataset]) : [];
-  options['image'] = (model && dataset && classId && datasetImagesStructure?.[classId])
-  ? Object.keys(datasetImagesStructure[classId])
-  : [];
+  
+  options['class'] = (model && dataset && datasetImagesStructure && datasetLabels)
+    ? Object.keys(datasetImagesStructure)
+      .filter((id) => datasetLabels[id] != null)
+      .map((id) => ({
+        value: id,
+        label: `${id} — ${datasetLabels[id]}`,
+      }))
+    : [];
 
-  const imageItems = model && dataset && classId && datasetImagesStructure?.[classId]
+  options['image'] = (model && dataset && classId && datasetImagesStructure?.[classId])
   ? Object.entries(datasetImagesStructure[classId]).map(([id, filename]) => ({
       value: id,
       label: `${id} — ${filename}`,
@@ -178,12 +184,19 @@ const handleDatasetSelect = (value) => {
   setDataset(value);
   setClassId(null);
   setImageId(null);
+  setDatasetLabels(null);
   resetImageData();
 
   fetch(`/${value}/${value}_structure.json`)
     .then(r => r.json())
     .then(setDatasetImagesStructure)
     .catch(err => console.error('Error loading dataset structure:', err));
+
+  //TODO: Generalize for other datasets
+  fetch("/imagenet-mini/imagenet-1k-id2label.json")
+    .then(r => r.json())
+    .then(setDatasetLabels)
+    .catch(err => console.error('Error loading dataset labels:', err));
 };
 
 const handleClassSelect = (value) => {
@@ -261,14 +274,14 @@ const handleClassSelect = (value) => {
               value={classId}
               items={options['class']}
               onSelect={handleClassSelect}
-              placeholder="Search class…"
-              disabled={!model || !dataset}
+              placeholder={datasetLabels ? "Search class…" : "Loading labels…"}
+              disabled={!model || !dataset || !datasetLabels}
             />
 
             <SearchableSelect
               label="Image:"
               value={imageId}
-              items={imageItems}
+              items={options['image']}
               onSelect={handleImageSelect}
               placeholder="Search image id / filename…"
               disabled={!classId}
