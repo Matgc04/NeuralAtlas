@@ -27,7 +27,6 @@ function ImageGallery({ imageData }) {
         <div className="image-card image-card--featured" style={{ "--delay": "80ms" }}>
           <div className="image-card__header">
             <h3>Original Image</h3>
-            <span className="badge">Original</span>
           </div>
           <img className="image-card__image" src={imageData.original} alt="Original selection" />
         </div>
@@ -35,7 +34,6 @@ function ImageGallery({ imageData }) {
           <div key={method} className="image-card" style={{ "--delay": `${160 + index * 80}ms` }}>
             <div className="image-card__header">
               <h3>{method}</h3>
-              <span className="badge badge--muted">Explanation</span>
             </div>
             <img className="image-card__image" src={url} alt={`${method} explanation`} />
           </div>
@@ -215,7 +213,7 @@ const handleClassSelect = (value) => {
   const outputs = Object.fromEntries(
     Object.keys(methods).map((method) => [
       method,
-      `/outputs/${model}/${dataset}/${classId}/${method}/${value}.jpg`,
+      `/outputs/${model}/${dataset}/${classId}/${method}/${value}.webp`,
     ])
   );
 
