@@ -1,42 +1,42 @@
 {
     "0": [
-        "ILSVRC2012_val_00030740.JPEG",
-        "ILSVRC2012_val_00046252.JPEG"
+        "ILSVRC2012_val_00030740.webp",
+        "ILSVRC2012_val_00046252.webp"
     ],
     "1": [
-        "ILSVRC2012_val_00000994.JPEG",
-        "ILSVRC2012_val_00020822.JPEG"
+        "ILSVRC2012_val_00000994.webp",
+        "ILSVRC2012_val_00020822.webp"
     ],
     "2": [
-        "ILSVRC2012_val_00030127.JPEG",
-        "ILSVRC2012_val_00039445.JPEG"
+        "ILSVRC2012_val_00030127.webp",
+        "ILSVRC2012_val_00039445.webp"
     ],
     "3": [
-        "ILSVRC2012_val_00007875.JPEG",
-        "ILSVRC2012_val_00015631.JPEG"
+        "ILSVRC2012_val_00007875.webp",
+        "ILSVRC2012_val_00015631.webp"
     ],
     "4": [
-        "ILSVRC2012_val_00027160.JPEG",
-        "ILSVRC2012_val_00034178.JPEG"
+        "ILSVRC2012_val_00027160.webp",
+        "ILSVRC2012_val_00034178.webp"
     ],
     "5": [
-        "ILSVRC2012_val_00007569.JPEG",
-        "ILSVRC2012_val_00037260.JPEG"
+        "ILSVRC2012_val_00007569.webp",
+        "ILSVRC2012_val_00037260.webp"
     ],
     "6": [
-        "ILSVRC2012_val_00013655.JPEG",
-        "ILSVRC2012_val_00032394.JPEG"
+        "ILSVRC2012_val_00013655.webp",
+        "ILSVRC2012_val_00032394.webp"
     ],
     "7": [
-        "ILSVRC2012_val_00019101.JPEG",
-        "ILSVRC2012_val_00048952.JPEG"
+        "ILSVRC2012_val_00019101.webp",
+        "ILSVRC2012_val_00048952.webp"
     ],
     "8": [
-        "ILSVRC2012_val_00014917.JPEG",
-        "ILSVRC2012_val_00048242.JPEG"
+        "ILSVRC2012_val_00014917.webp",
+        "ILSVRC2012_val_00048242.webp"
     ],
     "9": [
-        "ILSVRC2012_val_00034316.JPEG",
-        "ILSVRC2012_val_00048600.JPEG"
+        "ILSVRC2012_val_00034316.webp",
+        "ILSVRC2012_val_00048600.webp"
     ]
 }
