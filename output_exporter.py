@@ -1,48 +1,55 @@
-import os
 import json
-from typing import Dict, List
-
 from pathlib import Path
 
 
+def build_structure(records: list[dict[str, str]]) -> dict:
+    structure: dict = {"models": {}}
+
+    for record in records:
+        model = record["model"]
+        dataset = record["dataset"]
+        class_id = record["class_id"]
+        image_id = record["image_id"]
+        method = record["method"]
+        url = record["url"]
+
+        model_dict = structure["models"].setdefault(model, {"datasets": {}})
+        dataset_dict = model_dict["datasets"].setdefault(dataset, {"classes": {}})
+        class_dict = dataset_dict["classes"].setdefault(class_id, {"images": {}})
+        image_dict = class_dict["images"].setdefault(image_id, {"outputs": {}})
+        image_dict["outputs"][method] = url
+
+    return structure
+
+
+def _merge_outputs(existing: dict, new: dict) -> dict:
+    for key, value in new.items():
+        if key in existing and isinstance(existing[key], dict) and isinstance(value, dict):
+            _merge_outputs(existing[key], value)
+        else:
+            existing[key] = value
+    return existing
+
+
+def export_to_json(records: list[dict[str, str]], output_file: str | Path) -> None:
+    new_structure = build_structure(records)
+    output_path = Path(output_file)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if output_path.exists():
+        with output_path.open() as f:
+            existing = json.load(f)
+    else:
+        existing = {"models": {}}
+
+    merged = _merge_outputs(existing, new_structure)
+    with output_path.open("w") as f:
+        json.dump(merged, f, indent=2, sort_keys=True)
+
+
 class OutputExporter:
+    def build_structure(self, records: list[dict[str, str]]) -> dict:
+        return build_structure(records)
 
-    def __init__(self, output_dir: str):
-        self.output_dir = output_dir
-
-    def _build_structure(self) -> Dict[str, Dict[str, Dict[str, Dict[str, List[str]]]]]:
-        structure = {}
-
-        for root, _, files in os.walk(self.output_dir):
-            # Get relative path and split it into components
-            rel_path = os.path.relpath(root, self.output_dir)
-            if rel_path == ".":  # Ignore the root directory
-                continue
-
-            parts = rel_path.split(os.sep)
-            if (
-                len(parts) != 4
-            ):  # Only process method level (model/dataset/class/method)
-                continue
-
-            model, dataset, class_name, method = parts
-            images = sorted([f for f in files if (f.endswith(".jpg") or f.endswith(".webp"))])
-
-            # Build nested data structure
-            model_dict = structure.setdefault(model, {})
-            dataset_dict = model_dict.setdefault(dataset, {})
-            class_dict = dataset_dict.setdefault(class_name, {})
-            class_dict[method] = images
-
-        return structure
-
-    def export_to_json(self, output_file: str):
-        structure = self._build_structure()
-        with open(Path(self.output_dir) / Path(output_file), "w") as f:
-            json.dump(structure, f, indent=4)
-
-if __name__ == "__main__":
-    BASE_PATH = "interpretability-viewer/public/"
-    OUTPUT_PATH = BASE_PATH + "outputs"
-    exporter = OutputExporter(OUTPUT_PATH)
-    exporter.export_to_json("outputs_structure.json")
+    def export_to_json(self, records: list[dict[str, str]], output_file: str | Path) -> None:
+        export_to_json(records, output_file)

@@ -128,6 +128,8 @@ function ModelForm({outputStructure}) {
 
   console.log(outputStructure);
 
+  const modelsStructure = outputStructure?.models ?? {};
+
   const [model, setModel] = useState(null);
   const [dataset, setDataset] = useState(null);
   const [datasetImagesStructure, setDatasetImagesStructure] = useState(null);
@@ -151,11 +153,16 @@ function ModelForm({outputStructure}) {
     'image': []
   }
 
-  options['model'] = Object.keys(outputStructure);
-  options['dataset'] = model ? Object.keys(outputStructure[model]) : [];
+  options['model'] = Object.keys(modelsStructure);
+  options['dataset'] = model ? Object.keys(modelsStructure?.[model]?.datasets ?? {}) : [];
+
+  const classesStructure =
+    model && dataset
+      ? modelsStructure?.[model]?.datasets?.[dataset]?.classes ?? {}
+      : {};
   
-  options['class'] = (model && dataset && datasetImagesStructure && datasetLabels)
-    ? Object.keys(datasetImagesStructure)
+  options['class'] = (model && dataset && datasetLabels)
+    ? Object.keys(classesStructure)
       .filter((id) => datasetLabels[id] != null)
       .map((id) => ({
         value: id,
@@ -163,12 +170,19 @@ function ModelForm({outputStructure}) {
       }))
     : [];
 
-  options['image'] = (model && dataset && classId && datasetImagesStructure?.[classId])
-  ? Object.entries(datasetImagesStructure[classId]).map(([id, filename]) => ({
-      value: id,
-      label: `${id} — ${filename}`,
-    }))
-  : [];
+  const imagesStructure =
+    model && dataset && classId
+      ? classesStructure?.[classId]?.images ?? {}
+      : {};
+
+  options['image'] = (model && dataset && classId)
+    ? Object.keys(imagesStructure).map((id) => ({
+        value: id,
+        label: datasetImagesStructure?.[classId]?.[id]
+          ? `${id} — ${datasetImagesStructure[classId][id]}`
+          : `${id}`,
+      }))
+    : [];
 
   const handleModelSelect = (value) => {
     setModel(value);
@@ -209,13 +223,8 @@ const handleClassSelect = (value) => {
   const originalFilename = datasetImagesStructure?.[classId]?.[value];
   const original = `/${dataset}/val/${classId}/${originalFilename}`;
 
-  const methods = outputStructure?.[model]?.[dataset]?.[classId] ?? {};
-  const outputs = Object.fromEntries(
-    Object.keys(methods).map((method) => [
-      method,
-      `/outputs/${model}/${dataset}/${classId}/${method}/${value}.webp`,
-    ])
-  );
+  const outputs =
+    modelsStructure?.[model]?.datasets?.[dataset]?.classes?.[classId]?.images?.[value]?.outputs ?? {};
 
   setImageData({ original, outputs });
 };

@@ -57,9 +57,13 @@ class NeuralAtlas:
     def visualize(
         self,
         attributions: dict[str, List[TensorOrTupleOfTensorsGeneric]],
-        export_root_path: Path,
+        output_dir: Path,
+        model_name: str,
+        dataset_name: str,
+        base_url: str,
+        image_ext: str = "webp",
         **kwargs,
-    ) -> None:
+    ) -> list[dict[str, str]]:
         total_num_attributions = sum(
             [len(attr) for target in attributions.values() for attr in target.values()]
         )
@@ -68,9 +72,16 @@ class NeuralAtlas:
         DPI = 128
         SIDE_IN = OUT_PX / DPI
 
+        output_dir.mkdir(parents=True, exist_ok=True)
+        base_url = base_url.rstrip("/")
+        image_ext = image_ext.lstrip(".").lower()
+
+        records: list[dict[str, str]] = []
+
         with tqdm(total=total_num_attributions, desc="Plotting Attributions") as pbar:
             for target, interp_methods in attributions.items():
                 for interp_method, attr in interp_methods.items():
+                    method_name = str(interp_method)
                     attr = torch.cat(attr, dim=0)
                     for i, attr in enumerate(attr):
                         fig, ax = plt.subplots(figsize=(SIDE_IN, SIDE_IN), dpi=DPI)
@@ -83,17 +94,33 @@ class NeuralAtlas:
                         )
 
                         ax.axis("off")
-                        save_path = (
-                            export_root_path / Path(target) / Path(interp_method)
+                        class_id = str(target)
+                        image_id = str(i)
+
+                        filename = (
+                            f"{model_name}__{dataset_name}__{class_id}"
+                            f"__{image_id}__{method_name}.{image_ext}"
                         )
-                        save_path.mkdir(parents=True, exist_ok=True)
-                        fig.savefig(
-                            save_path / f"{i}.webp",
-                            format="webp",
-                            dpi=DPI,
-                            bbox_inches="tight",
-                            pad_inches=0,
-                            pil_kwargs={"quality": 95},
-                        )
+                        save_kwargs = {
+                            "format": image_ext,
+                            "dpi": DPI,
+                            "bbox_inches": "tight",
+                            "pad_inches": 0,
+                        }
+                        if image_ext in {"webp", "jpg", "jpeg"}:
+                            save_kwargs["pil_kwargs"] = {"quality": 95}
+
+                        fig.savefig(output_dir / filename, **save_kwargs)
                         plt.close()
+                        records.append(
+                            {
+                                "model": model_name,
+                                "dataset": dataset_name,
+                                "class_id": class_id,
+                                "image_id": image_id,
+                                "method": method_name,
+                                "url": f"{base_url}/{filename}",
+                            }
+                        )
                         pbar.update(1)
+        return records

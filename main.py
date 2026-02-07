@@ -35,8 +35,11 @@ DEVICE, DTYPE = (
 print(f"Using device: {DEVICE}, dtype: {DTYPE}")
 
 MODEL_NAME = "alexnet"
+DATASET_NAME = "imagenet-pico"
 BASE_PATH = "interpretability-viewer/public/"
-OUTPUT_PATH = BASE_PATH + "outputs"
+OUTPUT_IMAGES_DIR = BASE_PATH + "outputs/images"
+OUTPUT_STRUCTURE_PATH = BASE_PATH + "outputs/outputs_structure.json"
+IMAGE_EXT = "webp"
 
 num_samples = 20
 
@@ -60,7 +63,7 @@ transform = transforms.Compose(
         transforms.Lambda(lambda x: x.to(device=DEVICE, dtype=DTYPE)),
     ]
 )
-data = BASE_PATH + "imagenet-pico/val"
+data = BASE_PATH + f"{DATASET_NAME}/val"
 # data = datasets.CIFAR10(root='./data', train=True, download=True, transform=transform)
 
 pytorch_total_params = sum(p.numel() for p in model.parameters())
@@ -113,14 +116,18 @@ natlas = NeuralAtlas(
     transform=transform,
 )
 attributions = natlas.interpret(num_samples=num_samples)
-natlas.visualize(
+records = natlas.visualize(
     attributions,
-    Path(f"{OUTPUT_PATH}/{MODEL_NAME}/{'imagenet-pico'}"),
+    output_dir=Path(OUTPUT_IMAGES_DIR),
+    model_name=MODEL_NAME,
+    dataset_name=DATASET_NAME,
+    base_url="/outputs/images",
+    image_ext=IMAGE_EXT,
     method="heat_map",
     sign="absolute_value",
     cmap="jet",
     show_colorbar=True,
 )
 
-exporter = OutputExporter(OUTPUT_PATH)
-exporter.export_to_json("outputs_structure.json")
+exporter = OutputExporter()
+exporter.export_to_json(records, OUTPUT_STRUCTURE_PATH)
