@@ -1,4 +1,5 @@
 from attr_config import AttributionConfig
+from models.interp_resnet18 import InterpResnet18
 from neural_atlas import NeuralAtlas
 from output_exporter import OutputExporter
 
@@ -20,7 +21,8 @@ from captum.attr import (
     Saliency,
     IntegratedGradients,
     LayerGradCam,
-    LayerAttribution
+    LayerAttribution,
+    DeepLift
 )
 
 from pathlib import Path
@@ -96,9 +98,11 @@ def main() -> None:
     if not hasattr(models, args.model):
         raise SystemExit(f"Unknown model '{args.model}'.")
 
-    model = getattr(models, args.model)(weights="DEFAULT").to(
-        device=DEVICE, dtype=DTYPE
-    )
+    if args.model == "resnet18":
+        model = InterpResnet18(weights="DEFAULT").to(device=DEVICE, dtype=DTYPE)
+    else:
+        model = getattr(models, args.model)(weights="DEFAULT").to(device=DEVICE, dtype=DTYPE)
+
     model = nn.Sequential(
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
         model,
@@ -156,6 +160,10 @@ def main() -> None:
             interpolate_mode="bilinear",
         ).repeat(1, 3, 1, 1),
     )
+    deep_lift = AttributionConfig(
+        DeepLift,
+        baselines=torch.zeros(1, 3, 224, 224, device=DEVICE)
+    )
 
     interp_methods = [
         occlusion,
@@ -163,7 +171,8 @@ def main() -> None:
         gradient_shap,
         saliency,
         integrated_gradients,
-        layer_gradcam
+        layer_gradcam,
+        deep_lift
     ]
 
     if not args.recompute:
