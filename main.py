@@ -24,6 +24,8 @@ from captum.attr import (
     LayerAttribution,
     DeepLift,
     GuidedBackprop,
+    InputXGradient,
+    Deconvolution,
 )
 
 from pathlib import Path
@@ -168,6 +170,12 @@ def main() -> None:
     guided_backprop = AttributionConfig(
         GuidedBackprop,
     )
+    input_x_gradient = AttributionConfig(
+        InputXGradient,
+    )
+    deconvolution = AttributionConfig(
+        Deconvolution,
+    )
 
     interp_methods = [
         occlusion,
@@ -177,7 +185,9 @@ def main() -> None:
         integrated_gradients,
         layer_gradcam,
         deep_lift,
-        guided_backprop
+        guided_backprop,
+        input_x_gradient,
+        deconvolution,
     ]
 
     if not args.recompute:
