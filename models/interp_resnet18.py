@@ -1,7 +1,7 @@
 # interp_resnet18.py
 from __future__ import annotations
 
-from typing import Any, Mapping, Optional, TypeVar, Union
+from typing import Any, Optional, Union
 
 import torch
 from torch import nn
@@ -9,10 +9,8 @@ from torchvision.models.resnet import ResNet, conv3x3
 from torchvision.models.resnet import ResNet18_Weights
 
 
-V = TypeVar("V")
 
-def _overwrite_named_param_strict(kwargs: dict[str, Any], param: str, new_value: V) -> None:
-    # Match torchvision behavior: enforce, don't silently overwrite
+def _overwrite_named_param_strict(kwargs: dict[str, Any], param: str, new_value: object) -> None:
     if param in kwargs:
         if kwargs[param] != new_value:
             raise ValueError(

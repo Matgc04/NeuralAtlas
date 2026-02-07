@@ -22,7 +22,8 @@ from captum.attr import (
     IntegratedGradients,
     LayerGradCam,
     LayerAttribution,
-    DeepLift
+    DeepLift,
+    GuidedBackprop,
 )
 
 from pathlib import Path
@@ -164,6 +165,9 @@ def main() -> None:
         DeepLift,
         baselines=torch.zeros(1, 3, 224, 224, device=DEVICE)
     )
+    guided_backprop = AttributionConfig(
+        GuidedBackprop,
+    )
 
     interp_methods = [
         occlusion,
@@ -172,7 +176,8 @@ def main() -> None:
         saliency,
         integrated_gradients,
         layer_gradcam,
-        deep_lift
+        deep_lift,
+        guided_backprop
     ]
 
     if not args.recompute:
