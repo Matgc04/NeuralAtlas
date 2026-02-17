@@ -16,6 +16,7 @@
                     "InputXGradient": "/outputs/images/alexnet__imagenet-pico__0__0__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/alexnet__imagenet-pico__0__0__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/alexnet__imagenet-pico__0__0__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/alexnet__imagenet-pico__0__0__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/alexnet__imagenet-pico__0__0__Occlusion.webp",
                     "Saliency": "/outputs/images/alexnet__imagenet-pico__0__0__Saliency.webp"
                   }
@@ -30,6 +31,7 @@
                     "InputXGradient": "/outputs/images/alexnet__imagenet-pico__0__1__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/alexnet__imagenet-pico__0__1__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/alexnet__imagenet-pico__0__1__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/alexnet__imagenet-pico__0__1__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/alexnet__imagenet-pico__0__1__Occlusion.webp",
                     "Saliency": "/outputs/images/alexnet__imagenet-pico__0__1__Saliency.webp"
                   }
@@ -48,6 +50,7 @@
                     "InputXGradient": "/outputs/images/alexnet__imagenet-pico__1__0__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/alexnet__imagenet-pico__1__0__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/alexnet__imagenet-pico__1__0__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/alexnet__imagenet-pico__1__0__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/alexnet__imagenet-pico__1__0__Occlusion.webp",
                     "Saliency": "/outputs/images/alexnet__imagenet-pico__1__0__Saliency.webp"
                   }
@@ -62,6 +65,7 @@
                     "InputXGradient": "/outputs/images/alexnet__imagenet-pico__1__1__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/alexnet__imagenet-pico__1__1__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/alexnet__imagenet-pico__1__1__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/alexnet__imagenet-pico__1__1__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/alexnet__imagenet-pico__1__1__Occlusion.webp",
                     "Saliency": "/outputs/images/alexnet__imagenet-pico__1__1__Saliency.webp"
                   }
@@ -80,6 +84,7 @@
                     "InputXGradient": "/outputs/images/alexnet__imagenet-pico__2__0__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/alexnet__imagenet-pico__2__0__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/alexnet__imagenet-pico__2__0__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/alexnet__imagenet-pico__2__0__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/alexnet__imagenet-pico__2__0__Occlusion.webp",
                     "Saliency": "/outputs/images/alexnet__imagenet-pico__2__0__Saliency.webp"
                   }
@@ -94,6 +99,7 @@
                     "InputXGradient": "/outputs/images/alexnet__imagenet-pico__2__1__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/alexnet__imagenet-pico__2__1__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/alexnet__imagenet-pico__2__1__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/alexnet__imagenet-pico__2__1__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/alexnet__imagenet-pico__2__1__Occlusion.webp",
                     "Saliency": "/outputs/images/alexnet__imagenet-pico__2__1__Saliency.webp"
                   }
@@ -112,6 +118,7 @@
                     "InputXGradient": "/outputs/images/alexnet__imagenet-pico__3__0__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/alexnet__imagenet-pico__3__0__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/alexnet__imagenet-pico__3__0__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/alexnet__imagenet-pico__3__0__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/alexnet__imagenet-pico__3__0__Occlusion.webp",
                     "Saliency": "/outputs/images/alexnet__imagenet-pico__3__0__Saliency.webp"
                   }
@@ -126,6 +133,7 @@
                     "InputXGradient": "/outputs/images/alexnet__imagenet-pico__3__1__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/alexnet__imagenet-pico__3__1__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/alexnet__imagenet-pico__3__1__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/alexnet__imagenet-pico__3__1__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/alexnet__imagenet-pico__3__1__Occlusion.webp",
                     "Saliency": "/outputs/images/alexnet__imagenet-pico__3__1__Saliency.webp"
                   }
@@ -144,6 +152,7 @@
                     "InputXGradient": "/outputs/images/alexnet__imagenet-pico__4__0__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/alexnet__imagenet-pico__4__0__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/alexnet__imagenet-pico__4__0__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/alexnet__imagenet-pico__4__0__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/alexnet__imagenet-pico__4__0__Occlusion.webp",
                     "Saliency": "/outputs/images/alexnet__imagenet-pico__4__0__Saliency.webp"
                   }
@@ -158,6 +167,7 @@
                     "InputXGradient": "/outputs/images/alexnet__imagenet-pico__4__1__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/alexnet__imagenet-pico__4__1__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/alexnet__imagenet-pico__4__1__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/alexnet__imagenet-pico__4__1__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/alexnet__imagenet-pico__4__1__Occlusion.webp",
                     "Saliency": "/outputs/images/alexnet__imagenet-pico__4__1__Saliency.webp"
                   }
@@ -176,6 +186,7 @@
                     "InputXGradient": "/outputs/images/alexnet__imagenet-pico__5__0__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/alexnet__imagenet-pico__5__0__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/alexnet__imagenet-pico__5__0__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/alexnet__imagenet-pico__5__0__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/alexnet__imagenet-pico__5__0__Occlusion.webp",
                     "Saliency": "/outputs/images/alexnet__imagenet-pico__5__0__Saliency.webp"
                   }
@@ -190,6 +201,7 @@
                     "InputXGradient": "/outputs/images/alexnet__imagenet-pico__5__1__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/alexnet__imagenet-pico__5__1__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/alexnet__imagenet-pico__5__1__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/alexnet__imagenet-pico__5__1__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/alexnet__imagenet-pico__5__1__Occlusion.webp",
                     "Saliency": "/outputs/images/alexnet__imagenet-pico__5__1__Saliency.webp"
                   }
@@ -208,6 +220,7 @@
                     "InputXGradient": "/outputs/images/alexnet__imagenet-pico__6__0__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/alexnet__imagenet-pico__6__0__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/alexnet__imagenet-pico__6__0__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/alexnet__imagenet-pico__6__0__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/alexnet__imagenet-pico__6__0__Occlusion.webp",
                     "Saliency": "/outputs/images/alexnet__imagenet-pico__6__0__Saliency.webp"
                   }
@@ -222,6 +235,7 @@
                     "InputXGradient": "/outputs/images/alexnet__imagenet-pico__6__1__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/alexnet__imagenet-pico__6__1__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/alexnet__imagenet-pico__6__1__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/alexnet__imagenet-pico__6__1__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/alexnet__imagenet-pico__6__1__Occlusion.webp",
                     "Saliency": "/outputs/images/alexnet__imagenet-pico__6__1__Saliency.webp"
                   }
@@ -240,6 +254,7 @@
                     "InputXGradient": "/outputs/images/alexnet__imagenet-pico__7__0__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/alexnet__imagenet-pico__7__0__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/alexnet__imagenet-pico__7__0__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/alexnet__imagenet-pico__7__0__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/alexnet__imagenet-pico__7__0__Occlusion.webp",
                     "Saliency": "/outputs/images/alexnet__imagenet-pico__7__0__Saliency.webp"
                   }
@@ -254,6 +269,7 @@
                     "InputXGradient": "/outputs/images/alexnet__imagenet-pico__7__1__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/alexnet__imagenet-pico__7__1__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/alexnet__imagenet-pico__7__1__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/alexnet__imagenet-pico__7__1__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/alexnet__imagenet-pico__7__1__Occlusion.webp",
                     "Saliency": "/outputs/images/alexnet__imagenet-pico__7__1__Saliency.webp"
                   }
@@ -272,6 +288,7 @@
                     "InputXGradient": "/outputs/images/alexnet__imagenet-pico__8__0__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/alexnet__imagenet-pico__8__0__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/alexnet__imagenet-pico__8__0__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/alexnet__imagenet-pico__8__0__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/alexnet__imagenet-pico__8__0__Occlusion.webp",
                     "Saliency": "/outputs/images/alexnet__imagenet-pico__8__0__Saliency.webp"
                   }
@@ -286,6 +303,7 @@
                     "InputXGradient": "/outputs/images/alexnet__imagenet-pico__8__1__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/alexnet__imagenet-pico__8__1__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/alexnet__imagenet-pico__8__1__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/alexnet__imagenet-pico__8__1__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/alexnet__imagenet-pico__8__1__Occlusion.webp",
                     "Saliency": "/outputs/images/alexnet__imagenet-pico__8__1__Saliency.webp"
                   }
@@ -304,6 +322,7 @@
                     "InputXGradient": "/outputs/images/alexnet__imagenet-pico__9__0__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/alexnet__imagenet-pico__9__0__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/alexnet__imagenet-pico__9__0__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/alexnet__imagenet-pico__9__0__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/alexnet__imagenet-pico__9__0__Occlusion.webp",
                     "Saliency": "/outputs/images/alexnet__imagenet-pico__9__0__Saliency.webp"
                   }
@@ -318,6 +337,7 @@
                     "InputXGradient": "/outputs/images/alexnet__imagenet-pico__9__1__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/alexnet__imagenet-pico__9__1__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/alexnet__imagenet-pico__9__1__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/alexnet__imagenet-pico__9__1__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/alexnet__imagenet-pico__9__1__Occlusion.webp",
                     "Saliency": "/outputs/images/alexnet__imagenet-pico__9__1__Saliency.webp"
                   }
@@ -344,6 +364,7 @@
                     "InputXGradient": "/outputs/images/resnet18__imagenet-pico__0__0__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/resnet18__imagenet-pico__0__0__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/resnet18__imagenet-pico__0__0__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/resnet18__imagenet-pico__0__0__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/resnet18__imagenet-pico__0__0__Occlusion.webp",
                     "Saliency": "/outputs/images/resnet18__imagenet-pico__0__0__Saliency.webp"
                   }
@@ -358,6 +379,7 @@
                     "InputXGradient": "/outputs/images/resnet18__imagenet-pico__0__1__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/resnet18__imagenet-pico__0__1__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/resnet18__imagenet-pico__0__1__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/resnet18__imagenet-pico__0__1__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/resnet18__imagenet-pico__0__1__Occlusion.webp",
                     "Saliency": "/outputs/images/resnet18__imagenet-pico__0__1__Saliency.webp"
                   }
@@ -376,6 +398,7 @@
                     "InputXGradient": "/outputs/images/resnet18__imagenet-pico__1__0__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/resnet18__imagenet-pico__1__0__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/resnet18__imagenet-pico__1__0__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/resnet18__imagenet-pico__1__0__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/resnet18__imagenet-pico__1__0__Occlusion.webp",
                     "Saliency": "/outputs/images/resnet18__imagenet-pico__1__0__Saliency.webp"
                   }
@@ -390,6 +413,7 @@
                     "InputXGradient": "/outputs/images/resnet18__imagenet-pico__1__1__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/resnet18__imagenet-pico__1__1__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/resnet18__imagenet-pico__1__1__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/resnet18__imagenet-pico__1__1__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/resnet18__imagenet-pico__1__1__Occlusion.webp",
                     "Saliency": "/outputs/images/resnet18__imagenet-pico__1__1__Saliency.webp"
                   }
@@ -408,6 +432,7 @@
                     "InputXGradient": "/outputs/images/resnet18__imagenet-pico__2__0__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/resnet18__imagenet-pico__2__0__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/resnet18__imagenet-pico__2__0__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/resnet18__imagenet-pico__2__0__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/resnet18__imagenet-pico__2__0__Occlusion.webp",
                     "Saliency": "/outputs/images/resnet18__imagenet-pico__2__0__Saliency.webp"
                   }
@@ -422,6 +447,7 @@
                     "InputXGradient": "/outputs/images/resnet18__imagenet-pico__2__1__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/resnet18__imagenet-pico__2__1__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/resnet18__imagenet-pico__2__1__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/resnet18__imagenet-pico__2__1__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/resnet18__imagenet-pico__2__1__Occlusion.webp",
                     "Saliency": "/outputs/images/resnet18__imagenet-pico__2__1__Saliency.webp"
                   }
@@ -440,6 +466,7 @@
                     "InputXGradient": "/outputs/images/resnet18__imagenet-pico__3__0__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/resnet18__imagenet-pico__3__0__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/resnet18__imagenet-pico__3__0__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/resnet18__imagenet-pico__3__0__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/resnet18__imagenet-pico__3__0__Occlusion.webp",
                     "Saliency": "/outputs/images/resnet18__imagenet-pico__3__0__Saliency.webp"
                   }
@@ -454,6 +481,7 @@
                     "InputXGradient": "/outputs/images/resnet18__imagenet-pico__3__1__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/resnet18__imagenet-pico__3__1__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/resnet18__imagenet-pico__3__1__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/resnet18__imagenet-pico__3__1__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/resnet18__imagenet-pico__3__1__Occlusion.webp",
                     "Saliency": "/outputs/images/resnet18__imagenet-pico__3__1__Saliency.webp"
                   }
@@ -472,6 +500,7 @@
                     "InputXGradient": "/outputs/images/resnet18__imagenet-pico__4__0__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/resnet18__imagenet-pico__4__0__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/resnet18__imagenet-pico__4__0__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/resnet18__imagenet-pico__4__0__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/resnet18__imagenet-pico__4__0__Occlusion.webp",
                     "Saliency": "/outputs/images/resnet18__imagenet-pico__4__0__Saliency.webp"
                   }
@@ -486,6 +515,7 @@
                     "InputXGradient": "/outputs/images/resnet18__imagenet-pico__4__1__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/resnet18__imagenet-pico__4__1__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/resnet18__imagenet-pico__4__1__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/resnet18__imagenet-pico__4__1__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/resnet18__imagenet-pico__4__1__Occlusion.webp",
                     "Saliency": "/outputs/images/resnet18__imagenet-pico__4__1__Saliency.webp"
                   }
@@ -504,6 +534,7 @@
                     "InputXGradient": "/outputs/images/resnet18__imagenet-pico__5__0__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/resnet18__imagenet-pico__5__0__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/resnet18__imagenet-pico__5__0__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/resnet18__imagenet-pico__5__0__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/resnet18__imagenet-pico__5__0__Occlusion.webp",
                     "Saliency": "/outputs/images/resnet18__imagenet-pico__5__0__Saliency.webp"
                   }
@@ -518,6 +549,7 @@
                     "InputXGradient": "/outputs/images/resnet18__imagenet-pico__5__1__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/resnet18__imagenet-pico__5__1__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/resnet18__imagenet-pico__5__1__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/resnet18__imagenet-pico__5__1__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/resnet18__imagenet-pico__5__1__Occlusion.webp",
                     "Saliency": "/outputs/images/resnet18__imagenet-pico__5__1__Saliency.webp"
                   }
@@ -536,6 +568,7 @@
                     "InputXGradient": "/outputs/images/resnet18__imagenet-pico__6__0__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/resnet18__imagenet-pico__6__0__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/resnet18__imagenet-pico__6__0__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/resnet18__imagenet-pico__6__0__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/resnet18__imagenet-pico__6__0__Occlusion.webp",
                     "Saliency": "/outputs/images/resnet18__imagenet-pico__6__0__Saliency.webp"
                   }
@@ -550,6 +583,7 @@
                     "InputXGradient": "/outputs/images/resnet18__imagenet-pico__6__1__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/resnet18__imagenet-pico__6__1__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/resnet18__imagenet-pico__6__1__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/resnet18__imagenet-pico__6__1__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/resnet18__imagenet-pico__6__1__Occlusion.webp",
                     "Saliency": "/outputs/images/resnet18__imagenet-pico__6__1__Saliency.webp"
                   }
@@ -568,6 +602,7 @@
                     "InputXGradient": "/outputs/images/resnet18__imagenet-pico__7__0__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/resnet18__imagenet-pico__7__0__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/resnet18__imagenet-pico__7__0__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/resnet18__imagenet-pico__7__0__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/resnet18__imagenet-pico__7__0__Occlusion.webp",
                     "Saliency": "/outputs/images/resnet18__imagenet-pico__7__0__Saliency.webp"
                   }
@@ -582,6 +617,7 @@
                     "InputXGradient": "/outputs/images/resnet18__imagenet-pico__7__1__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/resnet18__imagenet-pico__7__1__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/resnet18__imagenet-pico__7__1__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/resnet18__imagenet-pico__7__1__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/resnet18__imagenet-pico__7__1__Occlusion.webp",
                     "Saliency": "/outputs/images/resnet18__imagenet-pico__7__1__Saliency.webp"
                   }
@@ -600,6 +636,7 @@
                     "InputXGradient": "/outputs/images/resnet18__imagenet-pico__8__0__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/resnet18__imagenet-pico__8__0__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/resnet18__imagenet-pico__8__0__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/resnet18__imagenet-pico__8__0__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/resnet18__imagenet-pico__8__0__Occlusion.webp",
                     "Saliency": "/outputs/images/resnet18__imagenet-pico__8__0__Saliency.webp"
                   }
@@ -614,6 +651,7 @@
                     "InputXGradient": "/outputs/images/resnet18__imagenet-pico__8__1__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/resnet18__imagenet-pico__8__1__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/resnet18__imagenet-pico__8__1__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/resnet18__imagenet-pico__8__1__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/resnet18__imagenet-pico__8__1__Occlusion.webp",
                     "Saliency": "/outputs/images/resnet18__imagenet-pico__8__1__Saliency.webp"
                   }
@@ -632,6 +670,7 @@
                     "InputXGradient": "/outputs/images/resnet18__imagenet-pico__9__0__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/resnet18__imagenet-pico__9__0__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/resnet18__imagenet-pico__9__0__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/resnet18__imagenet-pico__9__0__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/resnet18__imagenet-pico__9__0__Occlusion.webp",
                     "Saliency": "/outputs/images/resnet18__imagenet-pico__9__0__Saliency.webp"
                   }
@@ -646,6 +685,7 @@
                     "InputXGradient": "/outputs/images/resnet18__imagenet-pico__9__1__InputXGradient.webp",
                     "IntegratedGradients": "/outputs/images/resnet18__imagenet-pico__9__1__IntegratedGradients.webp",
                     "LayerGradCam": "/outputs/images/resnet18__imagenet-pico__9__1__LayerGradCam.webp",
+                    "LayerIntegratedGradients": "/outputs/images/resnet18__imagenet-pico__9__1__LayerIntegratedGradients.webp",
                     "Occlusion": "/outputs/images/resnet18__imagenet-pico__9__1__Occlusion.webp",
                     "Saliency": "/outputs/images/resnet18__imagenet-pico__9__1__Saliency.webp"
                   }

@@ -1,5 +1,6 @@
 from attr_config import AttributionConfig
 from models.interp_resnet18 import InterpResnet18
+from models.interp_utils import disable_inplace_relu
 from neural_atlas import NeuralAtlas
 from output_exporter import OutputExporter
 
@@ -20,6 +21,7 @@ from captum.attr import (
     GradientShap,
     Saliency,
     IntegratedGradients,
+    LayerIntegratedGradients,
     LayerGradCam,
     LayerAttribution,
     DeepLift,
@@ -106,6 +108,8 @@ def main() -> None:
     else:
         model = getattr(models, args.model)(weights="DEFAULT").to(device=DEVICE, dtype=DTYPE)
 
+    disable_inplace_relu(model)
+
     model = nn.Sequential(
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
         model,
@@ -165,7 +169,7 @@ def main() -> None:
     )
     deep_lift = AttributionConfig(
         DeepLift,
-        baselines=torch.zeros(1, 3, 224, 224, device=DEVICE)
+        baselines=torch.ones(1, 3, 224, 224, device=DEVICE)
     )
     guided_backprop = AttributionConfig(
         GuidedBackprop,
@@ -175,6 +179,17 @@ def main() -> None:
     )
     deconvolution = AttributionConfig(
         Deconvolution,
+    )
+    layer_integrated_gradients = AttributionConfig(
+        LayerIntegratedGradients,
+        layer=last_conv_layer,
+        baselines=torch.ones(1, 3, 224, 224, device=DEVICE),
+        attribute_to_layer_input=False,
+        callback=lambda attr: LayerAttribution.interpolate(
+            attr,
+            (224, 224),
+            interpolate_mode="bilinear",
+        ).repeat(1, 3, 1, 1)
     )
 
     interp_methods = [
@@ -188,6 +203,7 @@ def main() -> None:
         guided_backprop,
         input_x_gradient,
         deconvolution,
+        layer_integrated_gradients,
     ]
 
     if not args.recompute:
