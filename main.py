@@ -117,6 +117,7 @@ def main() -> None:
     )
 
     # Obtain the last convolutional layer
+    last_conv_layer = None
     for name, layer in model.named_modules():
         if isinstance(layer, nn.Conv2d):
             last_conv_layer = layer
