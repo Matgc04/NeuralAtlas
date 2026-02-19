@@ -1,6 +1,6 @@
 from attr_config import AttributionConfig
 from models.interp_resnet18 import InterpResnet18
-from models.interp_utils import disable_inplace_relu
+from models.interp_utils import disable_inplace_relu, to_rgb_heatmap
 from neural_atlas import NeuralAtlas
 from output_exporter import OutputExporter
 
@@ -156,7 +156,7 @@ def main() -> None:
     )
     integrated_gradients = AttributionConfig(
         IntegratedGradients,
-        n_steps=200,
+        n_steps=50,
     )
     layer_gradcam = AttributionConfig(
         LayerGradCam,
@@ -185,12 +185,10 @@ def main() -> None:
         LayerIntegratedGradients,
         layer=last_conv_layer,
         baselines=torch.ones(1, 3, 224, 224, device=DEVICE),
+        n_steps=50,                            
+        #internal_batch_size=1,
         attribute_to_layer_input=False,
-        callback=lambda attr: LayerAttribution.interpolate(
-            attr,
-            (224, 224),
-            interpolate_mode="bilinear",
-        ).repeat(1, 3, 1, 1)
+        callback=to_rgb_heatmap,
     )
 
     interp_methods = [

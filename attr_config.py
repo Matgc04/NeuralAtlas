@@ -19,6 +19,18 @@ class AttributionConfig:
         self.callback: _Callback = callback if callback is not None else cast(_Callback, lambda x: x)
         self.layer = self.config.pop("layer", None)
 
+        self._attributor: Attribution | None = None
+        self._bound_model_id: int | None = None
+
+    def _get_attributor(self, model: Module) -> Attribution:
+        mid = id(model)
+        if self._attributor is None or self._bound_model_id != mid:
+            self._attributor = self.attribution_class(
+                model,
+                **({"layer": self.layer} if self.layer else {}),
+            )
+            self._bound_model_id = mid
+        return self._attributor
 
     def attribute(
         self,
@@ -26,10 +38,7 @@ class AttributionConfig:
         inputs: TensorOrTupleOfTensorsGeneric,
         target: TargetType,
     ) -> TensorOrTupleOfTensorsGeneric:
-        attributor = self.attribution_class(
-            model,
-            **({"layer": self.layer} if self.layer else {}),
-        )
+        attributor = self._get_attributor(model)
 
         return self.callback(
             attributor.attribute(
