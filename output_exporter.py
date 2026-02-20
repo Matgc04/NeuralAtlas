@@ -1,4 +1,6 @@
 import json
+import os
+import tempfile
 from pathlib import Path
 
 
@@ -43,8 +45,21 @@ def export_to_json(records: list[dict[str, str]], output_file: str | Path) -> No
         existing = {"models": {}}
 
     merged = _merge_outputs(existing, new_structure)
-    with output_path.open("w") as f:
-        json.dump(merged, f, indent=2, sort_keys=True)
+
+    fd, temp_path = tempfile.mkstemp(
+        dir=output_path.parent,
+        prefix=f"{output_path.name}.",
+        suffix=".tmp",
+    )
+    try:
+        with os.fdopen(fd, "w") as temp_file:
+            json.dump(merged, temp_file, indent=2, sort_keys=True)
+        Path(temp_path).replace(output_path)
+    except Exception:
+        try:
+            Path(temp_path).unlink(missing_ok=True)
+        finally:
+            raise
 
 
 class OutputExporter:
