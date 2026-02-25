@@ -119,8 +119,11 @@ def build_interp_methods(
         GuidedBackprop,
         InputXGradient,
         Deconvolution,
+        Lime,
     )
     from attr_config import AttributionConfig
+    from models.interp_utils import make_superpixel_mask
+    from skimage.segmentation import slic, quickshift
     import torch
 
     occlusion = AttributionConfig(
@@ -168,6 +171,34 @@ def build_interp_methods(
     deconvolution = AttributionConfig(
         Deconvolution,
     )
+
+    def _make_lime_runtime_kwargs(mask_fn, **seg_kwargs):
+        def _runtime_kwargs(
+            inputs: TensorOrTupleOfTensorsGeneric, _target: object
+        ) -> dict[str, torch.Tensor]:
+            inputs_tensor = inputs[0] if isinstance(inputs, tuple) else inputs
+            if not isinstance(inputs_tensor, torch.Tensor):
+                raise TypeError(
+                    "Lime runtime kwargs expected tensor inputs or tuple[Tensor, ...], "
+                    f"got {type(inputs_tensor)}."
+                )
+            return {"feature_mask": make_superpixel_mask(mask_function=mask_fn, img=inputs_tensor, **seg_kwargs)}
+        return _runtime_kwargs
+
+    lime_slic = AttributionConfig(
+        Lime,
+        runtime_kwargs_fn=_make_lime_runtime_kwargs(slic, n_segments=100, compactness=10.0, start_label=0),
+        n_samples = 50,
+        suffix="(SLIC)"
+    )
+
+    lime_quickshift = AttributionConfig(
+        Lime,
+        runtime_kwargs_fn=_make_lime_runtime_kwargs(quickshift, kernel_size=8, max_dist=15, ratio=0.8),
+        n_samples = 50,
+        suffix="(Quickshift)"
+    )
+
     layer_integrated_gradients = AttributionConfig(
         LayerIntegratedGradients,
         layer=last_conv_layer,
@@ -177,6 +208,7 @@ def build_interp_methods(
         attribute_to_layer_input=False,
         callback=to_rgb_heatmap,
     )
+    
 
     return [
         occlusion,
@@ -189,6 +221,8 @@ def build_interp_methods(
         guided_backprop,
         input_x_gradient,
         deconvolution,
+        lime_slic,
+        lime_quickshift,
         layer_integrated_gradients,
     ]
 
@@ -207,7 +241,10 @@ def main() -> None:
     from torchvision import transforms
 
     from models.interp_resnet18 import InterpResnet18
-    from models.interp_utils import disable_inplace_relu, to_rgb_heatmap
+    from models.interp_utils import (
+        disable_inplace_relu,
+        to_rgb_heatmap,
+    )
     from neural_atlas import NeuralAtlas
     from output_exporter import OutputExporter
 

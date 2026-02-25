@@ -1,3 +1,5 @@
+from typing import Callable
+
 from torch import nn
 import torch
 from captum.attr import LayerAttribution
@@ -37,3 +39,17 @@ def to_rgb_heatmap(attr):
 
     # Make 3-channel for visualization code that expects RGB-like
     return attr.repeat(1, 3, 1, 1)  # [N,3,224,224]
+
+
+
+def make_superpixel_mask(mask_function: Callable, img: torch.Tensor, **kwargs) -> torch.Tensor:
+    """
+    img: (1, 3, H, W) float in [0,1] on CPU or GPU.
+    returns feature_mask: (1, 1, H, W) long on same device as img
+    """
+    # slic works on CPU numpy, so move a copy to CPU
+    img_np = img.detach().float().cpu().squeeze(0).permute(1, 2, 0).numpy()  # (H,W,3)
+
+    seg = mask_function(img_np, **kwargs)
+    seg_t = torch.from_numpy(seg).long().unsqueeze(0).unsqueeze(0)  # (1,1,H,W)
+    return seg_t.to(img.device)

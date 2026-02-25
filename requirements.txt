@@ -4,3 +4,5 @@ captum
 tqdm
 matplotlib
 Pillow
+scikit-image
+scikit-learn
