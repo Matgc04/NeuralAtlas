@@ -187,59 +187,84 @@ def build_interp_methods(
             return {"feature_mask": make_superpixel_mask(mask_function=mask_fn, img=inputs_tensor, **seg_kwargs)}
         return _runtime_kwargs
 
+    slic_medium = _make_superpixel_runtime_kwargs(
+        slic, n_segments=100, compactness=10.0, start_label=0
+    )
+    quickshift_medium = _make_superpixel_runtime_kwargs(
+        quickshift, kernel_size=8, max_dist=15, ratio=0.8
+    )
+    kmeans_medium = _make_superpixel_runtime_kwargs(
+        kmeans_superpixels,
+        n_clusters=16,
+        add_xy=True,
+        xy_weight=0.2,
+        random_state=0,
+        n_init=10,
+    )
+
     lime_slic = AttributionConfig(
         Lime,
-        runtime_kwargs_fn=_make_superpixel_runtime_kwargs(slic, n_segments=100, compactness=10.0, start_label=0),
+        runtime_kwargs_fn=slic_medium,
         n_samples = 50,
         suffix="(SLIC)"
     )
 
     lime_quickshift = AttributionConfig(
         Lime,
-        runtime_kwargs_fn=_make_superpixel_runtime_kwargs(quickshift, kernel_size=8, max_dist=15, ratio=0.8),
+        runtime_kwargs_fn=quickshift_medium,
         n_samples = 50,
         suffix="(Quickshift)"
     )
 
     lime_kmeans = AttributionConfig(
         Lime,
-        runtime_kwargs_fn=_make_superpixel_runtime_kwargs(
-            kmeans_superpixels,
-            n_clusters=16,
-            add_xy=True,
-            xy_weight=0.2,
-            random_state=0,
-            n_init=10,
-        ),
+        runtime_kwargs_fn=kmeans_medium,
         n_samples=50,
         suffix="(KMeans)",
     )
 
     kernel_shap_slic = AttributionConfig(
         KernelShap,
-        runtime_kwargs_fn=_make_superpixel_runtime_kwargs(slic, n_segments=100, compactness=10.0, start_label=0),
+        runtime_kwargs_fn=slic_medium,
         n_samples=50,
         suffix="(SLIC)",
     )
 
     kernel_shap_quickshift = AttributionConfig(
         KernelShap,
-        runtime_kwargs_fn=_make_superpixel_runtime_kwargs(quickshift, kernel_size=8, max_dist=15, ratio=0.8),
+        runtime_kwargs_fn=quickshift_medium,
         n_samples=50,
         suffix="(Quickshift)",
     )
 
     kernel_shap_kmeans = AttributionConfig(
         KernelShap,
-        runtime_kwargs_fn=_make_superpixel_runtime_kwargs(
-            kmeans_superpixels,
-            n_clusters=16,
-            add_xy=True,
-            xy_weight=0.2,
-            random_state=0,
-            n_init=10,
-        ),
+        runtime_kwargs_fn=kmeans_medium,
         n_samples=50,
+        suffix="(KMeans)",
+    )
+
+    shapley_value_sampling_slic = AttributionConfig(
+        ShapleyValueSampling,
+        runtime_kwargs_fn=slic_medium,
+        n_samples=15,
+        perturbations_per_eval=8,
+        suffix="(SLIC)",
+    )
+
+    shapley_value_sampling_quickshift = AttributionConfig(
+        ShapleyValueSampling,
+        runtime_kwargs_fn=quickshift_medium,
+        n_samples=15,
+        perturbations_per_eval=8,
+        suffix="(Quickshift)",
+    )
+
+    shapley_value_sampling_kmeans = AttributionConfig(
+        ShapleyValueSampling,
+        runtime_kwargs_fn=kmeans_medium,
+        n_samples=15,
+        perturbations_per_eval=8,
         suffix="(KMeans)",
     )
 
@@ -271,6 +296,9 @@ def build_interp_methods(
         kernel_shap_slic,
         kernel_shap_quickshift,
         kernel_shap_kmeans,
+        shapley_value_sampling_slic,
+        shapley_value_sampling_quickshift,
+        shapley_value_sampling_kmeans,
         layer_integrated_gradients,
     ]
 
