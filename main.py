@@ -122,7 +122,7 @@ def build_interp_methods(
         Lime,
     )
     from attr_config import AttributionConfig
-    from models.interp_utils import make_superpixel_mask
+    from models.interp_utils import make_superpixel_mask, kmeans_superpixels
     from skimage.segmentation import slic, quickshift
     import torch
 
@@ -199,6 +199,20 @@ def build_interp_methods(
         suffix="(Quickshift)"
     )
 
+    lime_kmeans = AttributionConfig(
+        Lime,
+        runtime_kwargs_fn=_make_lime_runtime_kwargs(
+            kmeans_superpixels,
+            n_clusters=16,
+            add_xy=True,
+            xy_weight=0.2,
+            random_state=0,
+            n_init=10,
+        ),
+        n_samples=50,
+        suffix="(KMeans)",
+    )
+
     layer_integrated_gradients = AttributionConfig(
         LayerIntegratedGradients,
         layer=last_conv_layer,
@@ -223,6 +237,7 @@ def build_interp_methods(
         deconvolution,
         lime_slic,
         lime_quickshift,
+        lime_kmeans,
         layer_integrated_gradients,
     ]
 
