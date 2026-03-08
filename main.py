@@ -393,8 +393,7 @@ def main() -> None:
         interp_methods = filtered_methods
 
     if not interp_methods:
-        print("No new methods to run; all outputs already computed.")
-        return
+        print("No new methods to run; exporting model predictions only.")
 
     natlas = NeuralAtlas(
         model,
@@ -404,7 +403,7 @@ def main() -> None:
     )
 
     exporter = OutputExporter()
-    records_buffer: list[dict[str, str]] = []
+    records_buffer: list[dict] = []
     buffered_images = 0
 
     for image_records in natlas.interpret_and_visualize_stream(

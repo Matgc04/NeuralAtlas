@@ -4,7 +4,7 @@ import tempfile
 from pathlib import Path
 
 
-def build_structure(records: list[dict[str, str]]) -> dict:
+def build_structure(records: list[dict]) -> dict:
     structure: dict = {"models": {}}
 
     for record in records:
@@ -12,14 +12,16 @@ def build_structure(records: list[dict[str, str]]) -> dict:
         dataset = record["dataset"]
         class_id = record["class_id"]
         image_id = record["image_id"]
-        method = record["method"]
-        url = record["url"]
 
         model_dict = structure["models"].setdefault(model, {"datasets": {}})
         dataset_dict = model_dict["datasets"].setdefault(dataset, {"classes": {}})
         class_dict = dataset_dict["classes"].setdefault(class_id, {"images": {}})
         image_dict = class_dict["images"].setdefault(image_id, {"outputs": {}})
-        image_dict["outputs"][method] = url
+
+        if "method" in record:
+            image_dict["outputs"][record["method"]] = record["url"]
+        if "prediction" in record:
+            image_dict["prediction"] = record["prediction"]
 
     return structure
 
@@ -33,7 +35,7 @@ def _merge_outputs(existing: dict, new: dict) -> dict:
     return existing
 
 
-def export_to_json(records: list[dict[str, str]], output_file: str | Path) -> None:
+def export_to_json(records: list[dict], output_file: str | Path) -> None:
     new_structure = build_structure(records)
     output_path = Path(output_file)
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -63,8 +65,8 @@ def export_to_json(records: list[dict[str, str]], output_file: str | Path) -> No
 
 
 class OutputExporter:
-    def build_structure(self, records: list[dict[str, str]]) -> dict:
+    def build_structure(self, records: list[dict]) -> dict:
         return build_structure(records)
 
-    def export_to_json(self, records: list[dict[str, str]], output_file: str | Path) -> None:
+    def export_to_json(self, records: list[dict], output_file: str | Path) -> None:
         export_to_json(records, output_file)

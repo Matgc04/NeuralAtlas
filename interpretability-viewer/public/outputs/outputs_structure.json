@@ -28,6 +28,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/alexnet__imagenet-pico__0__0__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/alexnet__imagenet-pico__0__0__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__0__0__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "0"
                   }
                 },
                 "1": {
@@ -52,6 +55,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/alexnet__imagenet-pico__0__1__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/alexnet__imagenet-pico__0__1__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__0__1__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "0"
                   }
                 }
               }
@@ -80,6 +86,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/alexnet__imagenet-pico__1__0__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/alexnet__imagenet-pico__1__0__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__1__0__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "1"
                   }
                 },
                 "1": {
@@ -104,6 +113,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/alexnet__imagenet-pico__1__1__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/alexnet__imagenet-pico__1__1__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__1__1__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "1"
                   }
                 }
               }
@@ -132,6 +144,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/alexnet__imagenet-pico__2__0__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/alexnet__imagenet-pico__2__0__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__2__0__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "2"
                   }
                 },
                 "1": {
@@ -156,6 +171,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/alexnet__imagenet-pico__2__1__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/alexnet__imagenet-pico__2__1__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__2__1__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "147"
                   }
                 }
               }
@@ -184,6 +202,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/alexnet__imagenet-pico__3__0__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/alexnet__imagenet-pico__3__0__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__3__0__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "2"
                   }
                 },
                 "1": {
@@ -208,6 +229,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/alexnet__imagenet-pico__3__1__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/alexnet__imagenet-pico__3__1__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__3__1__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "4"
                   }
                 }
               }
@@ -236,6 +260,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/alexnet__imagenet-pico__4__0__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/alexnet__imagenet-pico__4__0__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__4__0__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "4"
                   }
                 },
                 "1": {
@@ -260,6 +287,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/alexnet__imagenet-pico__4__1__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/alexnet__imagenet-pico__4__1__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__4__1__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "3"
                   }
                 }
               }
@@ -288,6 +318,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/alexnet__imagenet-pico__5__0__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/alexnet__imagenet-pico__5__0__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__5__0__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "5"
                   }
                 },
                 "1": {
@@ -312,6 +345,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/alexnet__imagenet-pico__5__1__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/alexnet__imagenet-pico__5__1__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__5__1__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "973"
                   }
                 }
               }
@@ -340,6 +376,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/alexnet__imagenet-pico__6__0__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/alexnet__imagenet-pico__6__0__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__6__0__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "6"
                   }
                 },
                 "1": {
@@ -364,6 +403,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/alexnet__imagenet-pico__6__1__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/alexnet__imagenet-pico__6__1__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__6__1__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "6"
                   }
                 }
               }
@@ -392,6 +434,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/alexnet__imagenet-pico__7__0__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/alexnet__imagenet-pico__7__0__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__7__0__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "8"
                   }
                 },
                 "1": {
@@ -416,6 +461,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/alexnet__imagenet-pico__7__1__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/alexnet__imagenet-pico__7__1__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__7__1__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "8"
                   }
                 }
               }
@@ -444,6 +492,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/alexnet__imagenet-pico__8__0__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/alexnet__imagenet-pico__8__0__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__8__0__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "8"
                   }
                 },
                 "1": {
@@ -468,6 +519,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/alexnet__imagenet-pico__8__1__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/alexnet__imagenet-pico__8__1__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__8__1__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "8"
                   }
                 }
               }
@@ -496,6 +550,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/alexnet__imagenet-pico__9__0__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/alexnet__imagenet-pico__9__0__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__9__0__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "9"
                   }
                 },
                 "1": {
@@ -520,6 +577,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/alexnet__imagenet-pico__9__1__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/alexnet__imagenet-pico__9__1__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__9__1__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "561"
                   }
                 }
               }
@@ -556,6 +616,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/efficientnet_b0__imagenet-pico__0__0__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/efficientnet_b0__imagenet-pico__0__0__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__0__0__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "0"
                   }
                 },
                 "1": {
@@ -580,6 +643,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/efficientnet_b0__imagenet-pico__0__1__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/efficientnet_b0__imagenet-pico__0__1__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__0__1__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "0"
                   }
                 }
               }
@@ -608,6 +674,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/efficientnet_b0__imagenet-pico__1__0__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/efficientnet_b0__imagenet-pico__1__0__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__1__0__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "1"
                   }
                 },
                 "1": {
@@ -632,6 +701,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/efficientnet_b0__imagenet-pico__1__1__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/efficientnet_b0__imagenet-pico__1__1__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__1__1__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "1"
                   }
                 }
               }
@@ -660,6 +732,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/efficientnet_b0__imagenet-pico__2__0__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/efficientnet_b0__imagenet-pico__2__0__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__2__0__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "2"
                   }
                 },
                 "1": {
@@ -684,6 +759,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/efficientnet_b0__imagenet-pico__2__1__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/efficientnet_b0__imagenet-pico__2__1__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__2__1__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "2"
                   }
                 }
               }
@@ -712,6 +790,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/efficientnet_b0__imagenet-pico__3__0__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/efficientnet_b0__imagenet-pico__3__0__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__3__0__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "3"
                   }
                 },
                 "1": {
@@ -736,6 +817,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/efficientnet_b0__imagenet-pico__3__1__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/efficientnet_b0__imagenet-pico__3__1__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__3__1__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "3"
                   }
                 }
               }
@@ -764,6 +848,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/efficientnet_b0__imagenet-pico__4__0__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/efficientnet_b0__imagenet-pico__4__0__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__4__0__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "4"
                   }
                 },
                 "1": {
@@ -788,6 +875,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/efficientnet_b0__imagenet-pico__4__1__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/efficientnet_b0__imagenet-pico__4__1__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__4__1__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "913"
                   }
                 }
               }
@@ -816,6 +906,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/efficientnet_b0__imagenet-pico__5__0__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/efficientnet_b0__imagenet-pico__5__0__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__5__0__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "5"
                   }
                 },
                 "1": {
@@ -840,6 +933,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/efficientnet_b0__imagenet-pico__5__1__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/efficientnet_b0__imagenet-pico__5__1__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__5__1__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "6"
                   }
                 }
               }
@@ -868,6 +964,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/efficientnet_b0__imagenet-pico__6__0__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/efficientnet_b0__imagenet-pico__6__0__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__6__0__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "6"
                   }
                 },
                 "1": {
@@ -892,6 +991,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/efficientnet_b0__imagenet-pico__6__1__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/efficientnet_b0__imagenet-pico__6__1__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__6__1__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "6"
                   }
                 }
               }
@@ -920,6 +1022,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/efficientnet_b0__imagenet-pico__7__0__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/efficientnet_b0__imagenet-pico__7__0__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__7__0__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "8"
                   }
                 },
                 "1": {
@@ -944,6 +1049,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/efficientnet_b0__imagenet-pico__7__1__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/efficientnet_b0__imagenet-pico__7__1__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__7__1__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "8"
                   }
                 }
               }
@@ -972,6 +1080,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/efficientnet_b0__imagenet-pico__8__0__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/efficientnet_b0__imagenet-pico__8__0__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__8__0__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "8"
                   }
                 },
                 "1": {
@@ -996,6 +1107,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/efficientnet_b0__imagenet-pico__8__1__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/efficientnet_b0__imagenet-pico__8__1__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__8__1__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "8"
                   }
                 }
               }
@@ -1024,6 +1138,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/efficientnet_b0__imagenet-pico__9__0__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/efficientnet_b0__imagenet-pico__9__0__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__9__0__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "9"
                   }
                 },
                 "1": {
@@ -1048,6 +1165,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/efficientnet_b0__imagenet-pico__9__1__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/efficientnet_b0__imagenet-pico__9__1__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__9__1__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "9"
                   }
                 }
               }
@@ -1084,6 +1204,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/resnet18__imagenet-pico__0__0__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/resnet18__imagenet-pico__0__0__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__0__0__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "0"
                   }
                 },
                 "1": {
@@ -1108,6 +1231,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/resnet18__imagenet-pico__0__1__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/resnet18__imagenet-pico__0__1__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__0__1__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "0"
                   }
                 }
               }
@@ -1136,6 +1262,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/resnet18__imagenet-pico__1__0__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/resnet18__imagenet-pico__1__0__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__1__0__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "1"
                   }
                 },
                 "1": {
@@ -1160,6 +1289,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/resnet18__imagenet-pico__1__1__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/resnet18__imagenet-pico__1__1__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__1__1__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "1"
                   }
                 }
               }
@@ -1188,6 +1320,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/resnet18__imagenet-pico__2__0__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/resnet18__imagenet-pico__2__0__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__2__0__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "2"
                   }
                 },
                 "1": {
@@ -1212,6 +1347,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/resnet18__imagenet-pico__2__1__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/resnet18__imagenet-pico__2__1__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__2__1__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "2"
                   }
                 }
               }
@@ -1240,6 +1378,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/resnet18__imagenet-pico__3__0__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/resnet18__imagenet-pico__3__0__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__3__0__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "3"
                   }
                 },
                 "1": {
@@ -1264,6 +1405,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/resnet18__imagenet-pico__3__1__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/resnet18__imagenet-pico__3__1__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__3__1__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "150"
                   }
                 }
               }
@@ -1292,6 +1436,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/resnet18__imagenet-pico__4__0__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/resnet18__imagenet-pico__4__0__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__4__0__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "4"
                   }
                 },
                 "1": {
@@ -1316,6 +1463,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/resnet18__imagenet-pico__4__1__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/resnet18__imagenet-pico__4__1__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__4__1__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "3"
                   }
                 }
               }
@@ -1344,6 +1494,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/resnet18__imagenet-pico__5__0__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/resnet18__imagenet-pico__5__0__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__5__0__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "5"
                   }
                 },
                 "1": {
@@ -1368,6 +1521,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/resnet18__imagenet-pico__5__1__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/resnet18__imagenet-pico__5__1__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__5__1__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "329"
                   }
                 }
               }
@@ -1396,6 +1552,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/resnet18__imagenet-pico__6__0__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/resnet18__imagenet-pico__6__0__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__6__0__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "6"
                   }
                 },
                 "1": {
@@ -1420,6 +1579,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/resnet18__imagenet-pico__6__1__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/resnet18__imagenet-pico__6__1__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__6__1__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "6"
                   }
                 }
               }
@@ -1448,6 +1610,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/resnet18__imagenet-pico__7__0__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/resnet18__imagenet-pico__7__0__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__7__0__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "7"
                   }
                 },
                 "1": {
@@ -1472,6 +1637,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/resnet18__imagenet-pico__7__1__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/resnet18__imagenet-pico__7__1__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__7__1__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "8"
                   }
                 }
               }
@@ -1500,6 +1668,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/resnet18__imagenet-pico__8__0__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/resnet18__imagenet-pico__8__0__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__8__0__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "8"
                   }
                 },
                 "1": {
@@ -1524,6 +1695,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/resnet18__imagenet-pico__8__1__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/resnet18__imagenet-pico__8__1__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__8__1__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "8"
                   }
                 }
               }
@@ -1552,6 +1726,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/resnet18__imagenet-pico__9__0__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/resnet18__imagenet-pico__9__0__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__9__0__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "9"
                   }
                 },
                 "1": {
@@ -1576,6 +1753,9 @@
                     "ShapleyValueSampling (KMeans)": "/outputs/images/resnet18__imagenet-pico__9__1__ShapleyValueSampling (KMeans).webp",
                     "ShapleyValueSampling (Quickshift)": "/outputs/images/resnet18__imagenet-pico__9__1__ShapleyValueSampling (Quickshift).webp",
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__9__1__ShapleyValueSampling (SLIC).webp"
+                  },
+                  "prediction": {
+                    "predicted_class_id": "9"
                   }
                 }
               }

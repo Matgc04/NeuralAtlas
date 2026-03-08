@@ -59,12 +59,13 @@ function buildImageRecords(outputStructure, imgCache, lblCache) {
       for (const [classId, { images = {} }] of Object.entries(classes)) {
         const filenames = imgLookup[classId] ?? [];
         const classLabel = lblLookup[classId] ?? classId;
-        for (const [imageId, { outputs = {} }] of Object.entries(images)) {
+        for (const [imageId, { outputs = {}, prediction = null } = {}] of Object.entries(images)) {
           const filename = filenames[imageId] ?? null;
           records.push({
             model, dataset, classId, classLabel, imageId, filename,
             originalUrl: filename ? `/${dataset}/val/${classId}/${filename}` : null,
             outputs,
+            prediction,
           });
         }
       }
@@ -125,6 +126,23 @@ function MethodFigures({ method, outputs, imageId }) {
   return entries.map(([name, url]) => (
     <MiniImage key={name} caption={name} src={url} alt={`${name} for image ${imageId}`} />
   ));
+}
+
+function PredictionBadge({ prediction, classId, labels }) {
+  if (!prediction) return null;
+  const predId = prediction.predicted_class_id;
+  const predLabel = labels?.[predId] ?? `Class ${predId}`;
+  const isCorrect = String(predId) === String(classId);
+  return (
+    <div className={`prediction-badge prediction-badge--${isCorrect ? 'correct' : 'incorrect'}`}>
+      <span className="prediction-badge__icon">{isCorrect ? '\u2713' : '\u2717'}</span>
+      <span className="prediction-badge__text">
+        Predicted: <strong>{predLabel}</strong>
+        {' \u2014 '}
+        <em>{isCorrect ? 'Correct' : 'Incorrect'}</em>
+      </span>
+    </div>
+  );
 }
 
 function EmptyState({ title, description }) {
@@ -212,7 +230,7 @@ function SearchableSelect({ label, value, items, onSelect, placeholder, disabled
 
 /* ── View Components ────────────────────────────────────────── */
 
-function SingleImageGallery({ imageData }) {
+function SingleImageGallery({ imageData, labels }) {
   if (!imageData?.original) {
     return <EmptyState title="No image selected yet" description="Choose a model, dataset, class, and image to inspect." />;
   }
@@ -226,6 +244,7 @@ function SingleImageGallery({ imageData }) {
           <p>Original plus attribution maps grouped together.</p>
         </div>
       </div>
+      <PredictionBadge prediction={imageData.prediction} classId={imageData.classId} labels={labels} />
       <div className="gallery-grid">
         <div className="image-card image-card--featured" style={{ '--delay': '80ms' }}>
           <div className="image-card__header"><h3>Original Image</h3></div>
@@ -242,7 +261,7 @@ function SingleImageGallery({ imageData }) {
   );
 }
 
-function ModelGridView({ records, method, ready }) {
+function ModelGridView({ records, method, ready, labels }) {
   if (!ready) return <EmptyState title="Choose model and dataset" description="Select a model and dataset to browse many images at once." />;
   if (!records.length) return <EmptyState title="No images match your filters" description="Try a different class selection to widen the result set." />;
 
@@ -253,6 +272,7 @@ function ModelGridView({ records, method, ready }) {
           <header className="model-grid-card__meta">
             <h3>Class {record.classId} - {record.classLabel}</h3>
             <p>Image {record.imageId}{record.filename ? ` - ${record.filename}` : ''}</p>
+            <PredictionBadge prediction={record.prediction} classId={record.classId} labels={labels} />
           </header>
           <div className="model-grid-card__images">
             <MiniImage caption="Original" src={record.originalUrl} alt={`Original ${record.imageId}`} missingText="Original unavailable" />
@@ -264,7 +284,7 @@ function ModelGridView({ records, method, ready }) {
   );
 }
 
-function ClassCompareView({ matrix, method, ready }) {
+function ClassCompareView({ matrix, method, ready, labels }) {
   if (!ready) return <EmptyState title="Choose dataset and class" description="Pick a dataset and class to align the same image IDs across models." />;
   if (!matrix.rows.length) return <EmptyState title="No aligned rows found" description="No images are available for this class across the selected models." />;
 
@@ -280,6 +300,7 @@ function ClassCompareView({ matrix, method, ready }) {
         return (
           <div key={row.imageId} className="compare-row" style={style}>
             <article className="compare-cell compare-cell--original">
+              <PredictionBadge prediction={row.cells.find((c) => c.record?.prediction)?.record?.prediction} classId={row.classId} labels={labels} />
               <MiniImage caption={`Image ${row.imageId}`} src={origUrl} alt={`Original image ${row.imageId}`} missingText="Original unavailable" />
             </article>
             {row.cells.map((cell) => (
@@ -411,7 +432,12 @@ function ModelForm({ outputStructure }) {
       i.model === effectiveModel && i.dataset === effectiveDataset && i.classId === effectiveClassId && i.imageId === effectiveImageId
     );
     if (!r) return null;
-    return { original: r.originalUrl, outputs: Object.fromEntries(resolveMethodEntries(effectiveMethod, r.outputs)) };
+    return {
+      original: r.originalUrl,
+      outputs: Object.fromEntries(resolveMethodEntries(effectiveMethod, r.outputs)),
+      prediction: r.prediction,
+      classId: r.classId,
+    };
   }, [imageRecords, vs.mode, effectiveModel, effectiveDataset, effectiveClassId, effectiveImageId, effectiveMethod]);
 
   const modelGridRecords = useMemo(() => {
@@ -540,13 +566,13 @@ function ModelForm({ outputStructure }) {
 
         <SummaryStrip text={summaryText} />
 
-        {vs.mode === 'single' && <SingleImageGallery imageData={singleImageData} />}
+        {vs.mode === 'single' && <SingleImageGallery imageData={singleImageData} labels={lblCache[effectiveDataset]} />}
         {vs.mode === 'model_grid' && (
-          <ModelGridView records={modelGridRecords} method={effectiveMethod} ready={Boolean(effectiveModel && effectiveDataset)} />
+          <ModelGridView records={modelGridRecords} method={effectiveMethod} ready={Boolean(effectiveModel && effectiveDataset)} labels={lblCache[effectiveDataset]} />
         )}
         {vs.mode === 'class_compare' && (
           <ClassCompareView matrix={classCompareMatrix} method={effectiveMethod}
-            ready={Boolean(effectiveDataset && effectiveClassId)} />
+            ready={Boolean(effectiveDataset && effectiveClassId)} labels={lblCache[effectiveDataset]} />
         )}
       </main>
     </div>

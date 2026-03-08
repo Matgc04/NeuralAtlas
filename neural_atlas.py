@@ -1,6 +1,6 @@
 from attr_config import AttributionConfig
 
-from typing import Iterator, List, Union
+from typing import Iterator, List, TypeAlias, Union
 from collections import defaultdict
 
 import torch
@@ -13,6 +13,9 @@ from captum._utils.typing import Module, TensorOrTupleOfTensorsGeneric
 from tqdm.auto import tqdm
 from pathlib import Path
 import matplotlib.pyplot as plt
+
+PredictionPayload: TypeAlias = dict[str, str]
+ExportRecord: TypeAlias = dict[str, str | PredictionPayload]
 
 
 class NeuralAtlas:
@@ -47,8 +50,9 @@ class NeuralAtlas:
         method_name: str,
         base_url: str,
         image_ext: str,
+        prediction: PredictionPayload | None = None,
         **kwargs,
-    ) -> dict[str, str]:
+    ) -> ExportRecord:
         if not isinstance(attr, torch.Tensor):
             raise TypeError(
                 f"Expected attribution tensor for visualization, got {type(attr)}"
@@ -81,7 +85,7 @@ class NeuralAtlas:
         fig.savefig(output_dir / filename, **save_kwargs)
         plt.close(fig)
 
-        return {
+        record: ExportRecord = {
             "model": model_name,
             "dataset": dataset_name,
             "class_id": class_id,
@@ -89,11 +93,39 @@ class NeuralAtlas:
             "method": method_name,
             "url": f"{base_url}/{filename}",
         }
+        if prediction is not None:
+            record["prediction"] = prediction
+        return record
+
+    @staticmethod
+    def _serialize_prediction(model_output: object) -> PredictionPayload:
+        if isinstance(model_output, torch.Tensor):
+            logits = model_output
+        elif (
+            isinstance(model_output, (list, tuple))
+            and len(model_output) > 0
+            and isinstance(model_output[0], torch.Tensor)
+        ):
+            logits = model_output[0]
+        else:
+            raise TypeError(
+                "Expected model output tensor (or tuple/list with tensor first item), "
+                f"got {type(model_output)}."
+            )
+
+        if logits.ndim == 1:
+            logits = logits.unsqueeze(0)
+
+        sample_logits = logits[0].detach().cpu()
+        predicted_class_id = int(torch.argmax(sample_logits).item())
+        return {
+            "predicted_class_id": str(predicted_class_id),
+        }
 
     def interpret(
         self,
         num_samples: int = 1,
-    ) -> dict[str, List[TensorOrTupleOfTensorsGeneric]]:
+    ) -> dict:
         self.model.eval()
         self.dataloader = DataLoader(self.data, batch_size=1, shuffle=False)
         attributions = defaultdict(lambda: defaultdict(list))
@@ -114,14 +146,15 @@ class NeuralAtlas:
 
     def visualize(
         self,
-        attributions: dict[str, List[TensorOrTupleOfTensorsGeneric]],
+        attributions: dict,         
         output_dir: Path,
         model_name: str,
         dataset_name: str,
         base_url: str,
         image_ext: str = "webp",
+        predictions: dict[str, dict[str, PredictionPayload]] | None = None,
         **kwargs,
-    ) -> list[dict[str, str]]:
+    ) -> list[ExportRecord]:
         total_num_attributions = sum(
             [len(attr) for target in attributions.values() for attr in target.values()]
         )
@@ -130,7 +163,7 @@ class NeuralAtlas:
         base_url = base_url.rstrip("/")
         image_ext = image_ext.lstrip(".").lower()
 
-        records: list[dict[str, str]] = []
+        records: list[ExportRecord] = []
 
         with tqdm(total=total_num_attributions, desc="Plotting Attributions") as pbar:
             for target, interp_methods in attributions.items():
@@ -149,6 +182,11 @@ class NeuralAtlas:
                                 method_name=method_name,
                                 base_url=base_url,
                                 image_ext=image_ext,
+                                prediction=(
+                                    predictions.get(str(target), {}).get(str(i))
+                                    if predictions
+                                    else None
+                                ),
                                 **kwargs,
                             )
                         )
@@ -164,7 +202,7 @@ class NeuralAtlas:
         base_url: str,
         image_ext: str = "webp",
         **kwargs,
-    ) -> Iterator[list[dict[str, str]]]:
+    ) -> Iterator[list[ExportRecord]]:
         self.model.eval()
         self.dataloader = DataLoader(self.data, batch_size=1, shuffle=False)
 
@@ -180,11 +218,24 @@ class NeuralAtlas:
                     break
 
                 target = target.to(inputs.device)
-                inputs.requires_grad = True
 
                 class_id = str(target.item())
                 image_id = str(class_image_counters[class_id])
-                image_records: list[dict[str, str]] = []
+
+                with torch.no_grad():
+                    prediction = self._serialize_prediction(self.model(inputs))
+
+                image_records: list[ExportRecord] = [
+                    {
+                        "model": model_name,
+                        "dataset": dataset_name,
+                        "class_id": class_id,
+                        "image_id": image_id,
+                        "prediction": prediction,
+                    }
+                ]
+
+                inputs.requires_grad = True
 
                 with tqdm(self.interp_methods, leave=False) as method_pbar:
                     for interp_method in method_pbar:
@@ -210,6 +261,7 @@ class NeuralAtlas:
                                 method_name=method_name,
                                 base_url=base_url,
                                 image_ext=image_ext,
+                                prediction=prediction,
                                 **kwargs,
                             )
                         )
