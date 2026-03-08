@@ -109,13 +109,23 @@ function getClassCompareMatrix(records, { dataset, classId, method }) {
 
 /* ── Reusable UI Components ─────────────────────────────────── */
 
-function MiniImage({ caption, src, alt, missingText = 'Not available' }) {
+const COLORBAR_SRC = '/outputs/master_colorbar_jet.webp';
+
+function MiniImage({
+  caption,
+  src,
+  alt,
+  missingText = 'Not available',
+  showColorbar = false,
+  variant = 'attribution',
+}) {
   return (
     <figure className="mini-image">
       <figcaption>{caption}</figcaption>
       {src
-        ? <img src={src} alt={alt} loading="lazy" />
+        ? <img className={`mini-image__asset mini-image__asset--${variant}`} src={src} alt={alt} loading="lazy" />
         : <div className="mini-image__missing">{missingText}</div>}
+      {showColorbar && src && <img className="colorbar" src={COLORBAR_SRC} alt="" />}
     </figure>
   );
 }
@@ -124,7 +134,7 @@ function MethodFigures({ method, outputs, imageId }) {
   const entries = resolveMethodEntries(method, outputs);
   if (!entries.length) return <MiniImage caption="Method not selected" missingText="—" />;
   return entries.map(([name, url]) => (
-    <MiniImage key={name} caption={name} src={url} alt={`${name} for image ${imageId}`} />
+    <MiniImage key={name} caption={name} src={url} alt={`${name} for image ${imageId}`} showColorbar />
   ));
 }
 
@@ -248,12 +258,13 @@ function SingleImageGallery({ imageData, labels }) {
       <div className="gallery-grid">
         <div className="image-card image-card--featured" style={{ '--delay': '80ms' }}>
           <div className="image-card__header"><h3>Original Image</h3></div>
-          <img className="image-card__image" src={imageData.original} alt="Original selection" />
+          <img className="image-card__image image-card__image--original" src={imageData.original} alt="Original selection" />
         </div>
         {outputs.map(([method, url]) => (
           <div key={method} className="image-card">
             <div className="image-card__header"><h3>{method}</h3></div>
-            <img className="image-card__image" src={url} alt={`${method} explanation`} loading="lazy" />
+            <img className="image-card__image image-card__image--attribution" src={url} alt={`${method} explanation`} loading="lazy" />
+            <img className="colorbar" src={COLORBAR_SRC} alt="" />
           </div>
         ))}
       </div>
@@ -275,7 +286,7 @@ function ModelGridView({ records, method, ready, labels }) {
             <PredictionBadge prediction={record.prediction} classId={record.classId} labels={labels} />
           </header>
           <div className="model-grid-card__images">
-            <MiniImage caption="Original" src={record.originalUrl} alt={`Original ${record.imageId}`} missingText="Original unavailable" />
+            <MiniImage caption="Original" src={record.originalUrl} alt={`Original ${record.imageId}`} missingText="Original unavailable" variant="original" />
             <MethodFigures method={method} outputs={record.outputs} imageId={record.imageId} />
           </div>
         </article>
@@ -300,11 +311,11 @@ function ClassCompareView({ matrix, method, ready, labels }) {
         return (
           <div key={row.imageId} className="compare-row" style={style}>
             <article className="compare-cell compare-cell--original">
-              <PredictionBadge prediction={row.cells.find((c) => c.record?.prediction)?.record?.prediction} classId={row.classId} labels={labels} />
-              <MiniImage caption={`Image ${row.imageId}`} src={origUrl} alt={`Original image ${row.imageId}`} missingText="Original unavailable" />
+              <MiniImage caption={`Image ${row.imageId}`} src={origUrl} alt={`Original image ${row.imageId}`} missingText="Original unavailable" variant="original" />
             </article>
             {row.cells.map((cell) => (
               <article key={`${row.imageId}__${cell.model}`} className="compare-cell" data-model={cell.model}>
+                <PredictionBadge prediction={cell.record?.prediction} classId={row.classId} labels={labels} />
                 <MethodFigures method={method} outputs={cell.record?.outputs ?? {}} imageId={row.imageId} />
               </article>
             ))}

@@ -416,7 +416,7 @@ def main() -> None:
         method="heat_map",
         sign="absolute_value",
         cmap="jet",
-        show_colorbar=True,
+        show_colorbar=False,
     ):
         records_buffer.extend(image_records)
         buffered_images += 1

@@ -1,6 +1,7 @@
 from attr_config import AttributionConfig
 
-from typing import Iterator, List, TypeAlias, Union
+from io import BytesIO
+from typing import Any, Iterator, List, TypeAlias, Union
 from collections import defaultdict
 
 import torch
@@ -13,14 +14,15 @@ from captum._utils.typing import Module, TensorOrTupleOfTensorsGeneric
 from tqdm.auto import tqdm
 from pathlib import Path
 import matplotlib.pyplot as plt
+from PIL import Image, ImageChops
 
 PredictionPayload: TypeAlias = dict[str, str]
 ExportRecord: TypeAlias = dict[str, str | PredictionPayload]
 
 
 class NeuralAtlas:
-    OUT_PX = 512
-    DPI = 128
+    OUT_PX = 224 
+    DPI = 112
     SIDE_IN = OUT_PX / DPI
 
     def __init__(
@@ -38,6 +40,49 @@ class NeuralAtlas:
         else:
             self.data = data
         self.interp_methods = interp_methods
+
+    @staticmethod
+    def _crop_uniform_background(image: Image.Image) -> Image.Image:
+        background_color = image.getpixel((0, 0))
+        background = Image.new(image.mode, image.size, background_color)
+        diff = ImageChops.difference(image, background)
+        bbox = diff.getbbox()
+        if bbox is None:
+            return image
+        return image.crop(bbox)
+
+    def _save_rendered_attr(
+        self,
+        fig: plt.Figure,
+        output_path: Path,
+        image_ext: str,
+    ) -> None:
+        with BytesIO() as buffer:
+            fig.savefig(
+                buffer,
+                format="png",
+                dpi=self.DPI,
+                bbox_inches=None,
+                pad_inches=0,
+            )
+            buffer.seek(0)
+            image = Image.open(buffer).convert("RGB").copy()
+
+        cropped_image = self._crop_uniform_background(image)
+
+        save_kwargs: dict[str, Any] = {"format": image_ext.upper()}
+        if image_ext == "webp":
+            save_kwargs.update({"quality": 85, "method": 6, "lossless": False})
+        elif image_ext in {"jpg", "jpeg"}:
+            save_kwargs.update(
+                {
+                    "quality": 85,
+                    "optimize": True,
+                    "progressive": True,
+                }
+            )
+
+        cropped_image.save(output_path, **save_kwargs)
 
     def _save_single_attr(
         self,
@@ -68,21 +113,18 @@ class NeuralAtlas:
         )
 
         ax.axis("off")
+        fig.patch.set_facecolor("white")
+        ax.set_facecolor("white")
 
         filename = (
             f"{model_name}__{dataset_name}__{class_id}"
             f"__{image_id}__{method_name}.{image_ext}"
         )
-        save_kwargs = {
-            "format": image_ext,
-            "dpi": self.DPI,
-            "bbox_inches": "tight",
-            "pad_inches": 0,
-        }
-        if image_ext in {"webp", "jpg", "jpeg"}:
-            save_kwargs["pil_kwargs"] = {"quality": 95}
-
-        fig.savefig(output_dir / filename, **save_kwargs)
+        self._save_rendered_attr(
+            fig=fig,
+            output_path=output_dir / filename,
+            image_ext=image_ext,
+        )
         plt.close(fig)
 
         record: ExportRecord = {

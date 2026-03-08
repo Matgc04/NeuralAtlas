@@ -432,19 +432,19 @@ body {
 
 .gallery-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(205px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 0.72rem;
 }
 
 .image-card {
-  padding: 0.5rem;
+  padding: 0;
   border-radius: 12px;
   border: none;
   background: var(--surface-strong);
   box-shadow: var(--shadow-soft);
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  overflow: hidden;
   animation: fade-in 550ms ease both;
   animation-delay: var(--delay, 0ms);
   transition: all 180ms ease;
@@ -460,6 +460,7 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 0.3rem;
+  padding: 0.5rem 0.5rem 0.25rem;
 }
 
 .image-card h3 {
@@ -470,13 +471,33 @@ body {
 }
 
 .image-card__image,
-.mini-image img {
+.mini-image__asset {
   width: 100%;
+  display: block;
+}
+
+.image-card__image--original,
+.mini-image__asset--original {
   aspect-ratio: 1;
   object-fit: contain;
-  border-radius: 6px;
+  border-radius: 0;
   background: #f7f4ee;
+}
+
+.image-card__image--attribution,
+.mini-image__asset--attribution {
+  height: auto;
+  object-fit: contain;
+  border-radius: 0;
+  background: transparent;
+}
+
+.colorbar {
+  width: 100%;
+  height: auto;
   display: block;
+  border-radius: 0;
+  margin-top: -2px;
 }
 
 .model-grid {
@@ -520,11 +541,11 @@ body {
   border: 1px solid var(--border);
   border-radius: 10px;
   background: var(--surface);
-  padding: 0.35rem;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
   min-height: 0;
+  overflow: hidden;
 }
 
 .mini-image figcaption {
@@ -533,6 +554,7 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--muted);
+  padding: 0.35rem 0.4rem 0.2rem;
 }
 
 
