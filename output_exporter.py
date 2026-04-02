@@ -35,6 +35,26 @@ def _merge_outputs(existing: dict, new: dict) -> dict:
     return existing
 
 
+def write_structure(structure: dict, output_file: str | Path) -> None:
+    output_path = Path(output_file)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    fd, temp_path = tempfile.mkstemp(
+        dir=output_path.parent,
+        prefix=f"{output_path.name}.",
+        suffix=".tmp",
+    )
+    try:
+        with os.fdopen(fd, "w") as temp_file:
+            json.dump(structure, temp_file, indent=2, sort_keys=True)
+        Path(temp_path).replace(output_path)
+    except Exception:
+        try:
+            Path(temp_path).unlink(missing_ok=True)
+        finally:
+            raise
+
+
 def export_to_json(records: list[dict], output_file: str | Path) -> None:
     new_structure = build_structure(records)
     output_path = Path(output_file)
@@ -47,22 +67,55 @@ def export_to_json(records: list[dict], output_file: str | Path) -> None:
         existing = {"models": {}}
 
     merged = _merge_outputs(existing, new_structure)
+    write_structure(merged, output_path)
 
-    fd, temp_path = tempfile.mkstemp(
-        dir=output_path.parent,
-        prefix=f"{output_path.name}.",
-        suffix=".tmp",
-    )
-    try:
-        with os.fdopen(fd, "w") as temp_file:
-            json.dump(merged, temp_file, indent=2, sort_keys=True)
-        Path(temp_path).replace(output_path)
-    except Exception:
-        try:
-            Path(temp_path).unlink(missing_ok=True)
-        finally:
-            raise
 
+def prune_stale_structure_outputs(
+    structure: dict,
+    model: str,
+    dataset: str,
+    image_ext: str,
+) -> int:
+    removed = 0
+    model_dict = structure.get("models", {}).get(model, {})
+    dataset_dict = model_dict.get("datasets", {}).get(dataset, {})
+    classes = dataset_dict.get("classes", {})
+
+    empty_images: list[str] = []
+    empty_classes: list[str] = []
+
+    for class_id, class_dict in classes.items():
+        images = class_dict.get("images", {})
+        empty_images.clear()
+
+        for image_id, image_dict in images.items():
+            outputs = image_dict.get("outputs", {})
+            stale_methods = [
+                method_name
+                for method_name, output_url in outputs.items()
+                if isinstance(output_url, str)
+                and not output_url.lower().endswith(f".{image_ext.lower()}")
+            ]
+            for method_name in stale_methods:
+                del outputs[method_name]
+                removed += 1
+
+            if not outputs:
+                image_dict.pop("outputs", None)
+
+            if not image_dict:
+                empty_images.append(image_id)
+
+        for image_id in empty_images:
+            del images[image_id]
+
+        if not images:
+            empty_classes.append(class_id)
+
+    for class_id in empty_classes:
+        del classes[class_id]
+
+    return removed
 
 class OutputExporter:
     def build_structure(self, records: list[dict]) -> dict:
@@ -70,3 +123,15 @@ class OutputExporter:
 
     def export_to_json(self, records: list[dict], output_file: str | Path) -> None:
         export_to_json(records, output_file)
+
+    def write_structure(self, structure: dict, output_file: str | Path) -> None:
+        write_structure(structure, output_file)
+
+    def prune_stale_structure_outputs(
+        self,
+        structure: dict,
+        model: str,
+        dataset: str,
+        image_ext: str,
+    ) -> int:
+        return prune_stale_structure_outputs(structure, model, dataset, image_ext)

@@ -32,7 +32,7 @@ DATASET_NAME = "imagenet-pico"
 BASE_PATH = "interpretability-viewer/public/"
 OUTPUT_IMAGES_DIR = BASE_PATH + "outputs/images"
 OUTPUT_STRUCTURE_PATH = BASE_PATH + "outputs/outputs_structure.json"
-IMAGE_EXT = "webp"
+DEFAULT_IMAGE_EXT = "avif"
 DEFAULT_NUM_SAMPLES = 20
 DEFAULT_EXPORT_BATCH_IMAGES = 5
 
@@ -67,6 +67,20 @@ def parse_args() -> argparse.Namespace:
             f"(default: {DEFAULT_EXPORT_BATCH_IMAGES})."
         ),
     )
+    parser.add_argument(
+        "--image-ext",
+        default=DEFAULT_IMAGE_EXT,
+        help=f"Image file extension (default: {DEFAULT_IMAGE_EXT}).",
+    )
+    parser.add_argument(
+        "--prune-stale-images",
+        default=False,
+        action="store_true",
+        help=(
+            "Delete generated image files and JSON output references for the active "
+            "model/dataset that do not match --image-ext."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -81,7 +95,13 @@ def load_outputs_structure(path: str | Path) -> dict:
         return {"models": {}}
 
 
-def count_method_outputs(structure: dict, model: str, dataset: str, method: str) -> int:
+def count_method_outputs(
+    structure: dict,
+    model: str,
+    dataset: str,
+    method: str,
+    image_ext: str,
+) -> int:
     count = 0
     model_dict = structure.get("models", {}).get(model, {})
     dataset_dict = model_dict.get("datasets", {}).get(dataset, {})
@@ -90,9 +110,36 @@ def count_method_outputs(structure: dict, model: str, dataset: str, method: str)
         images = class_dict.get("images", {})
         for image_dict in images.values():
             outputs = image_dict.get("outputs", {})
-            if method in outputs:
+            output_url = outputs.get(method)
+            if isinstance(output_url, str) and output_url.lower().endswith(f".{image_ext.lower()}"):
                 count += 1
     return count
+
+
+
+def prune_stale_image_files(
+    output_dir: Path,
+    model: str,
+    dataset: str,
+    image_ext: str,
+) -> int:
+    target_ext = f".{image_ext.lower()}"
+    prefix = f"{model}__{dataset}__"
+    removed = 0
+
+    if not output_dir.exists():
+        return 0
+
+    for path in output_dir.iterdir():
+        if (
+            path.is_file()
+            and path.name.startswith(prefix)
+            and path.suffix.lower() != target_ext
+        ):
+            path.unlink()
+            removed += 1
+
+    return removed
 
 
 def is_method_complete(count: int, num_samples: int) -> bool:
@@ -305,6 +352,7 @@ def build_interp_methods(
 
 def main() -> None:
     args = parse_args()
+    args.image_ext = args.image_ext.lstrip(".").lower()
 
     if args.num_samples <= 0:
         raise SystemExit("--num-samples must be a positive integer.")
@@ -375,6 +423,29 @@ def main() -> None:
     print(f"Model {type(model).__name__} total parameters: ", pytorch_total_params)
 
     interp_methods = build_interp_methods(last_conv_layer, DEVICE, to_rgb_heatmap)
+    exporter = OutputExporter()
+
+    if args.prune_stale_images:
+        structure = load_outputs_structure(OUTPUT_STRUCTURE_PATH)
+        removed_json_entries = exporter.prune_stale_structure_outputs(
+            structure,
+            args.model,
+            DATASET_NAME,
+            args.image_ext,
+        )
+        removed_files = prune_stale_image_files(
+            Path(OUTPUT_IMAGES_DIR),
+            args.model,
+            DATASET_NAME,
+            args.image_ext,
+        )
+        if removed_json_entries:
+            exporter.write_structure(structure, OUTPUT_STRUCTURE_PATH)
+        print(
+            "Pruned stale outputs: "
+            f"{removed_files} files, {removed_json_entries} JSON entries."
+            f" (model={args.model}, dataset={DATASET_NAME}, ext={args.image_ext})"
+        )
 
     if not args.recompute:
         structure = load_outputs_structure(OUTPUT_STRUCTURE_PATH)
@@ -382,7 +453,11 @@ def main() -> None:
         for method in interp_methods:
             method_name = str(method)
             existing_count = count_method_outputs(
-                structure, args.model, DATASET_NAME, method_name
+                structure,
+                args.model,
+                DATASET_NAME,
+                method_name,
+                args.image_ext,
             )
             if is_method_complete(existing_count, args.num_samples):
                 print(
@@ -402,7 +477,6 @@ def main() -> None:
         transform=transform,
     )
 
-    exporter = OutputExporter()
     records_buffer: list[dict] = []
     buffered_images = 0
 
@@ -412,7 +486,7 @@ def main() -> None:
         model_name=args.model,
         dataset_name=DATASET_NAME,
         base_url="/outputs/images",
-        image_ext=IMAGE_EXT,
+        image_ext=args.image_ext,
         method="heat_map",
         sign="absolute_value",
         cmap="jet",

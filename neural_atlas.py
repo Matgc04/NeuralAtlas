@@ -81,6 +81,13 @@ class NeuralAtlas:
                     "progressive": True,
                 }
             )
+        elif image_ext == "avif":
+            save_kwargs.update(
+                {
+                    "quality": 75,
+                    "speed": 1,
+                }
+            )
 
         cropped_image.save(output_path, **save_kwargs)
 
