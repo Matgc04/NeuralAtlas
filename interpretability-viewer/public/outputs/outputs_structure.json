@@ -584,8 +584,30 @@
                 }
               }
             }
+          },
+          "metrics": {
+            "accuracy": 0.6,
+            "classCount": 13,
+            "correct": 12,
+            "incorrect": 8,
+            "macroF1": 0.46153846153846156,
+            "macroPrecision": 0.5,
+            "macroRecall": 0.46153846153846156,
+            "missingPredictions": 0,
+            "total": 20
           }
         }
+      },
+      "metrics": {
+        "accuracy": 0.6,
+        "classCount": 13,
+        "correct": 12,
+        "incorrect": 8,
+        "macroF1": 0.46153846153846156,
+        "macroPrecision": 0.5,
+        "macroRecall": 0.46153846153846156,
+        "missingPredictions": 0,
+        "total": 20
       }
     },
     "efficientnet_b0": {
@@ -1172,8 +1194,30 @@
                 }
               }
             }
+          },
+          "metrics": {
+            "accuracy": 0.8,
+            "classCount": 11,
+            "correct": 16,
+            "incorrect": 4,
+            "macroF1": 0.7090909090909091,
+            "macroPrecision": 0.7424242424242425,
+            "macroRecall": 0.7272727272727273,
+            "missingPredictions": 0,
+            "total": 20
           }
         }
+      },
+      "metrics": {
+        "accuracy": 0.8,
+        "classCount": 11,
+        "correct": 16,
+        "incorrect": 4,
+        "macroF1": 0.7090909090909091,
+        "macroPrecision": 0.7424242424242425,
+        "macroRecall": 0.7272727272727273,
+        "missingPredictions": 0,
+        "total": 20
       }
     },
     "resnet18": {
@@ -1760,8 +1804,30 @@
                 }
               }
             }
+          },
+          "metrics": {
+            "accuracy": 0.8,
+            "classCount": 12,
+            "correct": 16,
+            "incorrect": 4,
+            "macroF1": 0.6916666666666668,
+            "macroPrecision": 0.7638888888888888,
+            "macroRecall": 0.6666666666666666,
+            "missingPredictions": 0,
+            "total": 20
           }
         }
+      },
+      "metrics": {
+        "accuracy": 0.8,
+        "classCount": 12,
+        "correct": 16,
+        "incorrect": 4,
+        "macroF1": 0.6916666666666668,
+        "macroPrecision": 0.7638888888888888,
+        "macroRecall": 0.6666666666666666,
+        "missingPredictions": 0,
+        "total": 20
       }
     }
   }

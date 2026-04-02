@@ -107,6 +107,33 @@ function getClassCompareMatrix(records, { dataset, classId, method }) {
   return { models, rows };
 }
 
+function getModelMetrics(outputStructure) {
+  const models = outputStructure?.models ?? EMPTY_OBJ;
+  const byModel = {};
+  const byModelAndDataset = {};
+
+  for (const [modelName, modelNode] of Object.entries(models)) {
+    const datasets = modelNode?.datasets ?? EMPTY_OBJ;
+    byModelAndDataset[modelName] = {};
+
+    if (modelNode?.metrics) {
+      byModel[modelName] = modelNode.metrics;
+    }
+
+    for (const [datasetName, datasetNode] of Object.entries(datasets)) {
+      if (datasetNode?.metrics) {
+        byModelAndDataset[modelName][datasetName] = datasetNode.metrics;
+      }
+    }
+  }
+
+  return { byModel, byModelAndDataset };
+}
+
+function formatMetricPercent(value) {
+  return Number.isFinite(value) ? `${(value * 100).toFixed(1)}%` : '—';
+}
+
 /* ── Reusable UI Components ─────────────────────────────────── */
 
 const COLORBAR_SRC = '/outputs/master_colorbar_jet.webp';
@@ -168,6 +195,38 @@ function EmptyState({ title, description }) {
 
 function SummaryStrip({ text }) {
   return <div className="summary-strip" role="status" aria-live="polite">{text}</div>;
+}
+
+function ModelStatsPanel({ model, dataset, stats }) {
+  if (!model || !dataset || !stats) return null;
+
+  const items = [
+    { label: 'Samples', value: stats.total },
+    { label: 'Correct', value: stats.correct },
+    { label: 'Accuracy', value: formatMetricPercent(stats.accuracy) },
+    { label: 'Macro Precision', value: formatMetricPercent(stats.macroPrecision) },
+    { label: 'Macro Recall', value: formatMetricPercent(stats.macroRecall) },
+    { label: 'Macro F1', value: formatMetricPercent(stats.macroF1) },
+  ];
+
+  return (
+    <section className="model-stats" aria-label="Selected model metrics">
+      <div className="model-stats__header">
+        <div>
+          <h2>Model Stats</h2>
+          <p>{model} on {dataset}</p>
+        </div>
+      </div>
+      <div className="model-stats__grid">
+        {items.map((item) => (
+          <article key={item.label} className="model-stats__item">
+            <span className="model-stats__label">{item.label}</span>
+            <strong className="model-stats__value">{item.value}</strong>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
 }
 
 function ModeSwitcher({ value, onChange }) {
@@ -391,6 +450,11 @@ function ModelForm({ outputStructure }) {
     [outputStructure, imgCache, lblCache]
   );
 
+  const modelMetrics = useMemo(
+    () => getModelMetrics(outputStructure),
+    [outputStructure]
+  );
+
   const classOptions = useMemo(() => {
     if (!effectiveDataset || !effectiveModel) return [];
     const labels = lblCache[effectiveDataset] ?? {};
@@ -463,6 +527,10 @@ function ModelForm({ outputStructure }) {
     () => getClassCompareMatrix(imageRecords, { dataset: effectiveDataset, classId: effectiveClassId, method: effectiveMethod }),
     [imageRecords, effectiveDataset, effectiveClassId, effectiveMethod]
   );
+
+  const selectedModelStats = effectiveModel && effectiveDataset
+    ? modelMetrics.byModelAndDataset[effectiveModel]?.[effectiveDataset] ?? null
+    : null;
 
   const hasContent =
     (vs.mode === 'single' && Boolean(singleImageData?.original)) ||
@@ -576,6 +644,10 @@ function ModelForm({ outputStructure }) {
         </header>
 
         <SummaryStrip text={summaryText} />
+
+        {vs.mode === 'model_grid' && (
+          <ModelStatsPanel model={effectiveModel} dataset={effectiveDataset} stats={selectedModelStats} />
+        )}
 
         {vs.mode === 'single' && <SingleImageGallery imageData={singleImageData} labels={lblCache[effectiveDataset]} />}
         {vs.mode === 'model_grid' && (
