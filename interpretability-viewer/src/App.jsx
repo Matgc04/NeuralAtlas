@@ -3,6 +3,7 @@ import './App.css';
 
 const ALL_METHODS = '__all_methods__';
 const EMPTY_OBJ = {};
+const BASE_URL = import.meta.env.BASE_URL ?? '/';
 
 const METHOD_CATEGORIES = {
   gradient: {
@@ -49,6 +50,20 @@ function resolveMethodEntries(methodValue, outputs = {}) {
   return [[methodValue, outputs[methodValue] ?? null]];
 }
 
+function resolveAssetUrl(path) {
+  if (!path) return null;
+  const value = String(path);
+  if (/^(?:[a-z]+:)?\/\//i.test(value) || value.startsWith('data:')) return value;
+  return `${BASE_URL}${value.replace(/^\/+/, '')}`;
+}
+
+async function fetchJson(path) {
+  const response = await fetch(resolveAssetUrl(path));
+  if (!response.ok) {
+    throw new Error(`Failed to load ${path}: ${response.status}`);
+  }
+  return response.json();
+}
 
 function buildImageRecords(outputStructure, imgCache, lblCache) {
   const records = [];
@@ -63,7 +78,7 @@ function buildImageRecords(outputStructure, imgCache, lblCache) {
           const filename = filenames[imageId] ?? null;
           records.push({
             model, dataset, classId, classLabel, imageId, filename,
-            originalUrl: filename ? `/${dataset}/val/${classId}/${filename}` : null,
+            originalUrl: filename ? `${dataset}/val/${classId}/${filename}` : null,
             outputs,
             prediction,
           });
@@ -136,7 +151,7 @@ function formatMetricPercent(value) {
 
 /* ── Reusable UI Components ─────────────────────────────────── */
 
-const COLORBAR_SRC = '/outputs/master_colorbar_jet.webp';
+const COLORBAR_SRC = resolveAssetUrl('outputs/master_colorbar_jet.webp');
 
 function MiniImage({
   caption,
@@ -146,13 +161,14 @@ function MiniImage({
   showColorbar = false,
   variant = 'attribution',
 }) {
+  const resolvedSrc = resolveAssetUrl(src);
   return (
     <figure className="mini-image">
       <figcaption>{caption}</figcaption>
-      {src
-        ? <img className={`mini-image__asset mini-image__asset--${variant}`} src={src} alt={alt} loading="lazy" />
+      {resolvedSrc
+        ? <img className={`mini-image__asset mini-image__asset--${variant}`} src={resolvedSrc} alt={alt} loading="lazy" />
         : <div className="mini-image__missing">{missingText}</div>}
-      {showColorbar && src && <img className="colorbar" src={COLORBAR_SRC} alt="" />}
+      {showColorbar && resolvedSrc && <img className="colorbar" src={COLORBAR_SRC} alt="" />}
     </figure>
   );
 }
@@ -317,12 +333,12 @@ function SingleImageGallery({ imageData, labels }) {
       <div className="gallery-grid">
         <div className="image-card image-card--featured" style={{ '--delay': '80ms' }}>
           <div className="image-card__header"><h3>Original Image</h3></div>
-          <img className="image-card__image image-card__image--original" src={imageData.original} alt="Original selection" />
+          <img className="image-card__image image-card__image--original" src={resolveAssetUrl(imageData.original)} alt="Original selection" />
         </div>
         {outputs.map(([method, url]) => (
           <div key={method} className="image-card">
             <div className="image-card__header"><h3>{method}</h3></div>
-            <img className="image-card__image image-card__image--attribution" src={url} alt={`${method} explanation`} loading="lazy" />
+            <img className="image-card__image image-card__image--attribution" src={resolveAssetUrl(url)} alt={`${method} explanation`} loading="lazy" />
             <img className="colorbar" src={COLORBAR_SRC} alt="" />
           </div>
         ))}
@@ -426,8 +442,7 @@ function ModelForm({ outputStructure }) {
 
     if (!imgCache[ds]) {
       updStatus({ imagesLoading: true, imagesError: null });
-      fetch(`/${ds}/${ds}_structure.json`)
-        .then((r) => r.json())
+      fetchJson(`${ds}/${ds}_structure.json`)
         .then((data) => { if (!cancelled) setImgCache((p) => ({ ...p, [ds]: data })); })
         .catch(() => updStatus({ imagesError: 'Failed to load.' }))
         .finally(() => updStatus({ imagesLoading: false }));
@@ -435,8 +450,7 @@ function ModelForm({ outputStructure }) {
 
     if (!lblCache[ds]) {
       updStatus({ labelsLoading: true, labelsError: null });
-      fetch('/imagenet-mini/imagenet-1k-id2label.json')
-        .then((r) => r.json())
+      fetchJson('imagenet-mini/imagenet-1k-id2label.json')
         .then((data) => { if (!cancelled) setLblCache((p) => ({ ...p, [ds]: data })); })
         .catch(() => { if (!cancelled) { setLblCache((p) => ({ ...p, [ds]: {} })); updStatus({ labelsError: 'Failed to load.' }); } })
         .finally(() => updStatus({ labelsLoading: false }));
@@ -667,7 +681,7 @@ function App() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch('/outputs/outputs_structure.json').then((r) => r.json()).then(setOutputStructure).catch(setError);
+    fetchJson('outputs/outputs_structure.json').then(setOutputStructure).catch(setError);
   }, []);
 
   if (error) return <div className="app-status">Error loading outputs metadata.</div>;
