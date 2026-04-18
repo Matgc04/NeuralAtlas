@@ -16,7 +16,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 from PIL import Image, ImageChops
 
-PredictionPayload: TypeAlias = dict[str, str]
+PredictionPayload: TypeAlias = dict[str, str | float]
 ExportRecord: TypeAlias = dict[str, str | PredictionPayload]
 
 
@@ -167,8 +167,10 @@ class NeuralAtlas:
 
         sample_logits = logits[0].detach().cpu()
         predicted_class_id = int(torch.argmax(sample_logits).item())
+        confidence = float(torch.softmax(sample_logits, dim=0)[predicted_class_id].item())
         return {
             "predicted_class_id": str(predicted_class_id),
+            "confidence": confidence,
         }
 
     def interpret(

@@ -30,6 +30,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__0__0__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.5253314971923828,
                     "predicted_class_id": "0"
                   }
                 },
@@ -57,6 +58,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__0__1__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.9998646974563599,
                     "predicted_class_id": "0"
                   }
                 }
@@ -88,6 +90,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__1__0__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.9998881816864014,
                     "predicted_class_id": "1"
                   }
                 },
@@ -115,6 +118,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__1__1__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.9999110698699951,
                     "predicted_class_id": "1"
                   }
                 }
@@ -146,6 +150,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__2__0__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.9925622344017029,
                     "predicted_class_id": "2"
                   }
                 },
@@ -173,6 +178,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__2__1__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.5553312301635742,
                     "predicted_class_id": "147"
                   }
                 }
@@ -204,6 +210,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__3__0__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.29508650302886963,
                     "predicted_class_id": "2"
                   }
                 },
@@ -231,6 +238,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__3__1__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.765518069267273,
                     "predicted_class_id": "4"
                   }
                 }
@@ -262,6 +270,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__4__0__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.7014549970626831,
                     "predicted_class_id": "4"
                   }
                 },
@@ -289,6 +298,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__4__1__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.3941536843776703,
                     "predicted_class_id": "3"
                   }
                 }
@@ -320,6 +330,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__5__0__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.9989851117134094,
                     "predicted_class_id": "5"
                   }
                 },
@@ -347,6 +358,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__5__1__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.3424536883831024,
                     "predicted_class_id": "973"
                   }
                 }
@@ -378,6 +390,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__6__0__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.9218987822532654,
                     "predicted_class_id": "6"
                   }
                 },
@@ -405,6 +418,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__6__1__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.931439995765686,
                     "predicted_class_id": "6"
                   }
                 }
@@ -436,6 +450,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__7__0__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.7124642133712769,
                     "predicted_class_id": "8"
                   }
                 },
@@ -463,6 +478,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__7__1__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.9788435697555542,
                     "predicted_class_id": "8"
                   }
                 }
@@ -494,6 +510,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__8__0__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.8736405968666077,
                     "predicted_class_id": "8"
                   }
                 },
@@ -521,6 +538,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__8__1__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.7942953705787659,
                     "predicted_class_id": "8"
                   }
                 }
@@ -552,6 +570,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__9__0__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.8309035897254944,
                     "predicted_class_id": "9"
                   }
                 },
@@ -579,6 +598,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/alexnet__imagenet-pico__9__1__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.06289920210838318,
                     "predicted_class_id": "561"
                   }
                 }
@@ -640,6 +660,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__0__0__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.9614291787147522,
                     "predicted_class_id": "0"
                   }
                 },
@@ -667,6 +688,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__0__1__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.7627705335617065,
                     "predicted_class_id": "0"
                   }
                 }
@@ -698,6 +720,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__1__0__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.8557772040367126,
                     "predicted_class_id": "1"
                   }
                 },
@@ -725,6 +748,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__1__1__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.9728158116340637,
                     "predicted_class_id": "1"
                   }
                 }
@@ -756,6 +780,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__2__0__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.9408270716667175,
                     "predicted_class_id": "2"
                   }
                 },
@@ -783,6 +808,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__2__1__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.39934009313583374,
                     "predicted_class_id": "2"
                   }
                 }
@@ -814,6 +840,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__3__0__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.8043308258056641,
                     "predicted_class_id": "3"
                   }
                 },
@@ -841,6 +868,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__3__1__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.3061596155166626,
                     "predicted_class_id": "3"
                   }
                 }
@@ -872,6 +900,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__4__0__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.826619565486908,
                     "predicted_class_id": "4"
                   }
                 },
@@ -899,6 +928,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__4__1__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.19590836763381958,
                     "predicted_class_id": "913"
                   }
                 }
@@ -930,6 +960,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__5__0__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.8735557198524475,
                     "predicted_class_id": "5"
                   }
                 },
@@ -957,6 +988,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__5__1__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.24769215285778046,
                     "predicted_class_id": "6"
                   }
                 }
@@ -988,6 +1020,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__6__0__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.7484866976737976,
                     "predicted_class_id": "6"
                   }
                 },
@@ -1015,6 +1048,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__6__1__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.4791932702064514,
                     "predicted_class_id": "6"
                   }
                 }
@@ -1046,6 +1080,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__7__0__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.6469951272010803,
                     "predicted_class_id": "8"
                   }
                 },
@@ -1073,6 +1108,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__7__1__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.7123592495918274,
                     "predicted_class_id": "8"
                   }
                 }
@@ -1104,6 +1140,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__8__0__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.7312071919441223,
                     "predicted_class_id": "8"
                   }
                 },
@@ -1131,6 +1168,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__8__1__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.9426767826080322,
                     "predicted_class_id": "8"
                   }
                 }
@@ -1162,6 +1200,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__9__0__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.7512620091438293,
                     "predicted_class_id": "9"
                   }
                 },
@@ -1189,6 +1228,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/efficientnet_b0__imagenet-pico__9__1__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.7880319356918335,
                     "predicted_class_id": "9"
                   }
                 }
@@ -1250,6 +1290,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__0__0__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.9311554431915283,
                     "predicted_class_id": "0"
                   }
                 },
@@ -1277,6 +1318,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__0__1__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.9376612305641174,
                     "predicted_class_id": "0"
                   }
                 }
@@ -1308,6 +1350,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__1__0__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.9999665021896362,
                     "predicted_class_id": "1"
                   }
                 },
@@ -1335,6 +1378,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__1__1__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.9998941421508789,
                     "predicted_class_id": "1"
                   }
                 }
@@ -1366,6 +1410,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__2__0__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.9954392313957214,
                     "predicted_class_id": "2"
                   }
                 },
@@ -1393,6 +1438,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__2__1__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.9879704117774963,
                     "predicted_class_id": "2"
                   }
                 }
@@ -1424,6 +1470,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__3__0__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.5136712193489075,
                     "predicted_class_id": "3"
                   }
                 },
@@ -1451,6 +1498,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__3__1__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.25494715571403503,
                     "predicted_class_id": "150"
                   }
                 }
@@ -1482,6 +1530,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__4__0__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.9528282284736633,
                     "predicted_class_id": "4"
                   }
                 },
@@ -1509,6 +1558,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__4__1__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.28792688250541687,
                     "predicted_class_id": "3"
                   }
                 }
@@ -1540,6 +1590,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__5__0__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.9738706350326538,
                     "predicted_class_id": "5"
                   }
                 },
@@ -1567,6 +1618,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__5__1__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.31217095255851746,
                     "predicted_class_id": "329"
                   }
                 }
@@ -1598,6 +1650,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__6__0__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.7459568977355957,
                     "predicted_class_id": "6"
                   }
                 },
@@ -1625,6 +1678,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__6__1__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.844925582408905,
                     "predicted_class_id": "6"
                   }
                 }
@@ -1656,6 +1710,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__7__0__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.5954502820968628,
                     "predicted_class_id": "7"
                   }
                 },
@@ -1683,6 +1738,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__7__1__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.9813413619995117,
                     "predicted_class_id": "8"
                   }
                 }
@@ -1714,6 +1770,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__8__0__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.6980437636375427,
                     "predicted_class_id": "8"
                   }
                 },
@@ -1741,6 +1798,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__8__1__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.9916412830352783,
                     "predicted_class_id": "8"
                   }
                 }
@@ -1772,6 +1830,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__9__0__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.8445013165473938,
                     "predicted_class_id": "9"
                   }
                 },
@@ -1799,6 +1858,7 @@
                     "ShapleyValueSampling (SLIC)": "/outputs/images/resnet18__imagenet-pico__9__1__ShapleyValueSampling (SLIC).avif"
                   },
                   "prediction": {
+                    "confidence": 0.9960487484931946,
                     "predicted_class_id": "9"
                   }
                 }

@@ -186,6 +186,9 @@ function PredictionBadge({ prediction, classId, labels }) {
   const predId = prediction.predicted_class_id;
   const predLabel = labels?.[predId] ?? `Class ${predId}`;
   const isCorrect = String(predId) === String(classId);
+  const confidencePct = prediction.confidence == null
+    ? null
+    : `${(Number(prediction.confidence) * 100).toFixed(1)}%`;
   return (
     <div className={`prediction-badge prediction-badge--${isCorrect ? 'correct' : 'incorrect'}`}>
       <span className="prediction-badge__icon">{isCorrect ? '\u2713' : '\u2717'}</span>
@@ -193,6 +196,7 @@ function PredictionBadge({ prediction, classId, labels }) {
         Predicted: <strong>{predLabel}</strong>
         {' \u2014 '}
         <em>{isCorrect ? 'Correct' : 'Incorrect'}</em>
+        {confidencePct ? ` \u2014 p(=${confidencePct})` : ''}
       </span>
     </div>
   );
@@ -330,7 +334,7 @@ function SingleImageGallery({ imageData, labels }) {
         </div>
       </div>
       <PredictionBadge prediction={imageData.prediction} classId={imageData.classId} labels={labels} />
-      <div className="gallery-grid">
+      <div className="gallery-grid gallery-grid--single">
         <div className="image-card image-card--featured" style={{ '--delay': '80ms' }}>
           <div className="image-card__header"><h3>Original Image</h3></div>
           <img className="image-card__image image-card__image--original" src={resolveAssetUrl(imageData.original)} alt="Original selection" />
