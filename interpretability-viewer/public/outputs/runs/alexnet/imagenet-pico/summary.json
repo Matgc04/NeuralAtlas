@@ -1,0 +1,18 @@
+{
+  "classCount": 10,
+  "dataset": "imagenet-pico",
+  "imageCount": 20,
+  "methodCount": 20,
+  "metrics": {
+    "accuracy": 0.6,
+    "classCount": 13,
+    "correct": 12,
+    "incorrect": 8,
+    "macroF1": 0.46153846153846156,
+    "macroPrecision": 0.5,
+    "macroRecall": 0.46153846153846156,
+    "missingPredictions": 0,
+    "total": 20
+  },
+  "model": "alexnet"
+}

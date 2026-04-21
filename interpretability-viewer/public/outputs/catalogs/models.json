@@ -1,0 +1,22 @@
+{
+  "models": [
+    {
+      "family": "alexnet",
+      "id": "alexnet",
+      "label": "alexnet",
+      "parameter_count": 61100840
+    },
+    {
+      "family": "efficientnet_b0",
+      "id": "efficientnet_b0",
+      "label": "efficientnet_b0",
+      "parameter_count": null
+    },
+    {
+      "family": "resnet18",
+      "id": "resnet18",
+      "label": "resnet18",
+      "parameter_count": null
+    }
+  ]
+}

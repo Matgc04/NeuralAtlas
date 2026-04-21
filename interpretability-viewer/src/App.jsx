@@ -65,6 +65,47 @@ async function fetchJson(path) {
   return response.json();
 }
 
+function buildLegacyOutputStructure(manifest, runPayloads) {
+  const structure = { models: {} };
+
+  for (const model of manifest?.models ?? []) {
+    const datasets = manifest?.datasets_by_model?.[model] ?? [];
+    const modelNode = structure.models[model] ??= { datasets: {} };
+
+    for (const dataset of datasets) {
+      const runKey = `${model}::${dataset}`;
+      const run = runPayloads[runKey];
+      const datasetNode = modelNode.datasets[dataset] ??= { classes: {} };
+
+      if (run?.summary?.metrics) {
+        datasetNode.metrics = run.summary.metrics;
+      }
+
+      for (const image of run?.images?.images ?? []) {
+        const classId = String(image.class_id);
+        const imageId = String(image.image_id);
+        const classNode = datasetNode.classes[classId] ??= { images: {} };
+        classNode.images[imageId] = {
+          outputs: image.outputs ?? {},
+          prediction: image.prediction ?? null,
+          interpretability_metrics: image.interpretability_metrics ?? {},
+          original_url: image.original_url ?? null,
+        };
+      }
+    }
+  }
+
+  for (const [model, modelNode] of Object.entries(structure.models)) {
+    const datasets = modelNode?.datasets ?? EMPTY_OBJ;
+    const firstDatasetWithMetrics = Object.values(datasets).find((datasetNode) => datasetNode?.metrics);
+    if (firstDatasetWithMetrics?.metrics) {
+      modelNode.metrics = firstDatasetWithMetrics.metrics;
+    }
+  }
+
+  return structure;
+}
+
 function buildImageRecords(outputStructure, imgCache, lblCache) {
   const records = [];
   for (const [model, { datasets = {} }] of Object.entries(outputStructure?.models ?? {})) {
@@ -74,11 +115,11 @@ function buildImageRecords(outputStructure, imgCache, lblCache) {
       for (const [classId, { images = {} }] of Object.entries(classes)) {
         const filenames = imgLookup[classId] ?? [];
         const classLabel = lblLookup[classId] ?? classId;
-        for (const [imageId, { outputs = {}, prediction = null } = {}] of Object.entries(images)) {
+        for (const [imageId, { outputs = {}, prediction = null, original_url: originalUrl = null } = {}] of Object.entries(images)) {
           const filename = filenames[imageId] ?? null;
           records.push({
             model, dataset, classId, classLabel, imageId, filename,
-            originalUrl: filename ? `${dataset}/val/${classId}/${filename}` : null,
+            originalUrl: originalUrl ?? (filename ? `${dataset}/val/${classId}/${filename}` : null),
             outputs,
             prediction,
           });
@@ -440,27 +481,34 @@ function ModelForm({ outputStructure }) {
   // Load dataset metadata (images structure + labels)
   useEffect(() => {
     if (!effectiveDataset) return;
-    let cancelled = false;
+    const controller = new AbortController();
+    const { signal } = controller;
     const ds = effectiveDataset;
-    const updStatus = (fields) => !cancelled && setDsStatus((p) => ({ ...p, [ds]: { ...p[ds], ...fields } }));
+    const updStatus = (fields) =>
+      !signal.aborted && setDsStatus((p) => ({ ...p, [ds]: { ...p[ds], ...fields } }));
 
     if (!imgCache[ds]) {
       updStatus({ imagesLoading: true, imagesError: null });
-      fetchJson(`${ds}/${ds}_structure.json`)
-        .then((data) => { if (!cancelled) setImgCache((p) => ({ ...p, [ds]: data })); })
-        .catch(() => updStatus({ imagesError: 'Failed to load.' }))
+      fetchJson(`${ds}/${ds}_structure.json`, { signal })
+        .then((data) => { if (!signal.aborted) setImgCache((p) => ({ ...p, [ds]: data })); })
+        .catch((e) => { if (e.name !== 'AbortError') updStatus({ imagesError: 'Failed to load.' }); })
         .finally(() => updStatus({ imagesLoading: false }));
     }
 
     if (!lblCache[ds]) {
       updStatus({ labelsLoading: true, labelsError: null });
-      fetchJson('imagenet-mini/imagenet-1k-id2label.json')
-        .then((data) => { if (!cancelled) setLblCache((p) => ({ ...p, [ds]: data })); })
-        .catch(() => { if (!cancelled) { setLblCache((p) => ({ ...p, [ds]: {} })); updStatus({ labelsError: 'Failed to load.' }); } })
-        .finally(() => updStatus({ labelsLoading: false }));
+      fetchJson('imagenet-mini/imagenet-1k-id2label.json', { signal })
+        .then((data) => { if (!signal.aborted) setLblCache((p) => ({ ...p, [ds]: data })); })
+        .catch((e) => {
+          if (e.name !== 'AbortError') {
+            setLblCache((p) => ({ ...p, [ds]: {} }));
+            updStatus({ labelsError: 'Failed to load.' });
+          }
+        })
+        .finally(() => updStatus({ imagesLoading: false }));
     }
 
-    return () => { cancelled = true; };
+    return () => controller.abort();
   }, [effectiveDataset, imgCache, lblCache]);
 
   const imageRecords = useMemo(
@@ -680,13 +728,43 @@ function ModelForm({ outputStructure }) {
   );
 }
 
+async function loadOutputStructure(signal) {
+  const manifest = await fetchJson('outputs/manifest.json', { signal });
+
+  const entries = Object.entries(manifest?.runs ?? {}).flatMap(([model, datasets]) =>
+    Object.entries(datasets ?? {}).map(([dataset, paths]) => ({ model, dataset, paths }))
+  );
+
+  const runPayloads = Object.fromEntries(
+    await Promise.all(
+      entries.map(async ({ model, dataset, paths }) => {
+        const [images, summary] = await Promise.all([
+          fetchJson(paths.images),
+          fetchJson(paths.summary),
+        ]);
+        return [`${model}::${dataset}`, { images, summary }];
+      })
+    )
+  );
+
+  return buildLegacyOutputStructure(manifest, runPayloads);
+}
+
 function App() {
   const [outputStructure, setOutputStructure] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchJson('outputs/outputs_structure.json').then(setOutputStructure).catch(setError);
-  }, []);
+  const controller = new AbortController();
+
+  loadOutputStructure(controller.signal)
+    .then(setOutputStructure)
+    .catch((e) => {
+      if (e.name !== 'AbortError') setError(e);
+    });
+
+  return () => controller.abort();
+}, []);
 
   if (error) return <div className="app-status">Error loading outputs metadata.</div>;
   if (!outputStructure) return <div className="app-status">Loading viewer data...</div>;

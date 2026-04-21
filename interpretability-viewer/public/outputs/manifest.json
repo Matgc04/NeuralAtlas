@@ -1,0 +1,44 @@
+{
+  "catalogs": {
+    "methods": "outputs/catalogs/methods.json",
+    "models": "outputs/catalogs/models.json"
+  },
+  "datasets_by_model": {
+    "alexnet": [
+      "imagenet-pico"
+    ],
+    "efficientnet_b0": [
+      "imagenet-pico"
+    ],
+    "resnet18": [
+      "imagenet-pico"
+    ]
+  },
+  "generated_at": "2026-04-18T20:46:13.025006+00:00",
+  "models": [
+    "alexnet",
+    "efficientnet_b0",
+    "resnet18"
+  ],
+  "runs": {
+    "alexnet": {
+      "imagenet-pico": {
+        "images": "outputs/runs/alexnet/imagenet-pico/images.json",
+        "summary": "outputs/runs/alexnet/imagenet-pico/summary.json"
+      }
+    },
+    "efficientnet_b0": {
+      "imagenet-pico": {
+        "images": "outputs/runs/efficientnet_b0/imagenet-pico/images.json",
+        "summary": "outputs/runs/efficientnet_b0/imagenet-pico/summary.json"
+      }
+    },
+    "resnet18": {
+      "imagenet-pico": {
+        "images": "outputs/runs/resnet18/imagenet-pico/images.json",
+        "summary": "outputs/runs/resnet18/imagenet-pico/summary.json"
+      }
+    }
+  },
+  "schema_version": 1
+}

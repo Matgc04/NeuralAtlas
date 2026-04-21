@@ -1,0 +1,144 @@
+{
+  "methods": [
+    {
+      "category": "perturbation",
+      "id": "Occlusion",
+      "label": "Occlusion",
+      "requires_layer": false,
+      "segmentation": null
+    },
+    {
+      "category": "gradient",
+      "id": "GuidedGradCam",
+      "label": "GuidedGradCam",
+      "requires_layer": true,
+      "segmentation": null
+    },
+    {
+      "category": "gradient",
+      "id": "GradientShap",
+      "label": "GradientShap",
+      "requires_layer": false,
+      "segmentation": null
+    },
+    {
+      "category": "gradient",
+      "id": "Saliency",
+      "label": "Saliency",
+      "requires_layer": false,
+      "segmentation": null
+    },
+    {
+      "category": "gradient",
+      "id": "IntegratedGradients",
+      "label": "IntegratedGradients",
+      "requires_layer": false,
+      "segmentation": null
+    },
+    {
+      "category": "gradient",
+      "id": "LayerGradCam",
+      "label": "LayerGradCam",
+      "requires_layer": true,
+      "segmentation": null
+    },
+    {
+      "category": "gradient",
+      "id": "DeepLift",
+      "label": "DeepLift",
+      "requires_layer": false,
+      "segmentation": null
+    },
+    {
+      "category": "gradient",
+      "id": "GuidedBackprop",
+      "label": "GuidedBackprop",
+      "requires_layer": false,
+      "segmentation": null
+    },
+    {
+      "category": "gradient",
+      "id": "InputXGradient",
+      "label": "InputXGradient",
+      "requires_layer": false,
+      "segmentation": null
+    },
+    {
+      "category": "gradient",
+      "id": "Deconvolution",
+      "label": "Deconvolution",
+      "requires_layer": false,
+      "segmentation": null
+    },
+    {
+      "category": "gradient",
+      "id": "LayerIntegratedGradients",
+      "label": "LayerIntegratedGradients",
+      "requires_layer": true,
+      "segmentation": null
+    },
+    {
+      "category": "perturbation",
+      "id": "Lime (SLIC)",
+      "label": "Lime (SLIC)",
+      "requires_layer": false,
+      "segmentation": "SLIC"
+    },
+    {
+      "category": "perturbation",
+      "id": "Lime (Quickshift)",
+      "label": "Lime (Quickshift)",
+      "requires_layer": false,
+      "segmentation": "Quickshift"
+    },
+    {
+      "category": "perturbation",
+      "id": "Lime (KMeans)",
+      "label": "Lime (KMeans)",
+      "requires_layer": false,
+      "segmentation": "KMeans"
+    },
+    {
+      "category": "perturbation",
+      "id": "KernelShap (SLIC)",
+      "label": "KernelShap (SLIC)",
+      "requires_layer": false,
+      "segmentation": "SLIC"
+    },
+    {
+      "category": "perturbation",
+      "id": "KernelShap (Quickshift)",
+      "label": "KernelShap (Quickshift)",
+      "requires_layer": false,
+      "segmentation": "Quickshift"
+    },
+    {
+      "category": "perturbation",
+      "id": "KernelShap (KMeans)",
+      "label": "KernelShap (KMeans)",
+      "requires_layer": false,
+      "segmentation": "KMeans"
+    },
+    {
+      "category": "perturbation",
+      "id": "ShapleyValueSampling (SLIC)",
+      "label": "ShapleyValueSampling (SLIC)",
+      "requires_layer": false,
+      "segmentation": "SLIC"
+    },
+    {
+      "category": "perturbation",
+      "id": "ShapleyValueSampling (Quickshift)",
+      "label": "ShapleyValueSampling (Quickshift)",
+      "requires_layer": false,
+      "segmentation": "Quickshift"
+    },
+    {
+      "category": "perturbation",
+      "id": "ShapleyValueSampling (KMeans)",
+      "label": "ShapleyValueSampling (KMeans)",
+      "requires_layer": false,
+      "segmentation": "KMeans"
+    }
+  ]
+}

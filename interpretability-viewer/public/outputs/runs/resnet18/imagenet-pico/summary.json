@@ -1,0 +1,18 @@
+{
+  "classCount": 10,
+  "dataset": "imagenet-pico",
+  "imageCount": 20,
+  "methodCount": 20,
+  "metrics": {
+    "accuracy": 0.8,
+    "classCount": 12,
+    "correct": 16,
+    "incorrect": 4,
+    "macroF1": 0.6916666666666668,
+    "macroPrecision": 0.7638888888888888,
+    "macroRecall": 0.6666666666666666,
+    "missingPredictions": 0,
+    "total": 20
+  },
+  "model": "resnet18"
+}

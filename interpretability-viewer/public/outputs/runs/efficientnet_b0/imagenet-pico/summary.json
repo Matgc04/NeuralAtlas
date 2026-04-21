@@ -1,0 +1,18 @@
+{
+  "classCount": 10,
+  "dataset": "imagenet-pico",
+  "imageCount": 20,
+  "methodCount": 20,
+  "metrics": {
+    "accuracy": 0.8,
+    "classCount": 11,
+    "correct": 16,
+    "incorrect": 4,
+    "macroF1": 0.7090909090909091,
+    "macroPrecision": 0.7424242424242425,
+    "macroRecall": 0.7272727272727273,
+    "missingPredictions": 0,
+    "total": 20
+  },
+  "model": "efficientnet_b0"
+}
