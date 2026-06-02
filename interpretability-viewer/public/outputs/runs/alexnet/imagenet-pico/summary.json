@@ -1,4 +1,14 @@
 {
+  "attribution_encoding": {
+    "channel_reduction": "sum",
+    "colormap": "jet",
+    "colormap_applied_by": "frontend",
+    "encoded_range": "uint8_0_255",
+    "format": "normalized_grayscale",
+    "normalization": "cumulative_sum_threshold",
+    "outlier_perc": 2.0,
+    "sign": "absolute_value"
+  },
   "classCount": 10,
   "dataset": "imagenet-pico",
   "imageCount": 20,

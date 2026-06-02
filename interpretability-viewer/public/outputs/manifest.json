@@ -1,4 +1,14 @@
 {
+  "attribution_encoding": {
+    "channel_reduction": "sum",
+    "colormap": "jet",
+    "colormap_applied_by": "frontend",
+    "encoded_range": "uint8_0_255",
+    "format": "normalized_grayscale",
+    "normalization": "cumulative_sum_threshold",
+    "outlier_perc": 2.0,
+    "sign": "absolute_value"
+  },
   "catalogs": {
     "methods": "outputs/catalogs/methods.json",
     "models": "outputs/catalogs/models.json"
@@ -14,7 +24,7 @@
       "imagenet-pico"
     ]
   },
-  "generated_at": "2026-04-18T20:46:13.025006+00:00",
+  "generated_at": "2026-06-02T20:49:48.831207+00:00",
   "models": [
     "alexnet",
     "efficientnet_b0",
