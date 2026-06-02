@@ -19,6 +19,31 @@ function writeStateToUrl(vs) {
   window.history.replaceState(null, '', query ? `?${query}` : window.location.pathname);
 }
 
+function initialTheme() {
+  const saved = localStorage.getItem('theme');
+  if (saved === 'light' || saved === 'dark') return saved;
+  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+// Apply once at module load — before first render, no flash, no effect.
+document.documentElement.dataset.theme = initialTheme();
+
+function ThemeToggle() {
+  const [theme, setTheme] = useState(() => document.documentElement.dataset.theme);
+  const toggle = () => {
+    const next = theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    localStorage.setItem('theme', next);
+    setTheme(next);
+  };
+  return (
+    <button
+      type="button" className="theme-toggle" onClick={toggle}
+      title="Toggle theme" aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+    >{theme === 'dark' ? '☀' : '☾'}</button>
+  );
+}
+
 const METHOD_CATEGORIES = {
   gradient: {
     label: 'Gradient',
@@ -409,7 +434,7 @@ function SingleImageGallery({ imageData, labels }) {
       </div>
       <PredictionBadge prediction={imageData.prediction} classId={imageData.classId} labels={labels} />
       <div className="gallery-grid gallery-grid--single">
-        <div className="image-card image-card--featured" style={{ '--delay': '80ms' }}>
+        <div className="image-card" style={{ '--delay': '80ms' }}>
           <div className="image-card__header"><h3>Image</h3></div>
           <OriginalImage className="image-card__image image-card__image--original" src={resolveAssetUrl(imageData.original)} alt="Original selection" />
         </div>
@@ -538,7 +563,7 @@ function ModelForm({ outputStructure }) {
             updStatus({ labelsError: 'Failed to load.' });
           }
         })
-        .finally(() => updStatus({ imagesLoading: false }));
+        .finally(() => updStatus({ labelsLoading: false }));
     }
 
     return () => controller.abort();
@@ -740,6 +765,7 @@ function ModelForm({ outputStructure }) {
             <h1 className="page-title"><span>Model Explainability</span> <span>Viewer</span></h1>
             <p className="page-subtitle">Explore model behavior by image, by model, or by class across models.</p>
           </div>
+          <ThemeToggle />
         </header>
 
         <SummaryStrip text={summaryText} />
