@@ -37,12 +37,7 @@ def run_generation(args: Namespace) -> None:
     )
 
     if args.prune_stale_images:
-        removed_json_entries = repository.prune_stale_outputs(
-            args.model,
-            config.DATASET_NAME,
-            args.image_ext,
-        )
-        removed_files = repository.prune_stale_image_files(
+        removed_json_entries, removed_files = repository.prune_stale_artifacts(
             args.model,
             config.DATASET_NAME,
             args.image_ext,

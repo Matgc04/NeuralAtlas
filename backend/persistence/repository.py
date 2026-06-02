@@ -220,25 +220,38 @@ class OutputRepository:
         )
         self._write_run_bundle(model, dataset, merged)
 
-    def prune_stale_outputs(self, model: str, dataset: str, image_ext: str) -> int:
+    def prune_stale_artifacts(
+        self,
+        model: str,
+        dataset: str,
+        image_ext: str,
+    ) -> tuple[int, int]:
+        removed_json_entries = self._prune_stale_outputs(model, dataset, image_ext)
+        removed_files = self._prune_stale_image_files(model, dataset, image_ext)
+        return removed_json_entries, removed_files
+
+    def _prune_stale_outputs(self, model: str, dataset: str, image_ext: str) -> int:
         target_ext = f".{image_ext.lower()}"
         removed = 0
         remaining: list[ImageRecord] = []
         for record in self.load_images(model, dataset):
-            stale_methods = [
+            stale_methods = {
                 method_name
                 for method_name, url in record.outputs.items()
                 if not url.lower().endswith(target_ext)
-            ]
-            for method_name in stale_methods:
-                del record.outputs[method_name]
-                removed += 1
+            }
+            orphan_metrics = set(record.interpretability_metrics) - set(record.outputs)
+            for method_name in stale_methods | orphan_metrics:
+                record.outputs.pop(method_name, None)
+                record.interpretability_metrics.pop(method_name, None)
+            removed += len(stale_methods) + len(orphan_metrics)
             if record.outputs or record.prediction is not None or record.original_url or record.interpretability_metrics:
                 remaining.append(record)
-        self._write_run_bundle(model, dataset, remaining)
+        if removed > 0:
+            self._write_run_bundle(model, dataset, remaining)
         return removed
 
-    def prune_stale_image_files(
+    def _prune_stale_image_files(
         self,
         model: str,
         dataset: str,
