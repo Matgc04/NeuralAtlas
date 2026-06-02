@@ -2,16 +2,13 @@ from __future__ import annotations
 
 from collections import defaultdict
 from dataclasses import dataclass
-from io import BytesIO
 from pathlib import Path
 from typing import Any, Iterator
 
-import matplotlib.pyplot as plt
-from matplotlib.figure import Figure
+import numpy as np
 import torch
 from captum._utils.typing import Module, TensorOrTupleOfTensorsGeneric
-from captum.attr import visualization as viz
-from PIL import Image, ImageChops
+from PIL import Image
 from torch.utils.data import DataLoader
 from torchvision import datasets
 from tqdm.auto import tqdm
@@ -35,46 +32,36 @@ def build_output_filename(
 @dataclass(slots=True)
 class AttributionRenderer:
     out_px: int = 224
-    dpi: int = 112
-
-    @property
-    def side_inches(self) -> float:
-        return self.out_px / self.dpi
+    outlier_perc: float = 2.0
 
     @staticmethod
-    def _crop_uniform_background(image: Image.Image) -> Image.Image:
-        background_color = image.getpixel((0, 0))
-        background = Image.new(image.mode, image.size, background_color)
-        diff = ImageChops.difference(image, background)
-        bbox = diff.getbbox()
-        return image if bbox is None else image.crop(bbox)
+    def _cumulative_sum_threshold(values: np.ndarray, percentile: float) -> float:
+        if not 0 <= percentile <= 100:
+            raise ValueError("Percentile for thresholding must be between 0 and 100.")
 
-    def _save_rendered_attr(
-        self,
-        fig: Figure,
-        output_path: Path,
-        image_ext: str,
-    ) -> None:
-        with BytesIO() as buffer:
-            fig.savefig(
-                buffer,
-                format="png",
-                dpi=self.dpi,
-                bbox_inches=None,
-                pad_inches=0,
-            )
-            buffer.seek(0)
-            image = Image.open(buffer).convert("RGB").copy()
+        flat_values = np.sort(values.reshape(-1))
+        if flat_values.size == 0:
+            return 0.0
 
-        cropped_image = self._crop_uniform_background(image)
-        save_kwargs: dict[str, Any] = {"format": image_ext.upper()}
-        if image_ext == "webp":
-            save_kwargs.update({"quality": 85, "method": 6, "lossless": False})
-        elif image_ext in {"jpg", "jpeg"}:
-            save_kwargs.update({"quality": 85, "optimize": True, "progressive": True})
-        elif image_ext == "avif":
-            save_kwargs.update({"quality": 75, "speed": 1})
-        cropped_image.save(output_path, **save_kwargs)
+        cum_sums = np.cumsum(flat_values)
+        total = float(cum_sums[-1])
+        if total <= 0:
+            return 0.0
+
+        threshold_idx = int(np.searchsorted(cum_sums, total * 0.01 * percentile))
+        threshold_idx = min(threshold_idx, flat_values.size - 1)
+        return float(flat_values[threshold_idx])
+
+    def _normalize_absolute_heatmap(self, attr: torch.Tensor, outlier_perc: float) -> np.ndarray:
+        attr_np = attr.permute(1, 2, 0).detach().cpu().numpy()
+        attr_combined = np.abs(np.sum(attr_np, axis=-1))
+        threshold = self._cumulative_sum_threshold(
+            attr_combined,
+            100.0 - outlier_perc,
+        )
+        if threshold <= 0:
+            return np.zeros_like(attr_combined, dtype=np.float32)
+        return np.clip(attr_combined / threshold, 0, 1)
 
     def render(
         self,
@@ -92,18 +79,10 @@ class AttributionRenderer:
             raise TypeError(
                 f"Expected attribution tensor for visualization, got {type(attr)}"
             )
-
-        fig, ax = plt.subplots(figsize=(self.side_inches, self.side_inches), dpi=self.dpi)
-        _ = viz.visualize_image_attr(
-            attr.permute(1, 2, 0).detach().cpu().numpy(),
-            plt_fig_axis=(fig, ax),
-            use_pyplot=False,
-            title=None,
-            **kwargs,
-        )
-        ax.axis("off")
-        fig.patch.set_facecolor("white")
-        ax.set_facecolor("white")
+        outlier_perc = float(kwargs.get("outlier_perc", self.outlier_perc))
+        attr_np = self._normalize_absolute_heatmap(attr, outlier_perc)
+        gray = (attr_np * 255).round().astype(np.uint8)
+        img = Image.fromarray(gray, mode='L').resize((self.out_px, self.out_px), Image.LANCZOS)
 
         filename = build_output_filename(
             model_name=model_name,
@@ -113,8 +92,14 @@ class AttributionRenderer:
             method_name=method_name,
             image_ext=image_ext,
         )
-        self._save_rendered_attr(fig, output_dir / filename, image_ext)
-        plt.close(fig)
+        save_kwargs: dict[str, Any] = {"format": image_ext.upper()}
+        if image_ext == "webp":
+            save_kwargs.update({"quality": 85, "method": 6, "lossless": False})
+        elif image_ext in {"jpg", "jpeg"}:
+            save_kwargs.update({"quality": 85, "optimize": True, "progressive": True})
+        elif image_ext == "avif":
+            save_kwargs.update({"quality": 75, "speed": 1})
+        img.save(output_dir / filename, **save_kwargs)
         return f"{config.OUTPUT_IMAGES_BASE_URL}/{filename}"
 
 

@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import './App.css';
 
 const ALL_METHODS = '__all_methods__';
@@ -231,7 +231,58 @@ function formatMetricPercent(value) {
 
 /* ── Reusable UI Components ─────────────────────────────────── */
 
-const COLORBAR_SRC = resolveAssetUrl('outputs/master_colorbar_jet.webp');
+const JET_LUT = (() => {
+  function pw(t, stops) {
+    for (let i = 0; i < stops.length - 1; i++) {
+      const [x0, y0] = stops[i], [x1, y1] = stops[i + 1];
+      if (t <= x1) return y0 + (y1 - y0) * (t - x0) / (x1 - x0);
+    }
+    return stops.at(-1)[1];
+  }
+  return Array.from({ length: 256 }, (_, i) => {
+    const t = i / 255;
+    return [
+      pw(t, [[0, 0], [0.35, 0], [0.66, 1], [0.89, 1], [1, 0.5]]),
+      pw(t, [[0, 0], [0.125, 0], [0.375, 1], [0.64, 1], [0.91, 0], [1, 0]]),
+      pw(t, [[0, 0.5], [0.11, 1], [0.34, 1], [0.65, 0], [1, 0]]),
+    ].map(v => Math.round(Math.max(0, Math.min(1, v)) * 255));
+  });
+})();
+
+function applyJet(img, canvas) {
+  if (!canvas || !img.naturalWidth || !img.naturalHeight) return;
+  canvas.width = img.naturalWidth;
+  canvas.height = img.naturalHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(img, 0, 0);
+  const d = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const px = d.data;
+  for (let i = 0; i < px.length; i += 4) {
+    const [r, g, b] = JET_LUT[px[i]];
+    px[i] = r; px[i + 1] = g; px[i + 2] = b; px[i + 3] = 255;
+  }
+  ctx.putImageData(d, 0, 0);
+}
+
+function JetCanvas({ src, className, alt }) {
+  const canvasRef = useRef(null);
+  useEffect(() => {
+    if (!src) return undefined;
+    const img = new Image();
+    let cancelled = false;
+
+    img.decoding = 'async';
+    img.onload = () => {
+      if (!cancelled) applyJet(img, canvasRef.current);
+    };
+    img.src = src;
+
+    return () => { cancelled = true; };
+  }, [src]);
+
+  if (!src) return null;
+  return <canvas ref={canvasRef} className={className} role="img" aria-label={alt} />;
+}
 
 // Original shown cropped to the model's view (Resize 256 -> CenterCrop 224);
 // click toggles to the full untouched image inside the same box.
@@ -257,7 +308,7 @@ function MiniImage({ caption, src, alt, missingText = 'Not available', variant =
         ? <div className="mini-image__missing">{missingText}</div>
         : variant === 'original'
           ? <OriginalImage className="mini-image__asset mini-image__asset--original" src={resolvedSrc} alt={alt} />
-          : <img className="mini-image__asset mini-image__asset--attribution" src={resolvedSrc} alt={alt} loading="lazy" />}
+          : <JetCanvas className="mini-image__asset mini-image__asset--attribution" src={resolvedSrc} alt={alt} />}
     </figure>
   );
 }
@@ -266,7 +317,14 @@ function ColorbarLegend() {
   return (
     <div className="colorbar-legend">
       <span className="colorbar-legend__title">Attribution</span>
-      <img className="colorbar-legend__bar" src={COLORBAR_SRC} alt="Attribution color scale from 0 to 1" />
+      <div className="colorbar-legend__bar" role="img" aria-label="Attribution color scale from 0 to 1" />
+      <div className="colorbar-legend__ticks" aria-hidden="true">
+        <span>0</span>
+        <span>0.25</span>
+        <span>0.5</span>
+        <span>0.75</span>
+        <span>1</span>
+      </div>
       <p className="colorbar-legend__note">Normalized relative to each image</p>
     </div>
   );
@@ -441,7 +499,7 @@ function SingleImageGallery({ imageData, labels }) {
         {outputs.map(([method, url]) => (
           <div key={method} className="image-card">
             <div className="image-card__header"><h3>{method}</h3></div>
-            <img className="image-card__image image-card__image--attribution" src={resolveAssetUrl(url)} alt={`${method} explanation`} loading="lazy" />
+            <JetCanvas className="image-card__image image-card__image--attribution" src={resolveAssetUrl(url)} alt={`${method} explanation`} />
           </div>
         ))}
       </div>

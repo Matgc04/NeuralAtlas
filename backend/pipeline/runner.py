@@ -88,10 +88,6 @@ def run_generation(args: Namespace) -> None:
         model_name=args.model,
         dataset_name=config.DATASET_NAME,
         image_ext=args.image_ext,
-        method="heat_map",
-        sign="absolute_value",
-        cmap="jet",
-        show_colorbar=False,
     ):
         buffer.append(record)
         if len(buffer) >= args.export_batch_images:

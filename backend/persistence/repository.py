@@ -324,6 +324,7 @@ class OutputRepository:
         manifest = {
             "schema_version": 1,
             "generated_at": datetime.now(timezone.utc).isoformat(),
+            "attribution_encoding": dict(config.ATTRIBUTION_ENCODING),
             "catalogs": {
                 "models": str(self._models_catalog_path().relative_to(self.public_root)).replace("\\", "/"),
                 "methods": str(self._methods_catalog_path().relative_to(self.public_root)).replace("\\", "/"),
@@ -369,6 +370,7 @@ class OutputRepository:
         return {
             "model": model,
             "dataset": dataset,
+            "attribution_encoding": dict(config.ATTRIBUTION_ENCODING),
             "imageCount": len(records),
             "classCount": len(class_ids),
             "methodCount": len(methods),

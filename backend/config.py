@@ -14,6 +14,16 @@ DEFAULT_IMAGE_EXT = "avif"
 DEFAULT_NUM_SAMPLES = 20
 DEFAULT_EXPORT_BATCH_IMAGES = 5
 OUTPUT_IMAGES_BASE_URL = "/outputs/images"
+ATTRIBUTION_ENCODING = {
+    "format": "normalized_grayscale",
+    "encoded_range": "uint8_0_255",
+    "sign": "absolute_value",
+    "channel_reduction": "sum",
+    "normalization": "cumulative_sum_threshold",
+    "outlier_perc": 2.0,
+    "colormap": "jet",
+    "colormap_applied_by": "frontend",
+}
 
 
 def manifest_path() -> Path:
@@ -38,4 +48,3 @@ def run_images_path(model: str, dataset: str) -> Path:
 
 def run_summary_path(model: str, dataset: str) -> Path:
     return run_dir(model, dataset) / "summary.json"
-

@@ -613,9 +613,29 @@ body {
 
 .colorbar-legend__bar {
   width: 100%;
-  height: auto;
+  height: 0.55rem;
   display: block;
   margin: 0.35rem 0 0.2rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    rgb(0, 0, 128) 0%,
+    rgb(0, 0, 255) 11%,
+    rgb(0, 255, 255) 34%,
+    rgb(0, 255, 0) 50%,
+    rgb(255, 255, 0) 66%,
+    rgb(255, 0, 0) 89%,
+    rgb(128, 0, 0) 100%
+  );
+}
+
+.colorbar-legend__ticks {
+  display: flex;
+  justify-content: space-between;
+  margin: 0.15rem 0 0.1rem;
+  font-size: 0.6rem;
+  color: var(--muted);
 }
 
 .colorbar-legend__note {
