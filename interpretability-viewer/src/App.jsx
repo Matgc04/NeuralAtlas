@@ -194,23 +194,42 @@ function formatMetricPercent(value) {
 
 const COLORBAR_SRC = resolveAssetUrl('outputs/master_colorbar_jet.webp');
 
-function MiniImage({
-  caption,
-  src,
-  alt,
-  missingText = 'Not available',
-  showColorbar = false,
-  variant = 'attribution',
-}) {
+// Original shown cropped to the model's view (Resize 256 -> CenterCrop 224);
+// click toggles to the full untouched image inside the same box.
+function OriginalImage({ src, alt, className }) {
+  const [expanded, setExpanded] = useState(false);
+  if (!src) return null;
+  return (
+    <img
+      className={`${className} original-crop${expanded ? ' is-expanded' : ''}`}
+      src={src} alt={alt} loading="lazy"
+      onClick={() => setExpanded((v) => !v)}
+      title={expanded ? 'Full image — click to crop to model view' : 'Cropped to model view (224) — click for full image'}
+    />
+  );
+}
+
+function MiniImage({ caption, src, alt, missingText = 'Not available', variant = 'attribution' }) {
   const resolvedSrc = resolveAssetUrl(src);
   return (
     <figure className="mini-image">
       <figcaption>{caption}</figcaption>
-      {resolvedSrc
-        ? <img className={`mini-image__asset mini-image__asset--${variant}`} src={resolvedSrc} alt={alt} loading="lazy" />
-        : <div className="mini-image__missing">{missingText}</div>}
-      {showColorbar && resolvedSrc && <img className="colorbar" src={COLORBAR_SRC} alt="" />}
+      {!resolvedSrc
+        ? <div className="mini-image__missing">{missingText}</div>
+        : variant === 'original'
+          ? <OriginalImage className="mini-image__asset mini-image__asset--original" src={resolvedSrc} alt={alt} />
+          : <img className="mini-image__asset mini-image__asset--attribution" src={resolvedSrc} alt={alt} loading="lazy" />}
     </figure>
+  );
+}
+
+function ColorbarLegend() {
+  return (
+    <div className="colorbar-legend">
+      <span className="colorbar-legend__title">Attribution</span>
+      <img className="colorbar-legend__bar" src={COLORBAR_SRC} alt="Attribution color scale from 0 to 1" />
+      <p className="colorbar-legend__note">Normalized relative to each image</p>
+    </div>
   );
 }
 
@@ -218,7 +237,7 @@ function MethodFigures({ method, outputs, imageId }) {
   const entries = resolveMethodEntries(method, outputs);
   if (!entries.length) return <MiniImage caption="Method not selected" missingText="—" />;
   return entries.map(([name, url]) => (
-    <MiniImage key={name} caption={name} src={url} alt={`${name} for image ${imageId}`} showColorbar />
+    <MiniImage key={name} caption={name} src={url} alt={`${name} for image ${imageId}`} />
   ));
 }
 
@@ -377,14 +396,13 @@ function SingleImageGallery({ imageData, labels }) {
       <PredictionBadge prediction={imageData.prediction} classId={imageData.classId} labels={labels} />
       <div className="gallery-grid gallery-grid--single">
         <div className="image-card image-card--featured" style={{ '--delay': '80ms' }}>
-          <div className="image-card__header"><h3>Original Image</h3></div>
-          <img className="image-card__image image-card__image--original" src={resolveAssetUrl(imageData.original)} alt="Original selection" />
+          <div className="image-card__header"><h3>Image</h3></div>
+          <OriginalImage className="image-card__image image-card__image--original" src={resolveAssetUrl(imageData.original)} alt="Original selection" />
         </div>
         {outputs.map(([method, url]) => (
           <div key={method} className="image-card">
             <div className="image-card__header"><h3>{method}</h3></div>
             <img className="image-card__image image-card__image--attribution" src={resolveAssetUrl(url)} alt={`${method} explanation`} loading="lazy" />
-            <img className="colorbar" src={COLORBAR_SRC} alt="" />
           </div>
         ))}
       </div>
@@ -697,6 +715,7 @@ function ModelForm({ outputStructure }) {
                 <div className="status-message" role="status">Some dataset metadata failed to load.</div>
               )}
             </div>
+            <ColorbarLegend />
           </>
         )}
       </aside>

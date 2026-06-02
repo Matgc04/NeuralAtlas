@@ -557,18 +557,51 @@ body {
 
 .image-card__image--attribution,
 .mini-image__asset--attribution {
-  height: auto;
+  aspect-ratio: 1;
   object-fit: contain;
   border-radius: 0;
   background: transparent;
 }
 
-.colorbar {
+/* Match torchvision Resize(256) -> CenterCrop(224): cover + 256/224 zoom, centered. */
+.original-crop {
+  object-fit: cover;
+  object-position: center;
+  transform: scale(1.1428571);
+  cursor: pointer;
+}
+
+.original-crop.is-expanded {
+  object-fit: contain;
+  transform: none;
+}
+
+.colorbar-legend {
+  margin-top: 0.9rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--border);
+}
+
+.colorbar-legend__title {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.colorbar-legend__bar {
   width: 100%;
   height: auto;
   display: block;
-  border-radius: 0;
-  margin-top: -2px;
+  margin: 0.35rem 0 0.2rem;
+}
+
+.colorbar-legend__note {
+  margin: 0.25rem 0 0;
+  font-size: 0.66rem;
+  color: var(--muted);
+  font-style: italic;
 }
 
 .model-grid {
