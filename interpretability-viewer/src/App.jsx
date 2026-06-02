@@ -5,6 +5,20 @@ const ALL_METHODS = '__all_methods__';
 const EMPTY_OBJ = {};
 const BASE_URL = import.meta.env.BASE_URL ?? '/';
 
+const VS_KEYS = ['mode', 'model', 'dataset', 'classId', 'imageId', 'method'];
+
+function readStateFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  return Object.fromEntries(VS_KEYS.map((k) => [k, params.get(k)]).filter(([, v]) => v != null));
+}
+
+function writeStateToUrl(vs) {
+  const params = new URLSearchParams();
+  for (const k of VS_KEYS) if (vs[k] != null) params.set(k, vs[k]);
+  const query = params.toString();
+  window.history.replaceState(null, '', query ? `?${query}` : window.location.pathname);
+}
+
 const METHOD_CATEGORIES = {
   gradient: {
     label: 'Gradient',
@@ -95,7 +109,7 @@ function buildLegacyOutputStructure(manifest, runPayloads) {
     }
   }
 
-  for (const [model, modelNode] of Object.entries(structure.models)) {
+  for (const modelNode of Object.values(structure.models)) {
     const datasets = modelNode?.datasets ?? EMPTY_OBJ;
     const firstDatasetWithMetrics = Object.values(datasets).find((datasetNode) => datasetNode?.metrics);
     if (firstDatasetWithMetrics?.metrics) {
@@ -475,15 +489,16 @@ function resolveSelection(options, currentValue) {
 function ModelForm({ outputStructure }) {
   const modelsStruct = outputStructure?.models ?? EMPTY_OBJ;
 
-  const [vs, setVs] = useState({
+  const [vs, setVs] = useState(() => ({
     mode: 'single', model: null, dataset: null, classId: null, imageId: null, method: null,
-  });
+    ...readStateFromUrl(),
+  }));
   const [panelCollapsed, setPanelCollapsed] = useState(false);
   const [imgCache, setImgCache] = useState({});
   const [lblCache, setLblCache] = useState({});
   const [dsStatus, setDsStatus] = useState({});
 
-  const patch = (update) => setVs((p) => ({ ...p, ...update }));
+  const patch = (update) => { const next = { ...vs, ...update }; setVs(next); writeStateToUrl(next); };
 
   const modelOptions = useMemo(() => Object.keys(modelsStruct).sort(), [modelsStruct]);
 
@@ -625,11 +640,10 @@ function ModelForm({ outputStructure }) {
   const isLoading = dsInfo.imagesLoading || dsInfo.labelsLoading;
 
   const handleModeChange = (mode) => {
-    setVs((p) => {
-      const next = { ...p, mode };
-      if (mode !== 'single') next.imageId = null;
-      return next;
-    });
+    const next = { ...vs, mode };
+    if (mode !== 'single') next.imageId = null;
+    setVs(next);
+    writeStateToUrl(next);
   };
 
   const methodLabel = !effectiveMethod
