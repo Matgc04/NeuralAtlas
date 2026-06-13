@@ -4,9 +4,6 @@ name: CI
 # Replica el build del deploy sin publicar nada, para detectar a tiempo
 # cualquier cosa que rompería GitHub Pages.
 on:
-  push:
-    branches:
-      - dev
   pull_request:
     branches:
       - main
