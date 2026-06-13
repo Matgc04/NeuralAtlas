@@ -24,6 +24,7 @@ class Generator:
         self.captioner = captioner
         self.image_generator = image_generator
         self.only = self._parse_only(args.only)
+        self.exclude = [self._parse_only(value) for value in (args.exclude or [])]
 
         public_dir = Path(args.public_dir)
         self.source_dir = public_dir / args.source
@@ -52,7 +53,7 @@ class Generator:
             self.structure.setdefault(class_id, [])
             for image_index, filename in enumerate(self.source_structure[class_id]):
                 image_id = str(image_index)
-                if not self._targeted(class_id, image_id):
+                if not self._targeted(class_id, image_id) or self._excluded(class_id, image_id):
                     continue
                 matched += 1
                 existing = self._find(class_id, image_id)
@@ -102,7 +103,7 @@ class Generator:
         pending = 0
         for class_id, filenames in self.source_structure.items():
             for image_index in range(len(filenames)):
-                if not self._targeted(class_id, str(image_index)):
+                if not self._targeted(class_id, str(image_index)) or self._excluded(class_id, str(image_index)):
                     continue
                 existing = self._find(class_id, str(image_index))
                 if not forced and existing and existing.get("generated_filename"):
@@ -112,11 +113,16 @@ class Generator:
                     return self.args.limit
         return pending
 
-    def _targeted(self, class_id: str, image_id: str) -> bool:
-        if self.only is None:
-            return True
-        want_class, want_image = self.only
+    @staticmethod
+    def _matches(selector: tuple[str, str | None], class_id: str, image_id: str) -> bool:
+        want_class, want_image = selector
         return class_id == want_class and (want_image is None or image_id == want_image)
+
+    def _targeted(self, class_id: str, image_id: str) -> bool:
+        return self.only is None or self._matches(self.only, class_id, image_id)
+
+    def _excluded(self, class_id: str, image_id: str) -> bool:
+        return any(self._matches(selector, class_id, image_id) for selector in self.exclude)
 
     def _find(self, class_id: str, image_id: str) -> dict[str, Any] | None:
         for item in self.captions.get("images", []):

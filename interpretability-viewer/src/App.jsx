@@ -827,7 +827,7 @@ function ModelForm({ outputStructure }) {
               <SearchableSelect
                 label="Dataset" value={effectiveDataset}
                 items={datasetOptions}
-                onSelect={(v) => patch({ dataset: v, classId: null, imageId: null })}
+                onSelect={(v) => patch({ dataset: v })}
                 placeholder="Search dataset"
                 disabled={!datasetOptions.length}
               />

@@ -57,6 +57,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--only", metavar="CLASS[/INDEX]",
                         help="regenerate just one target and force it: a class_id (e.g. 1) for the whole class, "
                              "or class_id/index (e.g. 1/0) for a single image")
+    parser.add_argument("--exclude", metavar="CLASS[/INDEX]", action="append",
+                        help="skip a class_id or class_id/index; repeatable (e.g. --exclude 1 --exclude 5/0)")
     parser.add_argument("--stage", choices=["image", "full"], default="image",
                         help="what to (re)generate per processed item: 'image' reuses the saved caption and only "
                              "regenerates the picture (cheap, no vision call); 'full' re-captions then regenerates")

@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 DEFAULT_MODEL_NAME = "alexnet"
-DATASET_NAME = "imagenet-pico"
+DATASET_NAME = "imagenet-pico-ai"
 BASE_PUBLIC_DIR = Path("interpretability-viewer/public")
 OUTPUT_ROOT = BASE_PUBLIC_DIR / "outputs"
 OUTPUT_IMAGES_DIR = OUTPUT_ROOT / "images"
