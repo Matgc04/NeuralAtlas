@@ -1,9 +1,13 @@
-import { useEffect, useId, useMemo, useRef, useState } from 'react';
+import { createContext, useContext, useEffect, useId, useMemo, useRef, useState } from 'react';
 import './App.css';
 
 const ALL_METHODS = '__all_methods__';
 const EMPTY_OBJ = {};
 const BASE_URL = import.meta.env.BASE_URL ?? '/';
+
+// Overlay display preference (heatmap composited over the original), shared by all views.
+const OverlayContext = createContext({ enabled: false, opacity: 0.8 });
+const useOverlay = () => useContext(OverlayContext);
 
 const VS_KEYS = ['mode', 'model', 'dataset', 'classId', 'imageId', 'method'];
 
@@ -249,7 +253,7 @@ const JET_LUT = (() => {
   });
 })();
 
-function applyJet(img, canvas) {
+function applyJet(img, canvas, overlay) {
   if (!canvas || !img.naturalWidth || !img.naturalHeight) return;
   canvas.width = img.naturalWidth;
   canvas.height = img.naturalHeight;
@@ -258,13 +262,16 @@ function applyJet(img, canvas) {
   const d = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const px = d.data;
   for (let i = 0; i < px.length; i += 4) {
-    const [r, g, b] = JET_LUT[px[i]];
-    px[i] = r; px[i + 1] = g; px[i + 2] = b; px[i + 3] = 255;
+    const gray = px[i];
+    const [r, g, b] = JET_LUT[gray];
+    // Overlay: amplify low attributions via gamma so diffuse methods are visible.
+    const alpha = overlay ? Math.round(Math.pow(gray / 255, 0.5) * 255) : 255;
+    px[i] = r; px[i + 1] = g; px[i + 2] = b; px[i + 3] = alpha;
   }
   ctx.putImageData(d, 0, 0);
 }
 
-function JetCanvas({ src, className, alt }) {
+function JetCanvas({ src, className, alt, overlay = false, opacity }) {
   const canvasRef = useRef(null);
   useEffect(() => {
     if (!src) return undefined;
@@ -273,15 +280,32 @@ function JetCanvas({ src, className, alt }) {
 
     img.decoding = 'async';
     img.onload = () => {
-      if (!cancelled) applyJet(img, canvasRef.current);
+      if (!cancelled) applyJet(img, canvasRef.current, overlay);
     };
     img.src = src;
 
     return () => { cancelled = true; };
-  }, [src]);
+  }, [src, overlay]);
 
   if (!src) return null;
-  return <canvas ref={canvasRef} className={className} role="img" aria-label={alt} />;
+  return (
+    <canvas
+      ref={canvasRef} className={className} role="img" aria-label={alt}
+      style={opacity == null ? undefined : { opacity }}
+    />
+  );
+}
+
+// Heatmap, optionally composited over the model-view crop of the original.
+function Attribution({ src, originalSrc, alt, className }) {
+  const { enabled, opacity } = useOverlay();
+  if (!enabled || !originalSrc) return <JetCanvas className={className} src={src} alt={alt} />;
+  return (
+    <div className={`${className} overlay-stack`}>
+      <img className="overlay-stack__base" src={originalSrc} alt="" loading="lazy" />
+      <JetCanvas className="overlay-stack__heat" src={src} alt={alt} overlay opacity={opacity} />
+    </div>
+  );
 }
 
 // Original shown cropped to the model's view (Resize 256 -> CenterCrop 224);
@@ -299,7 +323,7 @@ function OriginalImage({ src, alt, className }) {
   );
 }
 
-function MiniImage({ caption, src, alt, missingText = 'Not available', variant = 'attribution' }) {
+function MiniImage({ caption, src, alt, missingText = 'Not available', variant = 'attribution', originalSrc }) {
   const resolvedSrc = resolveAssetUrl(src);
   return (
     <figure className="mini-image">
@@ -308,8 +332,28 @@ function MiniImage({ caption, src, alt, missingText = 'Not available', variant =
         ? <div className="mini-image__missing">{missingText}</div>
         : variant === 'original'
           ? <OriginalImage className="mini-image__asset mini-image__asset--original" src={resolvedSrc} alt={alt} />
-          : <JetCanvas className="mini-image__asset mini-image__asset--attribution" src={resolvedSrc} alt={alt} />}
+          : <Attribution className="mini-image__asset mini-image__asset--attribution" src={resolvedSrc} originalSrc={resolveAssetUrl(originalSrc)} alt={alt} />}
     </figure>
+  );
+}
+
+function OverlayControl({ enabled, opacity, onToggle, onOpacity }) {
+  return (
+    <div className="overlay-control">
+      <button
+        type="button" className={`overlay-control__toggle${enabled ? ' is-on' : ''}`}
+        onClick={onToggle} aria-pressed={enabled}
+      >Overlay heatmap</button>
+      {enabled && (
+        <label className="overlay-control__opacity">
+          Opacity
+          <input
+            type="range" min="0" max="1" step="0.05" value={opacity}
+            onChange={(e) => onOpacity(Number(e.target.value))}
+          />
+        </label>
+      )}
+    </div>
   );
 }
 
@@ -330,11 +374,11 @@ function ColorbarLegend() {
   );
 }
 
-function MethodFigures({ method, outputs, imageId }) {
+function MethodFigures({ method, outputs, imageId, originalSrc }) {
   const entries = resolveMethodEntries(method, outputs);
   if (!entries.length) return <MiniImage caption="Method not selected" missingText="—" />;
   return entries.map(([name, url]) => (
-    <MiniImage key={name} caption={name} src={url} alt={`${name} for image ${imageId}`} />
+    <MiniImage key={name} caption={name} src={url} originalSrc={originalSrc} alt={`${name} for image ${imageId}`} />
   ));
 }
 
@@ -499,7 +543,7 @@ function SingleImageGallery({ imageData, labels }) {
         {outputs.map(([method, url]) => (
           <div key={method} className="image-card">
             <div className="image-card__header"><h3>{method}</h3></div>
-            <JetCanvas className="image-card__image image-card__image--attribution" src={resolveAssetUrl(url)} alt={`${method} explanation`} />
+            <Attribution className="image-card__image image-card__image--attribution" src={resolveAssetUrl(url)} originalSrc={resolveAssetUrl(imageData.original)} alt={`${method} explanation`} />
           </div>
         ))}
       </div>
@@ -522,7 +566,7 @@ function ModelGridView({ records, method, ready, labels }) {
           </header>
           <div className="model-grid-card__images">
             <MiniImage caption="Original" src={record.originalUrl} alt={`Original ${record.imageId}`} missingText="Original unavailable" variant="original" />
-            <MethodFigures method={method} outputs={record.outputs} imageId={record.imageId} />
+            <MethodFigures method={method} outputs={record.outputs} imageId={record.imageId} originalSrc={record.originalUrl} />
           </div>
         </article>
       ))}
@@ -551,7 +595,7 @@ function ClassCompareView({ matrix, method, ready, labels }) {
             {row.cells.map((cell) => (
               <article key={`${row.imageId}__${cell.model}`} className="compare-cell" data-model={cell.model}>
                 <PredictionBadge prediction={cell.record?.prediction} classId={row.classId} labels={labels} />
-                <MethodFigures method={method} outputs={cell.record?.outputs ?? {}} imageId={row.imageId} />
+                <MethodFigures method={method} outputs={cell.record?.outputs ?? {}} imageId={row.imageId} originalSrc={cell.record?.originalUrl} />
               </article>
             ))}
           </div>
@@ -577,6 +621,8 @@ function ModelForm({ outputStructure }) {
     ...readStateFromUrl(),
   }));
   const [panelCollapsed, setPanelCollapsed] = useState(false);
+  const [overlay, setOverlay] = useState(false);
+  const [overlayOpacity, setOverlayOpacity] = useState(0.8);
   const [imgCache, setImgCache] = useState({});
   const [lblCache, setLblCache] = useState({});
   const [dsStatus, setDsStatus] = useState({});
@@ -748,6 +794,7 @@ function ModelForm({ outputStructure }) {
   })();
 
   return (
+    <OverlayContext.Provider value={{ enabled: overlay, opacity: overlayOpacity }}>
     <div className={`viewer-layout${panelCollapsed ? ' viewer-layout--collapsed' : ''}`}>
       <aside className={`controls-panel${panelCollapsed ? ' controls-panel--collapsed' : ''}`}>
         {panelCollapsed ? (
@@ -812,6 +859,10 @@ function ModelForm({ outputStructure }) {
                 <div className="status-message" role="status">Some dataset metadata failed to load.</div>
               )}
             </div>
+            <OverlayControl
+              enabled={overlay} opacity={overlayOpacity}
+              onToggle={() => setOverlay((v) => !v)} onOpacity={setOverlayOpacity}
+            />
             <ColorbarLegend />
           </>
         )}
@@ -842,6 +893,7 @@ function ModelForm({ outputStructure }) {
         )}
       </main>
     </div>
+    </OverlayContext.Provider>
   );
 }
 
