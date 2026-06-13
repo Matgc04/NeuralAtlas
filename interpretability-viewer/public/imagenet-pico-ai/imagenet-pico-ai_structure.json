@@ -1,0 +1,42 @@
+{
+  "0": [
+    "ILSVRC2012_val_00030740__ai.jpg",
+    "ILSVRC2012_val_00046252__ai.jpg"
+  ],
+  "1": [
+    "ILSVRC2012_val_00000994__ai.jpg",
+    "ILSVRC2012_val_00020822__ai.jpg"
+  ],
+  "2": [
+    "ILSVRC2012_val_00030127__ai.jpg",
+    "ILSVRC2012_val_00039445__ai.jpg"
+  ],
+  "3": [
+    "ILSVRC2012_val_00007875__ai.jpg",
+    "ILSVRC2012_val_00015631__ai.jpg"
+  ],
+  "4": [
+    "ILSVRC2012_val_00027160__ai.jpg",
+    "ILSVRC2012_val_00034178__ai.jpg"
+  ],
+  "5": [
+    "ILSVRC2012_val_00007569__ai.jpg",
+    "ILSVRC2012_val_00037260__ai.jpg"
+  ],
+  "6": [
+    "ILSVRC2012_val_00013655__ai.jpg",
+    "ILSVRC2012_val_00032394__ai.jpg"
+  ],
+  "7": [
+    "ILSVRC2012_val_00019101__ai.jpg",
+    "ILSVRC2012_val_00048952__ai.jpg"
+  ],
+  "8": [
+    "ILSVRC2012_val_00014917__ai.png",
+    "ILSVRC2012_val_00048242__ai.jpg"
+  ],
+  "9": [
+    "ILSVRC2012_val_00034316__ai.jpg",
+    "ILSVRC2012_val_00048600__ai.jpg"
+  ]
+}

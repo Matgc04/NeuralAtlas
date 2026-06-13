@@ -1,0 +1,28 @@
+{
+  "attribution_encoding": {
+    "channel_reduction": "sum",
+    "colormap": "jet",
+    "colormap_applied_by": "frontend",
+    "encoded_range": "uint8_0_255",
+    "format": "normalized_grayscale",
+    "normalization": "cumulative_sum_threshold",
+    "outlier_perc": 2.0,
+    "sign": "absolute_value"
+  },
+  "classCount": 10,
+  "dataset": "imagenet-pico-ai",
+  "imageCount": 20,
+  "methodCount": 20,
+  "metrics": {
+    "accuracy": 0.85,
+    "classCount": 12,
+    "correct": 17,
+    "incorrect": 3,
+    "macroF1": 0.7333333333333334,
+    "macroPrecision": 0.8055555555555555,
+    "macroRecall": 0.7083333333333334,
+    "missingPredictions": 0,
+    "total": 20
+  },
+  "model": "alexnet"
+}

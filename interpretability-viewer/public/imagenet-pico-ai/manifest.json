@@ -1,0 +1,17 @@
+{
+  "schema_version": 3,
+  "dataset": "imagenet-pico-ai",
+  "source_dataset": "imagenet-pico",
+  "mode": "paired",
+  "caption_provider": "gemini",
+  "caption_model": "gemini-3.5-flash",
+  "image_provider": "codex",
+  "image_model": "gpt-5.4-mini",
+  "image_size": null,
+  "image_width": null,
+  "image_height": null,
+  "image_steps": null,
+  "structure": "imagenet-pico-ai/imagenet-pico-ai_structure.json",
+  "captions": "imagenet-pico-ai/captions.json",
+  "generated_at": "2026-06-13T20:21:44.522891+00:00"
+}
