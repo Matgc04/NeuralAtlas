@@ -375,7 +375,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--methods", nargs="+",
                         help="Only run these attribution method ids (default: all)")
     parser.add_argument("--recompute", action="store_true",
-                        help="Recompute the selected methods from the first sample")
+                        help="Recompute the selected methods from the first sample, or from "
+                             "--resume-from when provided")
+    parser.add_argument("--resume-from", type=int,
+                        help="Explicit sample checkpoint for a recomputation; samples before "
+                             "this index are skipped")
     parser.add_argument("--metadata-only", action="store_true",
                         help="Do not render or upload images; commit run JSON after each chunk")
     parser.add_argument("--export-batch-images", type=int, default=10,
@@ -393,6 +397,10 @@ def main() -> None:
     args = parse_args()
     if args.chunk <= 0 or (args.total is not None and args.total <= 0):
         raise SystemExit("--chunk and --total must be positive.")
+    if args.resume_from is not None and args.resume_from < 0:
+        raise SystemExit("--resume-from must not be negative.")
+    if args.resume_from is not None and not args.recompute:
+        raise SystemExit("--resume-from requires --recompute.")
     args.image_ext = args.image_ext.lstrip(".").lower()
     validate_model_names(args.models)
     validate_method_names(args.methods)
@@ -424,6 +432,10 @@ def main() -> None:
 
     available = ensure_dataset(args.dataset, dry_run=args.dry_run)
     total = min(args.total, available) if args.total else available
+    if args.resume_from is not None and args.resume_from > total:
+        raise SystemExit(
+            f"--resume-from ({args.resume_from}) exceeds the sweep total ({total})."
+        )
     targets = [
         min(target, total)
         for target in range(args.chunk, total + args.chunk, args.chunk)
@@ -444,7 +456,9 @@ def main() -> None:
             args.metrics,
             set(args.methods) if args.methods else None,
         )
-        if force_full_window:
+        if args.resume_from is not None:
+            log(f"  {model}: {args.resume_from}/{total} explicit recompute checkpoint")
+        elif force_full_window:
             log(f"  {model}: 0/{total} samples scheduled for recompute")
         else:
             log(f"  {model}: {done}/{total} samples already complete")
@@ -491,9 +505,15 @@ def main() -> None:
             args.metrics,
             set(args.methods) if args.methods else None,
         )
-        if force_full_window:
+        if args.resume_from is not None:
+            done = args.resume_from
+            checkpoint_label = "explicit recompute checkpoint"
+        elif force_full_window:
             done = 0
-        log(f"Starting {model} from remote-confirmed checkpoint {done}/{total}")
+            checkpoint_label = "forced recompute start"
+        else:
+            checkpoint_label = "remote-confirmed checkpoint"
+        log(f"Starting {model} from {checkpoint_label} {done}/{total}")
 
         for target in targets:
             if done >= target:
