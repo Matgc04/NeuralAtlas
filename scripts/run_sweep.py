@@ -433,21 +433,31 @@ def main() -> None:
         f"{args.chunk} | "
         f"metrics={args.metrics or ['none']} | upload={upload} cleanup={cleanup}"
     )
-    for model in args.models:
-        done = completed_samples(
-            repository,
-            model,
-            args.dataset,
-            args.image_ext,
-            args.metrics,
-            set(args.methods) if args.methods else None,
-        )
+    def checkpoint(model: str) -> tuple[int, str]:
+        """Where `model` resumes from, and why; the scan is skipped when overridden.
+
+        Scanning walks the dataset and parses the whole run file, so it only runs
+        when neither flag has already decided the starting point.
+        """
         if args.resume_from is not None:
-            log(f"  {model}: {args.resume_from}/{total} explicit recompute checkpoint")
-        elif force_full_window:
-            log(f"  {model}: 0/{total} samples scheduled for recompute")
-        else:
-            log(f"  {model}: {done}/{total} samples already complete")
+            return args.resume_from, "explicit recompute checkpoint"
+        if force_full_window:
+            return 0, "forced recompute start"
+        return (
+            completed_samples(
+                repository,
+                model,
+                args.dataset,
+                args.image_ext,
+                args.metrics,
+                set(args.methods) if args.methods else None,
+            ),
+            "persisted checkpoint",
+        )
+
+    for model in args.models:
+        done, label = checkpoint(model)
+        log(f"  {model}: {done}/{total} {label}")
     if args.dry_run:
         return
 
@@ -483,22 +493,8 @@ def main() -> None:
                 if downloaded:
                     log(f"Restored {downloaded} checkpoint files from HF for {model}")
 
-        done = completed_samples(
-            repository,
-            model,
-            args.dataset,
-            args.image_ext,
-            args.metrics,
-            set(args.methods) if args.methods else None,
-        )
-        if args.resume_from is not None:
-            done = args.resume_from
-            checkpoint_label = "explicit recompute checkpoint"
-        elif force_full_window:
-            done = 0
-            checkpoint_label = "forced recompute start"
-        else:
-            checkpoint_label = "remote-confirmed checkpoint"
+        # Recomputed after the HF sync above, which can restore newer checkpoints.
+        done, checkpoint_label = checkpoint(model)
         log(f"Starting {model} from {checkpoint_label} {done}/{total}")
 
         for target in targets:
