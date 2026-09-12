@@ -28,6 +28,8 @@ class MethodCatalogEntry:
     `family` selects the infidelity perturbation (Yeh et al., 2019, §2.5):
     local methods report sensitivity; global methods estimate output change.
     `category` describes computation, so a gradient method can be global.
+    `calibrate_fidelity` marks the mask-based methods whose attribution is on an
+    arbitrary scale, so fidelity fits a scale before scoring it.
     """
 
     id: str
@@ -36,6 +38,7 @@ class MethodCatalogEntry:
     family: str
     requires_layer: bool = False
     segmentation: str | None = None
+    calibrate_fidelity: bool = False
 
     def to_dict(self) -> dict[str, str | bool | None]:
         return {
@@ -201,9 +204,9 @@ def _make_superpixel_runtime_kwargs(mask_fn: Callable[..., object], **seg_kwargs
 
 def method_catalog() -> list[MethodCatalogEntry]:
     base_entries = [
-        MethodCatalogEntry("CB-RISE", "CB-RISE", "perturbation", GLOBAL_FAMILY),
-        MethodCatalogEntry("RISE", "RISE", "perturbation", GLOBAL_FAMILY),
-        MethodCatalogEntry("Occlusion", "Occlusion", "perturbation", GLOBAL_FAMILY),
+        MethodCatalogEntry("CB-RISE", "CB-RISE", "perturbation", GLOBAL_FAMILY, calibrate_fidelity=True),
+        MethodCatalogEntry("RISE", "RISE", "perturbation", GLOBAL_FAMILY, calibrate_fidelity=True),
+        MethodCatalogEntry("Occlusion", "Occlusion", "perturbation", GLOBAL_FAMILY, calibrate_fidelity=True),
         MethodCatalogEntry("GuidedGradCam", "GuidedGradCam", "gradient", LOCAL_FAMILY, True),
         MethodCatalogEntry("GradientShap", "GradientShap", "gradient", GLOBAL_FAMILY),
         MethodCatalogEntry("Saliency", "Saliency", "gradient", LOCAL_FAMILY),

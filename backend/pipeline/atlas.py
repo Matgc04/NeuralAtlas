@@ -44,8 +44,10 @@ def evaluate_faithfulness(
     target: torch.Tensor,
     metrics: set[str],
     perturbation: Perturbation,
+    *,
     segments: torch.Tensor | None = None,
     feature_mask: torch.Tensor | None = None,
+    calibrate_fidelity: bool = False,
 ) -> dict[str, MetricValue]:
     """Faithfulness scores for one attribution map, keyed by metric name.
 
@@ -108,6 +110,7 @@ def evaluate_faithfulness(
             perturbation=perturbation,
             max_examples_per_batch=config.FIDELITY_MAX_EXAMPLES_PER_BATCH,
             random_seed=config.FIDELITY_RANDOM_SEED,
+            calibrate=calibrate_fidelity,
         )
         fidelity = float(metric.compute()[0].item())
         scores["fidelity"] = fidelity if math.isfinite(fidelity) else None
@@ -313,12 +316,9 @@ class AtlasRunner:
         image_ext = image_ext.lstrip(".").lower()
 
         keys = sample_keys(self.data)[start_index:]
-        perturbations = {
-            entry.id: PERTURBATION_FOR_FAMILY[entry.family]
-            for entry in method_catalog()
-        }
+        entries = {entry.id: entry for entry in method_catalog()}
         uncatalogued = sorted(
-            name for name in map(str, self.interp_methods) if name not in perturbations
+            name for name in map(str, self.interp_methods) if name not in entries
         )
         if metrics and uncatalogued:
             raise ValueError(
@@ -407,13 +407,18 @@ class AtlasRunner:
                                     attribution,
                                     attribution_target,
                                     metrics,
-                                    perturbations[method_name],
-                                    segments,
-                                    getattr(
+                                    PERTURBATION_FOR_FAMILY[
+                                        entries[method_name].family
+                                    ],
+                                    segments=segments,
+                                    feature_mask=getattr(
                                         interp_method.runtime_kwargs_fn,
                                         "last_mask",
                                         None,
                                     ),
+                                    calibrate_fidelity=entries[
+                                        method_name
+                                    ].calibrate_fidelity,
                                 )
                             )
 

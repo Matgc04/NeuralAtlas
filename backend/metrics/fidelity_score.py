@@ -1,4 +1,4 @@
-"""Fidelity metric normalized against a zero-attribution baseline."""
+"""Fidelity and calibrated spatial predictive improvement."""
 
 from __future__ import annotations
 
@@ -134,6 +134,9 @@ class FidelityScore(Metric):
     (section 2.5), so the caller passes the perturbation: `GaussianNoise` for
     local explanations, `SquareRemoval` for global ones. Scores from the two
     measure different things and must not be ranked against each other.
+
+    With ``calibrate=True``, fit an intercept and nonnegative slope on separate
+    samples and compare against their mean output change instead of zero.
     """
 
     def __init__(
@@ -149,6 +152,7 @@ class FidelityScore(Metric):
         self.inputs = inputs.detach()
         self.attributions = attributions.detach()
         self.targets = targets.detach()
+        self._original_scores: torch.Tensor | None = None
         self._validate_inputs()
         if feature_mask is not None:
             self.attributions = self._share_over_features(
@@ -199,25 +203,34 @@ class FidelityScore(Metric):
         n_perturb_samples: int = 25,
         max_examples_per_batch: int = 5,
         random_seed: int = 0,
+        calibrate: bool = False,
     ) -> None:
+        """Sample perturbations and reduce them to one score per image.
+
+        ``calibrate`` draws ``n_perturb_samples`` twice: the first set fits the
+        intercept and slope, the second is scored against them.
+        """
         if n_perturb_samples < 1:
             raise ValueError("n_perturb_samples must be positive")
         if max_examples_per_batch < 1:
             raise ValueError("max_examples_per_batch must be positive")
 
         batch_size = self.inputs.shape[0]
-        attribution_error_sum = self.inputs.new_zeros(batch_size)
-        baseline_error_sum = self.inputs.new_zeros(batch_size)
+        predictions = []
+        observations = []
+        sample_count = n_perturb_samples * (2 if calibrate else 1)
         generator = torch.Generator(device=self.inputs.device).manual_seed(random_seed)
 
         with torch.no_grad():
-            original_scores = self._target_scores(
-                self.model(self.inputs), self.targets
-            )
+            if self._original_scores is None:
+                self._original_scores = self._target_scores(
+                    self.model(self.inputs), self.targets
+                )
+            original_scores = self._original_scores
 
             sampled = 0
-            while sampled < n_perturb_samples:
-                count = min(max_examples_per_batch, n_perturb_samples - sampled)
+            while sampled < sample_count:
+                count = min(max_examples_per_batch, sample_count - sampled)
                 perturbations, weights = perturbation.sample(
                     self.inputs, count, generator
                 )
@@ -233,12 +246,28 @@ class FidelityScore(Metric):
                     weights * self.attributions.unsqueeze(0)
                 ).flatten(2).sum(dim=2)
                 observed_changes = original_scores.unsqueeze(0) - perturbed_scores
-                attribution_error_sum += (
-                    predicted_changes - observed_changes
-                ).square().sum(dim=0)
-                baseline_error_sum += observed_changes.square().sum(dim=0)
+                predictions.append(predicted_changes)
+                observations.append(observed_changes)
                 sampled += count
 
+        predicted = torch.cat(predictions)
+        observed = torch.cat(observations)
+        baseline_prediction = self.inputs.new_zeros(batch_size)
+        if calibrate:
+            z, predicted = predicted.split(n_perturb_samples)
+            y, observed = observed.split(n_perturb_samples)
+            z_mean = z.mean(dim=0)
+            baseline_prediction = y.mean(dim=0)
+            z = z - z_mean
+            y = y - baseline_prediction
+            # A zero denominator means z is constant, so the numerator is zero
+            # too; the floor just keeps the division finite.
+            denominator = z.square().sum(dim=0).clamp_min(torch.finfo(z.dtype).eps)
+            scale = ((z * y).sum(dim=0) / denominator).clamp_min(0)
+            predicted = baseline_prediction + scale * (predicted - z_mean)
+
+        attribution_error_sum = (predicted - observed).square().sum(dim=0)
+        baseline_error_sum = (observed - baseline_prediction).square().sum(dim=0)
         result = torch.full_like(attribution_error_sum, torch.nan)
         defined = baseline_error_sum > 0
         result[defined] = (

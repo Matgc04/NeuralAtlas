@@ -14,6 +14,8 @@ FAITHFULNESS_N_STEPS = 100
 FAITHFULNESS_BLUR_SIGMA = None
 # Gaussian blur sigma of the PeS/PdS source paper (tau=0.5, phi=1%, 100 steps).
 MORPH_BLUR_SIGMA = 10.0
+# Draws per image. Methods marked `calibrate_fidelity` in the catalog draw this
+# many twice: one set fits the scale, the other is scored against it.
 FIDELITY_N_PERTURB_SAMPLES = 25
 # Local explanations use the noisy baseline of Yeh et al. (2019), global ones
 # square removal. Both land under the same "fidelity" key, so the scores of the
