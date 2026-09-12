@@ -18,7 +18,7 @@ def run_generation(args: Namespace) -> None:
         raise SystemExit("--dataset must not be empty.")
     if args.num_samples <= 0:
         raise SystemExit("--num-samples must be a positive integer.")
-    start_index = getattr(args, "start_index", 0)
+    start_index = args.start_index
     if start_index < 0:
         raise SystemExit("--start-index must not be negative.")
     if start_index >= args.num_samples:
@@ -28,7 +28,7 @@ def run_generation(args: Namespace) -> None:
         )
     if args.export_batch_images <= 0:
         raise SystemExit("--export-batch-images must be a positive integer.")
-    selected_methods = getattr(args, "methods", None)
+    selected_methods = args.methods
     known_methods = {entry.id for entry in method_catalog()}
     if selected_methods:
         unknown_methods = sorted(set(selected_methods) - known_methods)
@@ -71,7 +71,7 @@ def run_generation(args: Namespace) -> None:
             f" (model={args.model}, dataset={dataset_name}, ext={args.image_ext})"
         )
 
-    if getattr(args, "metadata_only", False) and not args.metrics:
+    if args.metadata_only and not args.metrics:
         interp_methods = []
     else:
         interp_methods = build_interp_methods(
@@ -117,7 +117,7 @@ def run_generation(args: Namespace) -> None:
         dataset_name=dataset_name,
         image_ext=args.image_ext,
         metrics=set(args.metrics),
-        render_images=not getattr(args, "metadata_only", False),
+        render_images=not args.metadata_only,
     ):
         buffer.append(record)
         if len(buffer) >= args.export_batch_images:
