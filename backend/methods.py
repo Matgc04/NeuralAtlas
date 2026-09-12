@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import lru_cache
 from typing import TYPE_CHECKING, Callable
 
 import numpy as np
 from attr_config import AttributionConfig
 import torch
+
+from backend import config
 
 if TYPE_CHECKING:
     from captum._utils.typing import TensorOrTupleOfTensorsGeneric
@@ -166,14 +169,26 @@ def kmeans_superpixels(
     return labels.reshape(h, w).astype(np.int64, copy=False)
 
 
-def _make_superpixel_runtime_kwargs(mask_fn: Callable[..., object], **seg_kwargs: object):
-    cached_inputs: torch.Tensor | None = None
-    cached_mask: torch.Tensor | None = None
+class _SuperpixelFeatures:
+    """Segment an input once and hand the mask to Captum as `feature_mask`.
 
-    def _runtime_kwargs(
-        inputs: "TensorOrTupleOfTensorsGeneric", _target: object
+    Holds only the segmentation and its last input, rather than capturing the
+    enclosing scope: the provider lives as long as the catalog entry does.
+    `AttributionConfig` records the kwargs it passed, so fidelity reads the mask
+    back from there to undo Captum's per-pixel repetition of each coefficient.
+    """
+
+    __slots__ = ("_mask_fn", "_seg_kwargs", "_cached_inputs", "_cached_mask")
+
+    def __init__(self, mask_fn: Callable[..., object], **seg_kwargs: object) -> None:
+        self._mask_fn = mask_fn
+        self._seg_kwargs = seg_kwargs
+        self._cached_inputs: torch.Tensor | None = None
+        self._cached_mask: torch.Tensor | None = None
+
+    def __call__(
+        self, inputs: "TensorOrTupleOfTensorsGeneric", _target: object
     ) -> dict[str, "torch.Tensor"]:
-        nonlocal cached_inputs, cached_mask
         inputs_tensor = inputs[0] if isinstance(inputs, tuple) else inputs
         if not isinstance(inputs_tensor, torch.Tensor):
             raise TypeError(
@@ -181,28 +196,35 @@ def _make_superpixel_runtime_kwargs(mask_fn: Callable[..., object], **seg_kwargs
                 f"got {type(inputs_tensor)}."
             )
 
-        if inputs_tensor is not cached_inputs:
-            cached_mask = make_superpixel_mask(
-                mask_function=mask_fn,
+        if inputs_tensor is not self._cached_inputs:
+            mask = make_superpixel_mask(
+                mask_function=self._mask_fn,
                 img=inputs_tensor,
-                **seg_kwargs,
+                **self._seg_kwargs,
             )
-            cached_inputs = inputs_tensor
+            # Validate on a miss only; the count cannot change while the mask is cached.
+            feature_count = int(torch.unique(mask).numel())
+            if feature_count < 2:
+                raise InsufficientFeaturesError(feature_count)
+            self._cached_mask = mask
+            self._cached_inputs = inputs_tensor
 
-        if cached_mask is None:
+        if self._cached_mask is None:
             raise RuntimeError("Superpixel mask cache was not initialized.")
-        feature_count = int(torch.unique(cached_mask).numel())
-        if feature_count < 2:
-            raise InsufficientFeaturesError(feature_count)
-        # Fidelity needs the same mask to undo Captum's per-pixel repetition of
-        # each superpixel coefficient; the caller reads it back off this closure.
-        _runtime_kwargs.last_mask = cached_mask
-        return {"feature_mask": cached_mask}
+        return {"feature_mask": self._cached_mask}
 
-    return _runtime_kwargs
+
+@lru_cache(maxsize=1)
+def _catalog() -> tuple[MethodCatalogEntry, ...]:
+    return tuple(_build_catalog())
 
 
 def method_catalog() -> list[MethodCatalogEntry]:
+    """The catalog, rebuilt from a cached immutable copy so callers may mutate it."""
+    return list(_catalog())
+
+
+def _build_catalog() -> list[MethodCatalogEntry]:
     base_entries = [
         MethodCatalogEntry("CB-RISE", "CB-RISE", "perturbation", GLOBAL_FAMILY, calibrate_fidelity=True),
         MethodCatalogEntry("RISE", "RISE", "perturbation", GLOBAL_FAMILY, calibrate_fidelity=True),
@@ -240,6 +262,23 @@ def method_catalog() -> list[MethodCatalogEntry]:
     return base_entries
 
 
+def extra_metric_keys(metrics: set[str]) -> dict[str, set[str]]:
+    """Metric keys a method emits beyond `metrics`, keyed by method id.
+
+    Superpixel methods carry a `feature_mask`, so `evaluate_faithfulness` scores a
+    second fidelity variant for them whenever fidelity is requested. Deriving this
+    from `segmentation` keeps the producer and the completion check reading the
+    same definition instead of matching on method names.
+    """
+    if "fidelity" not in metrics:
+        return {}
+    return {
+        entry.id: {"fidelity_superpixel"}
+        for entry in _catalog()
+        if entry.segmentation is not None
+    }
+
+
 def build_interp_methods(
     last_conv_layer: "nn.Module",
     device: "torch.device",
@@ -263,13 +302,13 @@ def build_interp_methods(
     from backend.cb_rise import CBRISE
     from backend.rise import RISE
 
-    slic_medium = _make_superpixel_runtime_kwargs(
+    slic_medium = _SuperpixelFeatures(
         slic,
         n_segments=32,
         compactness=10.0,
         start_label=0,
     )
-    kmeans_medium = _make_superpixel_runtime_kwargs(
+    kmeans_medium = _SuperpixelFeatures(
         kmeans_superpixels,
         n_clusters=32,
         add_xy=True,
@@ -277,8 +316,13 @@ def build_interp_methods(
         random_state=0,
         n_init=10,
     )
-    # Shared reference point, matching FIDELITY_SQUARE_BASELINE.
-    zero_baseline = torch.zeros(1, INPUT_CHANNELS, INPUT_SIZE, INPUT_SIZE, device=device)
+    # One reference point for the attribution baselines and the fidelity removal,
+    # so a removed patch means the same thing everywhere.
+    zero_baseline = torch.full(
+        (1, INPUT_CHANNELS, INPUT_SIZE, INPUT_SIZE),
+        config.FIDELITY_SQUARE_BASELINE,
+        device=device,
+    )
 
     return [
         AttributionConfig(

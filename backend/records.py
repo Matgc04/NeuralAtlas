@@ -68,14 +68,25 @@ class ImageRecord:
         default_factory=dict
     )
 
-    def completed_methods(self, image_ext: str, metrics: set[str]) -> set[str]:
+    def completed_methods(
+        self,
+        image_ext: str,
+        metrics: set[str],
+        extra_metrics: Mapping[str, set[str]] | None = None,
+    ) -> set[str]:
         """Methods that need no rerun: a registered failure, or an output of the right
-        format whose faithfulness metrics were all persisted."""
+        format whose faithfulness metrics were all persisted.
+
+        `extra_metrics` names the keys a given method emits on top of `metrics` --
+        superpixel methods also score `fidelity_superpixel` -- so a record written
+        before that key existed still counts as incomplete.
+        """
         target_ext = f".{image_ext.lower()}"
         completed = set(self.attribution_failures)
         for method, url in self.outputs.items():
+            required = metrics | (extra_metrics or {}).get(method, set())
             persisted = self.interpretability_metrics.get(method, {})
-            if url.lower().endswith(target_ext) and persisted.keys() >= metrics:
+            if url.lower().endswith(target_ext) and persisted.keys() >= required:
                 completed.add(method)
         return completed
 

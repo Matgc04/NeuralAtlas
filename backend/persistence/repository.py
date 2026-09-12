@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any, Iterator, Mapping
 
 from backend import config
-from backend.methods import MethodCatalogEntry, method_catalog
+from backend.methods import MethodCatalogEntry, extra_metric_keys, method_catalog
 from backend.records import ImageRecord
 
 
@@ -254,9 +254,12 @@ class OutputRepository:
         method can be done for one window and missing in the next.
         """
         records = self._records_by_key(model, dataset)
+        extra = extra_metric_keys(metrics)
         for key in keys:
             record = records.get(key)
-            yield record.completed_methods(image_ext, metrics) if record else set()
+            yield (
+                record.completed_methods(image_ext, metrics, extra) if record else set()
+            )
 
     def methods_complete_for_all(
         self,

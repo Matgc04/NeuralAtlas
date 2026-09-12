@@ -111,7 +111,40 @@ class SquareRemoval:
         return mask * removed.unsqueeze(0), mask
 
 
-Perturbation = GaussianNoise | SquareRemoval
+@dataclass(frozen=True, slots=True)
+class SuperpixelRemoval:
+    """Remove one uniformly sampled feature per image, with replacement.
+
+    Reuse the attribution's segmentation. Each draw removes a whole feature,
+    irrespective of its area; this is a separate fidelity experiment from squares.
+    """
+
+    feature_mask: torch.Tensor
+    baseline: float
+
+    def sample(
+        self,
+        inputs: torch.Tensor,
+        count: int,
+        generator: torch.Generator,
+    ) -> tuple[torch.Tensor, torch.Tensor]:
+        # The same segmentation covers every sample in the batch, so the feature
+        # ids are found once and the draws broadcast over (count, batch).
+        features = self.feature_mask.unique()
+        selected = features[
+            torch.randint(
+                features.numel(),
+                (count, inputs.shape[0], 1, 1, 1),
+                device=inputs.device,
+                generator=generator,
+            )
+        ]
+        # (count, batch, 1, height, width); the channel axis broadcasts, as above.
+        mask = (self.feature_mask == selected).to(inputs.dtype)
+        return mask * (inputs - self.baseline).unsqueeze(0), mask
+
+
+Perturbation = GaussianNoise | SquareRemoval | SuperpixelRemoval
 
 
 class FidelityScore(Metric):

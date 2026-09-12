@@ -22,7 +22,9 @@ from backend.methods import (
     InsufficientFeaturesError,
     method_catalog,
 )
-from backend.metrics.fidelity_score import GaussianNoise, Perturbation, SquareRemoval
+from backend.metrics.fidelity_score import (
+    GaussianNoise, Perturbation, SquareRemoval, SuperpixelRemoval,
+)
 from backend.records import AttributionFailure, ImageRecord, MetricValue, PredictionRecord
 
 # Yeh et al. (2019) pair each explanation family with its own perturbation
@@ -105,15 +107,21 @@ def evaluate_faithfulness(
         scores["segment"] = float(metric.compute()[0].item())
     if "fidelity" in metrics:
         metric = FidelityScore(model, inputs, attribution, target, feature_mask)
-        metric.update(
-            n_perturb_samples=config.FIDELITY_N_PERTURB_SAMPLES,
-            perturbation=perturbation,
-            max_examples_per_batch=config.FIDELITY_MAX_EXAMPLES_PER_BATCH,
-            random_seed=config.FIDELITY_RANDOM_SEED,
-            calibrate=calibrate_fidelity,
-        )
-        fidelity = float(metric.compute()[0].item())
-        scores["fidelity"] = fidelity if math.isfinite(fidelity) else None
+        variants = {"fidelity": perturbation}
+        if feature_mask is not None:
+            variants["fidelity_superpixel"] = SuperpixelRemoval(
+                feature_mask, baseline=config.FIDELITY_SQUARE_BASELINE
+            )
+        for name, removal in variants.items():
+            metric.update(
+                n_perturb_samples=config.FIDELITY_N_PERTURB_SAMPLES,
+                perturbation=removal,
+                max_examples_per_batch=config.FIDELITY_MAX_EXAMPLES_PER_BATCH,
+                random_seed=config.FIDELITY_RANDOM_SEED,
+                calibrate=calibrate_fidelity,
+            )
+            fidelity = float(metric.compute()[0].item())
+            scores[name] = fidelity if math.isfinite(fidelity) else None
     return scores
 
 
@@ -411,10 +419,10 @@ class AtlasRunner:
                                         entries[method_name].family
                                     ],
                                     segments=segments,
-                                    feature_mask=getattr(
-                                        interp_method.runtime_kwargs_fn,
-                                        "last_mask",
-                                        None,
+                                    feature_mask=(
+                                        interp_method.last_runtime_kwargs.get(
+                                            "feature_mask"
+                                        )
                                     ),
                                     calibrate_fidelity=entries[
                                         method_name

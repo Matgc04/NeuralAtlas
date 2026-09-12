@@ -440,16 +440,17 @@ function formatMetricBadgeValue(value) {
     : value.toFixed(2);
 }
 
+// Display order only; each metric is described once, in the wiki.
+function metricTitle(name) {
+  const entry = lookupWiki('metric', name);
+  return entry ? `${entry.title} — ${entry.summary}` : name;
+}
+
+const METRIC_ORDER = ['mif', 'lif', 'morph', 'segment', 'fidelity', 'fidelity_superpixel'];
+
 function MetricBadges({ metrics }) {
-  const definitions = {
-    mif: 'Most Important First AUC',
-    lif: 'Least Important First AUC',
-    morph: 'Morphological faithfulness AUC',
-    segment: 'Segment-wise deletion AUC',
-    fidelity: 'Fidelity relative to a zero attribution (higher is better)',
-  };
-  const items = Object.entries(definitions)
-    .map(([name, title]) => ({ name, title, rawValue: metrics?.[name] }))
+  const items = METRIC_ORDER
+    .map((name) => ({ name, title: metricTitle(name), rawValue: metrics?.[name] }))
     .filter(({ rawValue }) => rawValue != null && rawValue !== '' && Number.isFinite(Number(rawValue)))
     .map(({ name, title, rawValue }) => ({ name, title, value: Number(rawValue) }));
 

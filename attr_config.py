@@ -28,6 +28,10 @@ class AttributionConfig:
         self.suffix = suffix
         self.runtime_kwargs_fn = runtime_kwargs_fn
         self.layer = self.config.pop("layer", None)
+        # Kwargs of the most recent `attribute` call, so a caller that needs the
+        # same inputs the attributor saw (a superpixel `feature_mask`, say) can
+        # read them back instead of reaching into the provider.
+        self.last_runtime_kwargs: dict[str, Any] = {}
 
         self._attributor: Attribution | None = None
         self._bound_model_id: int | None = None
@@ -54,6 +58,7 @@ class AttributionConfig:
             if self.runtime_kwargs_fn is not None
             else {}
         )
+        self.last_runtime_kwargs = runtime_kwargs
 
         return self.callback(
             attributor.attribute(
