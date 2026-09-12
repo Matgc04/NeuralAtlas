@@ -31,7 +31,6 @@ import os
 import shutil
 import subprocess
 import sys
-import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable, TypeVar
@@ -41,6 +40,8 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from backend import config  # noqa: E402
 from backend.ai_dataset.core import load_env  # noqa: E402
+from backend.hf import attributions_base_repo, model_repo_id  # noqa: E402
+from backend.hf import with_retries as _with_retries  # noqa: E402
 from backend.methods import method_catalog  # noqa: E402
 from backend.persistence import OutputRepository  # noqa: E402
 
@@ -51,7 +52,6 @@ DEFAULT_MODELS = [
     "mobilenet_v2",
     "convnext_tiny",
 ]
-DEFAULT_ATTRIBUTIONS_REPO = "Matgc04/neuralatlas-attributions"
 T = TypeVar("T")
 
 
@@ -61,21 +61,7 @@ def log(message: str) -> None:
 
 
 def with_retries(label: str, action: Callable[[], T], attempts: int = 4) -> T:
-    """Retry a network action with exponential backoff; a multi-day run will hit blips."""
-    for attempt in range(1, attempts + 1):
-        try:
-            return action()
-        except Exception as error:
-            if attempt == attempts:
-                raise
-            delay = 15 * 2 ** (attempt - 1)
-            log(f"warn: {label} failed ({error!r}); retrying in {delay}s")
-            time.sleep(delay)
-    raise AssertionError("unreachable")
-
-
-def model_repo_id(base_repo: str, model: str) -> str:
-    return f"{base_repo}-{model}"
+    return _with_retries(label, action, attempts, log=log)
 
 
 def classification_model_names() -> list[str]:
@@ -408,7 +394,7 @@ def main() -> None:
 
     load_env(REPO_ROOT / ".env")
     token = os.getenv("HF_TOKEN")
-    attributions_repo_base = os.getenv("HF_ATTRIBUTIONS_REPO", DEFAULT_ATTRIBUTIONS_REPO)
+    attributions_repo_base = attributions_base_repo()
     model_repos = {
         model: model_repo_id(attributions_repo_base, model) for model in args.models
     }

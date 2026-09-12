@@ -33,9 +33,13 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from backend import config  # noqa: E402
 from backend.ai_dataset.core import load_env  # noqa: E402
+from backend.hf import (  # noqa: E402
+    DEFAULT_ATTRIBUTIONS_REPO,
+    attributions_base_repo,
+    model_repo_id,
+)
 from backend.persistence import ModelCatalogEntry, OutputRepository  # noqa: E402
 
-DEFAULT_ATTRIBUTIONS_REPO = "Matgc04/neuralatlas-attributions"
 RUN_FILENAMES = frozenset({"images.json", "summary.json"})
 
 
@@ -55,7 +59,7 @@ def discover_repos(api, base_repo: str) -> list[str]:
     except ValueError as error:
         raise ValueError(f"Expected OWNER/REPO for --base-repo, got {base_repo!r}") from error
 
-    prefix = f"{owner}/{repo_name}-"
+    prefix = model_repo_id(f"{owner}/{repo_name}", "")
     return sorted(
         str(info.id)
         for info in api.list_datasets(author=owner)
@@ -238,7 +242,7 @@ def main() -> None:
     from huggingface_hub import HfApi
 
     api = HfApi(token=os.getenv("HF_TOKEN"))
-    base_repo = args.base_repo or os.getenv("HF_ATTRIBUTIONS_REPO", DEFAULT_ATTRIBUTIONS_REPO)
+    base_repo = attributions_base_repo(args.base_repo)
     repos = sorted(set(args.repos or discover_repos(api, base_repo)))
     if not repos:
         raise SystemExit(f"No HF dataset repos found with prefix {base_repo}-")

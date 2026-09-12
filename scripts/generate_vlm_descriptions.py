@@ -12,7 +12,6 @@ import math
 import os
 import shutil
 import sys
-import time
 from collections import defaultdict
 from collections.abc import Callable, Iterable
 from concurrent.futures import ThreadPoolExecutor
@@ -26,6 +25,8 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from backend import config  # noqa: E402
 from backend.ai_dataset.core import load_env, load_labels, sort_key  # noqa: E402
+from backend.hf import attributions_base_repo, model_repo_id  # noqa: E402
+from backend.hf import with_retries as _with_retries  # noqa: E402
 from backend.persistence import OutputRepository  # noqa: E402
 from backend.records import ImageRecord  # noqa: E402
 from backend.vlm import (  # noqa: E402
@@ -37,22 +38,18 @@ from backend.vlm import (  # noqa: E402
     vlm_data_url,
 )
 
-DEFAULT_ATTRIBUTIONS_REPO = "Matgc04/neuralatlas-attributions"
 DEFAULT_VLM_MODEL = "Qwen3-VL-8B-Instruct"
 T = TypeVar("T")
 
 
 def with_retries(label: str, action: Callable[[], T], attempts: int = 3) -> T:
-    for attempt in range(1, attempts + 1):
-        try:
-            return action()
-        except Exception as error:
-            if attempt == attempts:
-                raise
-            delay = 2 ** attempt
-            print(f"warn: {label} failed ({error!r}); retrying in {delay}s", flush=True)
-            time.sleep(delay)
-    raise AssertionError("unreachable")
+    return _with_retries(
+        label,
+        action,
+        attempts,
+        base_delay=2,
+        log=lambda message: print(message, flush=True),
+    )
 
 
 def parse_args() -> argparse.Namespace:
@@ -251,8 +248,7 @@ def main() -> None:
 
     from huggingface_hub import HfApi
 
-    base_repo = os.getenv("HF_ATTRIBUTIONS_REPO", DEFAULT_ATTRIBUTIONS_REPO)
-    repo_id = args.repo or f"{base_repo}-{args.model}"
+    repo_id = args.repo or model_repo_id(attributions_base_repo(), args.model)
     api = HfApi(token=token)
     revision = str(api.repo_info(repo_id=repo_id, repo_type="dataset").sha)
     records = read_run(api, repo_id, revision, args.model, args.dataset)
