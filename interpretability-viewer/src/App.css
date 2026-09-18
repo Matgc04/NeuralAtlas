@@ -1218,6 +1218,18 @@ body {
   margin: calc(-1 * var(--space-2xs)) 0;
 }
 
+/* A long prediction must yield to the original's label. Without an explicit
+   flex minimum the badge keeps its intrinsic width and squeezes "Image" into
+   a one-character column. */
+.image-card__header--original h3 {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.image-card__header--original .prediction {
+  min-width: 0;
+}
+
 .image-card h3 {
   min-width: 0;
   overflow-wrap: break-word;
@@ -1249,7 +1261,7 @@ body {
 .metric-badges {
   margin-top: var(--space-sm);
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-xs) var(--space-sm);
 }
 
@@ -1263,6 +1275,10 @@ body {
 }
 
 .metric-badge dt {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: var(--text2);
   font-size: var(--fs-micro);
   font-weight: 600;
@@ -1272,13 +1288,11 @@ body {
 }
 
 .metric-badge dd {
-  min-width: 0;
+  flex-shrink: 0;
   font-size: var(--fs-caption);
   font-weight: 600;
   line-height: 1.2;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 /* ── Images ─────────────────────────────────────────────────────

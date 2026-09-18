@@ -446,7 +446,7 @@ function metricTitle(name) {
   return entry ? `${entry.title} — ${entry.summary}` : name;
 }
 
-const METRIC_ORDER = ['mif', 'lif', 'morph', 'segment', 'fidelity', 'fidelity_superpixel'];
+const METRIC_ORDER = ['lif', 'morph', 'segment', 'fidelity', 'fidelity_superpixel'];
 
 function MetricBadges({ metrics }) {
   const items = METRIC_ORDER
@@ -1234,7 +1234,7 @@ function SingleImageGallery({ imageData, labels }) {
       <SectionRule label={`Original + ${outputs.length} attribution${outputs.length === 1 ? '' : 's'}`} />
       <div className="gallery-grid">
         <div className="image-card" style={{ '--delay': '80ms' }}>
-          <div className="image-card__header">
+          <div className="image-card__header image-card__header--original">
             <h3>Image</h3>
             <PredictionBadge prediction={imageData.prediction} classId={imageData.classId} labels={labels} />
           </div>
@@ -1446,7 +1446,7 @@ function resolveSelection(options, currentValue) {
 
 /* ── Main Form ──────────────────────────────────────────────── */
 
-function ModelForm({ atlas }) {
+function ModelForm({ atlas, runs }) {
   const { models, records } = atlas;
 
   const [vs, setVs] = useState(() => ({
@@ -1770,6 +1770,20 @@ function ModelForm({ atlas }) {
     />
   ) : null;
 
+  // Wait only for the active selection, including models still loading that
+  // cannot yet appear in the record-derived comparison filters.
+  const requiredModels = vs.mode === 'class_compare'
+    ? modelOptions.filter((model) => effectiveDataset in models[model]
+      && (vs.models == null || vs.models.split(',').includes(model)))
+    : effectiveModel && effectiveDataset ? [effectiveModel] : [];
+  const requiredRuns = requiredModels.map((model) => runs[`${model}::${effectiveDataset}`]);
+  if (requiredRuns.some((run) => run?.error)) {
+    return <AppStatus>Could not load the selected run. Reload to try again.</AppStatus>;
+  }
+  if (requiredRuns.some((run) => !run)) {
+    return <AppStatus>Loading the selected view.</AppStatus>;
+  }
+
   return (
     <OverlayContext.Provider value={{ enabled: overlay, opacity: overlayOpacity }}>
     <WikiContext.Provider value={wikiApi}>
@@ -1881,50 +1895,64 @@ function ModelForm({ atlas }) {
   );
 }
 
-async function loadAtlasData(signal) {
-  const manifest = await fetchJson('outputs/manifest.json', { signal });
-
-  const entries = Object.entries(manifest?.runs ?? {}).flatMap(([model, datasets]) =>
-    Object.entries(datasets ?? {}).map(([dataset, paths]) => ({ model, dataset, paths }))
-  );
-
-  const runPayloads = Object.fromEntries(
-    await Promise.all(
-      entries.map(async ({ model, dataset, paths }) => {
-        const [images, summary] = await Promise.all([
-          fetchJson(paths.images, { signal }),
-          fetchJson(paths.summary, { signal }),
-        ]);
-        return [`${model}::${dataset}`, { images, summary, baseUrl: paths.base_url }];
-      })
-    )
-  );
-
-  return buildAtlasData(manifest, runPayloads);
-}
-
 function App() {
-  const [atlas, setAtlas] = useState(null);
+  const [manifest, setManifest] = useState(null);
+  const [runs, setRuns] = useState({});
   const [error, setError] = useState(null);
 
   useAtlasFavicon();
 
   useEffect(() => {
-  const controller = new AbortController();
+    const controller = new AbortController();
+    const { signal } = controller;
 
-  loadAtlasData(controller.signal)
-    .then(setAtlas)
-    .catch((e) => {
-      if (e.name !== 'AbortError') setError(e);
-    });
+    fetchJson('outputs/manifest.json', { signal })
+      .then((data) => {
+        if (signal.aborted) return;
+        setManifest(data);
+        for (const [model, datasets] of Object.entries(data.runs ?? {})) {
+          for (const [dataset, paths] of Object.entries(datasets)) {
+            const key = `${model}::${dataset}`;
+            Promise.all([
+              fetchJson(paths.images, { signal }),
+              fetchJson(paths.summary, { signal }),
+            ]).then(([images, summary]) => {
+              if (signal.aborted) return;
+              // Normalize each run once as it arrives; other runs never gate it.
+              const run = buildAtlasData({
+                models: [model], datasets_by_model: { [model]: [dataset] },
+              }, { [key]: { images, summary, baseUrl: paths.base_url } });
+              setRuns((previous) => ({ ...previous, [key]: run }));
+            }).catch((error) => {
+              if (!signal.aborted) setRuns((previous) => ({ ...previous, [key]: { error } }));
+            });
+          }
+        }
+      })
+      .catch((error) => {
+        if (!signal.aborted) setError(error);
+      });
 
-  return () => controller.abort();
-}, []);
+    return () => controller.abort();
+  }, []);
+
+  const atlas = useMemo(() => {
+    const data = buildAtlasData(manifest, {});
+    for (const [model, datasets] of Object.entries(data.models)) {
+      for (const dataset of Object.keys(datasets)) {
+        const run = runs[`${model}::${dataset}`];
+        if (!run || run.error) continue;
+        datasets[dataset] = run.models[model][dataset];
+        data.records.push(...run.records);
+      }
+    }
+    return data;
+  }, [manifest, runs]);
 
   if (error) return <AppStatus>Could not read outputs/manifest.json. Check that the run outputs are published, then reload.</AppStatus>;
-  if (!atlas) return <AppStatus>Reading run manifest and attribution metadata.</AppStatus>;
+  if (!manifest) return <AppStatus>Reading run manifest.</AppStatus>;
 
-  return <div className="app-shell"><ModelForm atlas={atlas} /></div>;
+  return <div className="app-shell"><ModelForm atlas={atlas} runs={runs} /></div>;
 }
 
 export default App;
