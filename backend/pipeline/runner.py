@@ -3,12 +3,14 @@ from __future__ import annotations
 from argparse import Namespace
 
 import torch
+from torchvision import datasets
 
 from backend import config
 from backend.methods import build_interp_methods, method_catalog
 from backend.models import build_model_runtime
 from backend.persistence import ModelCatalogEntry, OutputRepository
 from backend.pipeline.atlas import AtlasRunner, dataset_keys
+from backend.sample_selection import load_sample_selection, resolve_sample_indices
 
 
 def run_generation(args: Namespace) -> None:
@@ -16,12 +18,13 @@ def run_generation(args: Namespace) -> None:
     dataset_name = args.dataset.strip()
     if not dataset_name:
         raise SystemExit("--dataset must not be empty.")
-    if args.num_samples <= 0:
+    sample_selection = getattr(args, "sample_selection", None)
+    if args.num_samples <= 0 and sample_selection is None:
         raise SystemExit("--num-samples must be a positive integer.")
     start_index = args.start_index
-    if start_index < 0:
+    if start_index < 0 and sample_selection is None:
         raise SystemExit("--start-index must not be negative.")
-    if start_index >= args.num_samples:
+    if start_index >= args.num_samples and sample_selection is None:
         raise SystemExit(
             f"--start-index ({start_index}) must be below --num-samples "
             f"({args.num_samples}); the window [start, num-samples) would be empty."
@@ -40,6 +43,18 @@ def run_generation(args: Namespace) -> None:
     dataset_dir = config.BASE_PUBLIC_DIR / dataset_name / "val"
     if not dataset_dir.is_dir():
         raise SystemExit(f"Dataset directory not found: {dataset_dir}")
+
+    sample_indices = None
+    if sample_selection is not None:
+        requested = load_sample_selection(sample_selection, dataset_name)
+        selection_data = datasets.ImageFolder(str(dataset_dir))
+        sample_indices = resolve_sample_indices(selection_data, requested)
+        selected_keys = [(class_id, source_filename) for class_id, _, source_filename in requested]
+        if not sample_indices:
+            print(f"No samples selected in {sample_selection}.")
+            return
+    else:
+        selected_keys = dataset_keys(dataset_dir, start_index, args.num_samples)
 
     torch.manual_seed(0)
     runtime = build_model_runtime(args.model)
@@ -87,7 +102,7 @@ def run_generation(args: Namespace) -> None:
         complete = repository.methods_complete_for_all(
             args.model,
             dataset_name,
-            dataset_keys(dataset_dir, start_index, args.num_samples),
+            selected_keys,
             args.image_ext,
             set(args.metrics),
         )
@@ -117,6 +132,7 @@ def run_generation(args: Namespace) -> None:
         dataset_name=dataset_name,
         image_ext=args.image_ext,
         metrics=set(args.metrics),
+        sample_indices=sample_indices,
         render_images=not args.metadata_only,
     ):
         buffer.append(record)

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import warnings
+from pathlib import Path
 
 from backend import config
 
@@ -65,6 +66,14 @@ def parse_args() -> argparse.Namespace:
             "First dataset sample to process (default: 0). Together with --num-samples "
             "this selects the half-open window [start-index, num-samples), so a chunked "
             "run can process only the samples it has not covered yet."
+        ),
+    )
+    parser.add_argument(
+        "--sample-selection",
+        type=Path,
+        help=(
+            "Process only the samples in a sparse selection JSON. When set, "
+            "--start-index and --num-samples are ignored."
         ),
     )
     parser.add_argument(
