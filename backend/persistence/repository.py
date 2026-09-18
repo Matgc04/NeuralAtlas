@@ -236,7 +236,7 @@ class OutputRepository:
         dataset: str,
     ) -> dict[tuple[str, str], ImageRecord]:
         return {
-            (record.class_id, record.image_id): record
+            record.sample_key: record
             for record in self.load_images(model, dataset)
         }
 
@@ -298,11 +298,12 @@ class OutputRepository:
     ) -> None:
         existing = self._records_by_key(model, dataset)
         for record in records:
-            key = (record.class_id, record.image_id)
+            key = record.sample_key
             current = existing.get(key)
             if current is None:
                 existing[key] = record
                 continue
+            current.image_id = record.image_id
             if record.original_url:
                 current.original_url = record.original_url
             if record.prediction is not None:
@@ -317,14 +318,23 @@ class OutputRepository:
             for method_name, metric_values in record.interpretability_metrics.items():
                 current.interpretability_metrics.setdefault(method_name, {}).update(metric_values)
 
-        merged = sorted(
-            existing.values(),
+        self.replace_image_records(model, dataset, list(existing.values()))
+
+    def replace_image_records(
+        self,
+        model: str,
+        dataset: str,
+        records: list[ImageRecord],
+    ) -> None:
+        """Atomically replace a run with a complete set of image records."""
+        ordered = sorted(
+            records,
             key=lambda record: (
                 int(record.class_id) if record.class_id.isdigit() else record.class_id,
                 int(record.image_id) if record.image_id.isdigit() else record.image_id,
             ),
         )
-        self._write_run_bundle(model, dataset, merged)
+        self._write_run_bundle(model, dataset, ordered)
 
     def prune_stale_artifacts(
         self,
