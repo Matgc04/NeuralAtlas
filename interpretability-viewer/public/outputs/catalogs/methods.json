@@ -2,6 +2,7 @@
   "methods": [
     {
       "category": "perturbation",
+      "family": "global",
       "id": "CB-RISE",
       "label": "CB-RISE",
       "requires_layer": false,
@@ -9,6 +10,7 @@
     },
     {
       "category": "perturbation",
+      "family": "global",
       "id": "RISE",
       "label": "RISE",
       "requires_layer": false,
@@ -16,6 +18,7 @@
     },
     {
       "category": "perturbation",
+      "family": "global",
       "id": "Occlusion",
       "label": "Occlusion",
       "requires_layer": false,
@@ -23,6 +26,7 @@
     },
     {
       "category": "gradient",
+      "family": "local",
       "id": "GuidedGradCam",
       "label": "GuidedGradCam",
       "requires_layer": true,
@@ -30,6 +34,7 @@
     },
     {
       "category": "gradient",
+      "family": "global",
       "id": "GradientShap",
       "label": "GradientShap",
       "requires_layer": false,
@@ -37,6 +42,7 @@
     },
     {
       "category": "gradient",
+      "family": "local",
       "id": "Saliency",
       "label": "Saliency",
       "requires_layer": false,
@@ -44,6 +50,7 @@
     },
     {
       "category": "gradient",
+      "family": "global",
       "id": "IntegratedGradients",
       "label": "IntegratedGradients",
       "requires_layer": false,
@@ -51,6 +58,7 @@
     },
     {
       "category": "gradient",
+      "family": "local",
       "id": "LayerGradCam",
       "label": "LayerGradCam",
       "requires_layer": true,
@@ -58,6 +66,7 @@
     },
     {
       "category": "gradient",
+      "family": "global",
       "id": "DeepLift",
       "label": "DeepLift",
       "requires_layer": false,
@@ -65,6 +74,7 @@
     },
     {
       "category": "gradient",
+      "family": "local",
       "id": "GuidedBackprop",
       "label": "GuidedBackprop",
       "requires_layer": false,
@@ -72,6 +82,7 @@
     },
     {
       "category": "gradient",
+      "family": "global",
       "id": "InputXGradient",
       "label": "InputXGradient",
       "requires_layer": false,
@@ -79,6 +90,7 @@
     },
     {
       "category": "gradient",
+      "family": "local",
       "id": "Deconvolution",
       "label": "Deconvolution",
       "requires_layer": false,
@@ -86,6 +98,7 @@
     },
     {
       "category": "gradient",
+      "family": "global",
       "id": "LayerIntegratedGradients",
       "label": "LayerIntegratedGradients",
       "requires_layer": true,
@@ -93,6 +106,7 @@
     },
     {
       "category": "perturbation",
+      "family": "global",
       "id": "Lime (SLIC)",
       "label": "Lime (SLIC)",
       "requires_layer": false,
@@ -100,6 +114,7 @@
     },
     {
       "category": "perturbation",
+      "family": "global",
       "id": "Lime (KMeans)",
       "label": "Lime (KMeans)",
       "requires_layer": false,
@@ -107,6 +122,7 @@
     },
     {
       "category": "perturbation",
+      "family": "global",
       "id": "KernelShap (SLIC)",
       "label": "KernelShap (SLIC)",
       "requires_layer": false,
@@ -114,6 +130,7 @@
     },
     {
       "category": "perturbation",
+      "family": "global",
       "id": "KernelShap (KMeans)",
       "label": "KernelShap (KMeans)",
       "requires_layer": false,

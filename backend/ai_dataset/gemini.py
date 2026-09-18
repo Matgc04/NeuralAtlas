@@ -16,6 +16,7 @@ from .core import (
     GeneratedImage,
     ImageGenerator,
     _b64,
+    loads_fenced_json,
 )
 
 
@@ -65,7 +66,7 @@ class GeminiCaptioner(Captioner):
         }
         response = self.client.generate_content(self.model, payload)
         raw_text = _extract_text(response)
-        return Caption.from_dict(_loads_json(raw_text)), raw_text
+        return Caption.from_dict(loads_fenced_json(raw_text)), raw_text
 
 
 class GeminiImageGenerator(ImageGenerator):
@@ -124,10 +125,3 @@ def _extract_image(response: dict[str, Any]) -> dict[str, str]:
                 "data": inline["data"],
             }
     raise RuntimeError("response did not include an image")
-
-
-def _loads_json(text: str) -> dict[str, Any]:
-    clean = text.strip()
-    if clean.startswith("```"):
-        clean = clean.removeprefix("```json").removeprefix("```").removesuffix("```").strip()
-    return json.loads(clean)

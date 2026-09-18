@@ -541,6 +541,21 @@ export const WIKI_SECTIONS = [
         links: [],
       },
       {
+        id: 'fidelity_superpixel',
+        title: 'Fidelity — superpixel removal',
+        tags: ['Faithfulness'],
+        summary: 'LIME and KernelSHAP fidelity when one uniformly sampled attribution superpixel is replaced by zero per perturbation.',
+        differs: 'Uses the same segmentation as the explanation and counts each feature coefficient once. Reported alongside standard fidelity; different removal shapes and areas make the scores separate experiments.',
+        facts: [
+          ['Methods', 'LIME and KernelSHAP, SLIC or KMeans'],
+          ['Better', 'Higher'],
+          ['Range', '(-∞, 1]'],
+          ['Sampling', 'One whole feature per draw, with replacement'],
+          ['Limit', 'Undefined when the model never responds to the sampled removals'],
+        ],
+        links: [],
+      },
+      {
         id: 'fidelity',
         title: 'Fidelity — relative error',
         tags: ['Faithfulness'],

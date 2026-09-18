@@ -14,7 +14,7 @@ from .generator import Generator
 
 def build_captioner(name: str, args: argparse.Namespace) -> Captioner:
     if name == "gemini":
-        return GeminiCaptioner(gemini_client(), os.getenv("GEMINI_CAPTION_MODEL", args.caption_model))
+        return GeminiCaptioner(gemini_client(), args.caption_model)
     raise SystemExit(f"unknown caption provider: {name}")
 
 
@@ -22,14 +22,14 @@ def build_image_generator(name: str, args: argparse.Namespace) -> ImageGenerator
     if name == "gemini":
         return GeminiImageGenerator(
             gemini_client(),
-            os.getenv("GEMINI_IMAGE_MODEL", args.image_model),
+            args.image_model,
             image_size=args.image_size,
             aspect_ratio=args.aspect_ratio,
         )
     if name in {"cloudflare", "cloudflare-workers-ai", "workers-ai"}:
         return CloudflareWorkersAIImageGenerator(
             cloudflare_workers_ai_client(),
-            os.getenv("CLOUDFLARE_IMAGE_MODEL", args.cloudflare_image_model),
+            args.cloudflare_image_model,
             width=args.cloudflare_width,
             height=args.cloudflare_height,
             steps=args.cloudflare_steps,
@@ -63,19 +63,19 @@ def parse_args() -> argparse.Namespace:
                         help="what to (re)generate per processed item: 'image' reuses the saved caption and only "
                              "regenerates the picture (cheap, no vision call); 'full' re-captions then regenerates")
     parser.add_argument("--continue-on-error", action="store_true")
-    parser.add_argument("--caption-model", default="gemini-3.5-flash")
-    parser.add_argument("--image-model", default="gemini-3.1-flash-image")
+    parser.add_argument("--caption-model", default=os.getenv("GEMINI_CAPTION_MODEL", "gemini-3.5-flash"))
+    parser.add_argument("--image-model", default=os.getenv("GEMINI_IMAGE_MODEL", "gemini-3.1-flash-image"))
     parser.add_argument("--image-size", default="512",
                         help="output resolution tier: 512 (gemini-3.1 only), 1K, 2K, 4K. Smaller is cheaper per image")
     parser.add_argument("--aspect-ratio", default="1:1", help="output aspect ratio, e.g. 1:1, 4:3, 16:9")
-    parser.add_argument("--cloudflare-image-model", default="@cf/black-forest-labs/flux-2-klein-4b")
+    parser.add_argument("--cloudflare-image-model", default=os.getenv("CLOUDFLARE_IMAGE_MODEL", "@cf/black-forest-labs/flux-2-klein-4b"))
     parser.add_argument("--cloudflare-width", type=int, default=512)
     parser.add_argument("--cloudflare-height", type=int, default=512)
     parser.add_argument("--cloudflare-steps", type=int, default=25)
     parser.add_argument("--cloudflare-seed", type=int)
-    parser.add_argument("--codex-image-model", default="",
+    parser.add_argument("--codex-image-model", default=os.getenv("CODEX_IMAGE_MODEL", ""),
                         help="optional Codex model override for image generation; empty uses Codex default")
-    parser.add_argument("--codex-timeout", type=int, default=900,
+    parser.add_argument("--codex-timeout", type=int, default=int(os.getenv("CODEX_IMAGE_TIMEOUT", "900")),
                         help="seconds to wait for each Codex image generation subprocess")
     return parser.parse_args()
 

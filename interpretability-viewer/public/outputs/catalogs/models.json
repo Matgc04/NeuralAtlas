@@ -7,10 +7,40 @@
       "parameter_count": 61100840
     },
     {
+      "family": "convnext_tiny",
+      "id": "convnext_tiny",
+      "label": "convnext_tiny",
+      "parameter_count": null
+    },
+    {
       "family": "efficientnet_b0",
       "id": "efficientnet_b0",
       "label": "efficientnet_b0",
       "parameter_count": 5288548
+    },
+    {
+      "family": "efficientnet_b4",
+      "id": "efficientnet_b4",
+      "label": "efficientnet_b4",
+      "parameter_count": null
+    },
+    {
+      "family": "inception_v3",
+      "id": "inception_v3",
+      "label": "inception_v3",
+      "parameter_count": null
+    },
+    {
+      "family": "mobilenet_v2",
+      "id": "mobilenet_v2",
+      "label": "mobilenet_v2",
+      "parameter_count": null
+    },
+    {
+      "family": "resnet101",
+      "id": "resnet101",
+      "label": "resnet101",
+      "parameter_count": null
     },
     {
       "family": "resnet18",

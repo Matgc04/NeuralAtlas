@@ -78,6 +78,9 @@ target/
 # Jupyter Notebook
 .ipynb_checkpoints
 
+# Local resumable VLM shards are published to Hugging Face, not GitHub.
+interpretability-viewer/public/outputs/runs/*/*/vlm/
+
 # IPython
 profile_default/
 ipython_config.py
@@ -199,8 +202,8 @@ dist-ssr
 worker/
 .dev.vars
 
-# kaggle notebooks
-kaggle/*
+# Notebook sources
+notebooks/*
 
 # Editor directories and files
 .vscode/*

@@ -25,12 +25,12 @@ Examples:
 from __future__ import annotations
 
 import argparse
+import difflib
 import json
 import os
 import shutil
 import subprocess
 import sys
-import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable, TypeVar
@@ -40,6 +40,8 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from backend import config  # noqa: E402
 from backend.ai_dataset.core import load_env  # noqa: E402
+from backend.hf import attributions_base_repo, model_repo_id  # noqa: E402
+from backend.hf import with_retries as _with_retries  # noqa: E402
 from backend.methods import method_catalog  # noqa: E402
 from backend.persistence import OutputRepository  # noqa: E402
 
@@ -50,7 +52,6 @@ DEFAULT_MODELS = [
     "mobilenet_v2",
     "convnext_tiny",
 ]
-DEFAULT_ATTRIBUTIONS_REPO = "Matgc04/neuralatlas-attributions"
 T = TypeVar("T")
 
 
@@ -60,21 +61,49 @@ def log(message: str) -> None:
 
 
 def with_retries(label: str, action: Callable[[], T], attempts: int = 4) -> T:
-    """Retry a network action with exponential backoff; a multi-day run will hit blips."""
-    for attempt in range(1, attempts + 1):
-        try:
-            return action()
-        except Exception as error:
-            if attempt == attempts:
-                raise
-            delay = 15 * 2 ** (attempt - 1)
-            log(f"warn: {label} failed ({error!r}); retrying in {delay}s")
-            time.sleep(delay)
-    raise AssertionError("unreachable")
+    return _with_retries(label, action, attempts, log=log)
 
 
-def model_repo_id(base_repo: str, model: str) -> str:
-    return f"{base_repo}-{model}"
+def classification_model_names() -> list[str]:
+    """Return torchvision models compatible with this ImageNet classification pipeline."""
+    from torchvision import models
+
+    names = []
+    for name in models.list_models():
+        weights = models.get_model_weights(name).DEFAULT
+        if weights is not None and len(weights.meta.get("categories", ())) == 1000:
+            names.append(name)
+    return names
+
+
+def validate_model_names(model_names: list[str]) -> None:
+    available = classification_model_names()
+    invalid = [name for name in dict.fromkeys(model_names) if name not in available]
+    if not invalid:
+        return
+
+    details = []
+    for name in invalid:
+        suggestions = difflib.get_close_matches(name, available, n=3)
+        hint = f" (did you mean: {', '.join(suggestions)})" if suggestions else ""
+        details.append(f"{name}{hint}")
+    raise SystemExit(
+        "Unsupported torchvision ImageNet classification model(s): " + "; ".join(details)
+    )
+
+
+def validate_method_names(method_names: list[str] | None) -> None:
+    if not method_names:
+        return
+    available = {entry.id for entry in method_catalog()}
+    invalid = sorted(set(method_names) - available)
+    if invalid:
+        raise SystemExit("Unsupported attribution method(s): " + ", ".join(invalid))
+
+
+def ensure_model_repos(api, repo_ids: list[str]) -> None:
+    for repo_id in repo_ids:
+        api.create_repo(repo_id=repo_id, repo_type="dataset", exist_ok=True)
 
 
 def parse_output_filename(filename: str) -> tuple[str, str, str, str, str]:
@@ -152,15 +181,25 @@ def ensure_dataset(dataset: str, dry_run: bool = False) -> int:
 # ------------------------------------------------------------------------ progress
 
 
-def completed_samples(repository: OutputRepository, model: str, dataset: str, image_ext: str) -> int:
-    """How far into the dataset every method has already been persisted.
+def completed_samples(
+    repository: OutputRepository,
+    model: str,
+    dataset: str,
+    image_ext: str,
+    metrics: list[str],
+    methods: set[str] | None = None,
+) -> int:
+    """Return the length of the contiguous, fully persisted dataset prefix."""
+    from backend.pipeline.atlas import dataset_keys
 
-    Samples are always processed in dataset order, so the per-method output count is a
-    prefix length; the slowest method decides how much of the run is truly complete.
-    """
-    output_counts = repository.method_output_counts(model, dataset, image_ext)
-    counts = [output_counts.get(entry.id, 0) for entry in method_catalog()]
-    return min(counts) if counts else 0
+    return repository.first_incomplete_sample(
+        model,
+        dataset,
+        dataset_keys(dataset_dir(dataset) / "val"),
+        image_ext,
+        set(metrics),
+        methods,
+    )
 
 
 def sync_run_metadata(api, repo_id: str, model: str, dataset: str) -> int:
@@ -212,8 +251,15 @@ def run_step(model: str, dataset: str, start: int, target: int, args: argparse.N
         "--num-samples", str(target),
         "--image-ext", args.image_ext,
         "--export-batch-images", str(args.export_batch_images),
+        "--prune-stale-images",
         "--metrics", *args.metrics,
     ]
+    if args.methods:
+        command.extend(["--methods", *args.methods])
+    if args.recompute:
+        command.append("--recompute")
+    if args.metadata_only:
+        command.append("--metadata-only")
     log(f"$ {' '.join(command[1:])}")
     subprocess.run(command, check=True, cwd=REPO_ROOT)
 
@@ -231,11 +277,25 @@ def step_image_files(model: str, dataset: str, image_ext: str) -> list[Path]:
     )
 
 
-def upload_step(api, repo_id: str, model: str, label: str, dataset: str, image_ext: str) -> int:
+def run_metadata_files(model: str, dataset: str) -> list[Path]:
+    run_dir = REPO_ROOT / config.OUTPUT_ROOT / "runs" / model / dataset
+    return [run_dir / "images.json", run_dir / "summary.json"]
+
+
+def upload_step(
+    api,
+    repo_id: str,
+    model: str,
+    label: str,
+    dataset: str,
+    image_ext: str,
+    *,
+    include_images: bool = True,
+) -> int:
     """Upload this worker's images and run metadata, never shared global metadata."""
     from huggingface_hub import CommitOperationAdd
 
-    files = step_image_files(model, dataset, image_ext)
+    files = step_image_files(model, dataset, image_ext) if include_images else []
     operations = []
     for path in files:
         parsed_model, parsed_dataset, _, _, _ = parse_output_filename(path.name)
@@ -245,13 +305,13 @@ def upload_step(api, repo_id: str, model: str, label: str, dataset: str, image_e
             CommitOperationAdd(path_in_repo=remote_image_path(path.name), path_or_fileobj=path)
         )
 
-    run_path = Path("runs") / model / dataset
-    for filename in ("images.json", "summary.json"):
-        path_in_repo = run_path / filename
+    output_root = REPO_ROOT / config.OUTPUT_ROOT
+    for path in run_metadata_files(model, dataset):
+        path_in_repo = path.relative_to(output_root)
         operations.append(
             CommitOperationAdd(
                 path_in_repo=path_in_repo.as_posix(),
-                path_or_fileobj=REPO_ROOT / config.OUTPUT_ROOT / path_in_repo,
+                path_or_fileobj=path,
             )
         )
 
@@ -298,6 +358,16 @@ def parse_args() -> argparse.Namespace:
                         choices=list(config.FAITHFULNESS_METRICS),
                         metavar="{" + ",".join(config.FAITHFULNESS_METRICS) + "}",
                         help="Faithfulness metrics to compute (default: all)")
+    parser.add_argument("--methods", nargs="+",
+                        help="Only run these attribution method ids (default: all)")
+    parser.add_argument("--recompute", action="store_true",
+                        help="Recompute the selected methods from the first sample, or from "
+                             "--resume-from when provided")
+    parser.add_argument("--resume-from", type=int,
+                        help="Explicit sample checkpoint for a recomputation; samples before "
+                             "this index are skipped")
+    parser.add_argument("--metadata-only", action="store_true",
+                        help="Do not render or upload images; commit run JSON after each chunk")
     parser.add_argument("--export-batch-images", type=int, default=10,
                         help="Images buffered before the run JSON is rewritten (default: 10)")
     parser.add_argument("--no-upload", action="store_true",
@@ -313,11 +383,18 @@ def main() -> None:
     args = parse_args()
     if args.chunk <= 0 or (args.total is not None and args.total <= 0):
         raise SystemExit("--chunk and --total must be positive.")
+    if args.resume_from is not None and args.resume_from < 0:
+        raise SystemExit("--resume-from must not be negative.")
+    if args.resume_from is not None and not args.recompute:
+        raise SystemExit("--resume-from requires --recompute.")
     args.image_ext = args.image_ext.lstrip(".").lower()
+    validate_model_names(args.models)
+    validate_method_names(args.methods)
+    force_full_window = args.recompute or (args.metadata_only and not args.metrics)
 
     load_env(REPO_ROOT / ".env")
     token = os.getenv("HF_TOKEN")
-    attributions_repo_base = os.getenv("HF_ATTRIBUTIONS_REPO", DEFAULT_ATTRIBUTIONS_REPO)
+    attributions_repo_base = attributions_base_repo()
     model_repos = {
         model: model_repo_id(attributions_repo_base, model) for model in args.models
     }
@@ -325,29 +402,62 @@ def main() -> None:
     cleanup = upload and not args.keep_local
 
     api = None
-    if upload:
+    if upload and not args.dry_run:
         from huggingface_hub import HfApi
 
         if not token:
             raise SystemExit("HF_TOKEN is not set (put it in .env), or pass --no-upload.")
         api = HfApi(token=token)
-        # Fail fast on a bad token or a missing repo rather than after hours of compute.
-        for repo_id in model_repos.values():
-            api.repo_info(repo_id=repo_id, repo_type="dataset")
-        log(f"Validated {len(model_repos)} model repos as {api.whoami().get('name', '?')}")
+        owner = api.whoami().get("name", "?")
+        # Idempotently create missing per-model repos before any expensive compute.
+        # Model names have already been checked against torchvision above.
+        ensure_model_repos(api, list(model_repos.values()))
+        log(f"Ensured {len(model_repos)} model repos as {owner}")
+    elif upload:
+        log(f"Dry run: would ensure {len(model_repos)} model repos")
 
     available = ensure_dataset(args.dataset, dry_run=args.dry_run)
     total = min(args.total, available) if args.total else available
-    targets = [min(target, total) for target in range(args.chunk, total + args.chunk, args.chunk)]
+    if args.resume_from is not None and args.resume_from > total:
+        raise SystemExit(
+            f"--resume-from ({args.resume_from}) exceeds the sweep total ({total})."
+        )
+    targets = [
+        min(target, total)
+        for target in range(args.chunk, total + args.chunk, args.chunk)
+    ]
     repository = OutputRepository(REPO_ROOT / config.OUTPUT_ROOT)
 
     log(
         f"Plan: {len(args.models)} models x {total} samples in {len(targets)} steps of "
-        f"{args.chunk} | metrics={args.metrics or ['none']} | upload={upload} cleanup={cleanup}"
+        f"{args.chunk} | "
+        f"metrics={args.metrics or ['none']} | upload={upload} cleanup={cleanup}"
     )
+    def checkpoint(model: str) -> tuple[int, str]:
+        """Where `model` resumes from, and why; the scan is skipped when overridden.
+
+        Scanning walks the dataset and parses the whole run file, so it only runs
+        when neither flag has already decided the starting point.
+        """
+        if args.resume_from is not None:
+            return args.resume_from, "explicit recompute checkpoint"
+        if force_full_window:
+            return 0, "forced recompute start"
+        return (
+            completed_samples(
+                repository,
+                model,
+                args.dataset,
+                args.image_ext,
+                args.metrics,
+                set(args.methods) if args.methods else None,
+            ),
+            "persisted checkpoint",
+        )
+
     for model in args.models:
-        done = completed_samples(repository, model, args.dataset, args.image_ext)
-        log(f"  {model}: {done}/{total} samples already complete")
+        done, label = checkpoint(model)
+        log(f"  {model}: {done}/{total} {label}")
     if args.dry_run:
         return
 
@@ -360,18 +470,32 @@ def main() -> None:
         # of truth and lets a fresh GPU box resume an existing run.
         if upload:
             pending = step_image_files(model, args.dataset, args.image_ext)
-            if pending:
+            metadata_complete = all(
+                path.is_file() for path in run_metadata_files(model, args.dataset)
+            )
+            if args.metadata_only:
+                downloaded = sync_run_metadata(api, model_repo, model, args.dataset)
+                if downloaded:
+                    log(f"Restored {downloaded} checkpoint files from HF for {model}")
+            elif pending and metadata_complete:
                 log(f"Reconciling {len(pending)} leftover files for {model}")
                 upload_step(api, model_repo, model, f"{model} resume", args.dataset, args.image_ext)
                 if cleanup:
                     cleanup_step(model, args.dataset, args.image_ext)
             else:
+                if pending:
+                    removed = cleanup_step(model, args.dataset, args.image_ext)
+                    log(
+                        f"Discarded {removed} orphan files for {model}: "
+                        "local run metadata is incomplete"
+                    )
                 downloaded = sync_run_metadata(api, model_repo, model, args.dataset)
                 if downloaded:
                     log(f"Restored {downloaded} checkpoint files from HF for {model}")
 
-        done = completed_samples(repository, model, args.dataset, args.image_ext)
-        log(f"Starting {model} from remote-confirmed checkpoint {done}/{total}")
+        # Recomputed after the HF sync above, which can restore newer checkpoints.
+        done, checkpoint_label = checkpoint(model)
+        log(f"Starting {model} from {checkpoint_label} {done}/{total}")
 
         for target in targets:
             if done >= target:
@@ -389,9 +513,18 @@ def main() -> None:
                 )
                 if upload:
                     uploaded = upload_step(
-                        api, model_repo, model, label, args.dataset, args.image_ext
+                        api,
+                        model_repo,
+                        model,
+                        label,
+                        args.dataset,
+                        args.image_ext,
+                        include_images=not args.metadata_only,
                     )
-                    log(f"Uploaded {uploaded} attribution files for {label}")
+                    if args.metadata_only:
+                        log(f"Uploaded metadata-only checkpoint for {label}")
+                    else:
+                        log(f"Uploaded {uploaded} attribution files for {label}")
             except Exception as error:
                 # Never clean up after a failed upload — the only copy is still local.
                 log(f"error: {label} failed ({error!r}); abandoning {model}")
@@ -399,7 +532,7 @@ def main() -> None:
                 break
 
             done = target
-            if cleanup:
+            if cleanup and not args.metadata_only:
                 log(f"Freed {cleanup_step(model, args.dataset, args.image_ext)} local files")
             free_gb = shutil.disk_usage(REPO_ROOT).free / 1e9
             log(f"Done {label} | {free_gb:.1f} GB free")

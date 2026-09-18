@@ -166,6 +166,14 @@ def write_json(path: Path, value: Any) -> None:
     tmp.replace(path)
 
 
+def loads_fenced_json(text: str) -> Any:
+    """Parse JSON that an LLM may have wrapped in a markdown code fence."""
+    clean = text.strip()
+    if clean.startswith("```"):
+        clean = clean.removeprefix("```json").removeprefix("```").removesuffix("```").strip()
+    return json.loads(clean)
+
+
 def sort_key(value: Any) -> tuple[int, Any]:
     text = str(value)
     return (0, int(text)) if text.isdigit() else (1, text)

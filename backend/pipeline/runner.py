@@ -5,10 +5,10 @@ from argparse import Namespace
 import torch
 
 from backend import config
-from backend.methods import build_interp_methods, method_catalog, to_rgb_heatmap
+from backend.methods import build_interp_methods, method_catalog
 from backend.models import build_model_runtime
 from backend.persistence import ModelCatalogEntry, OutputRepository
-from backend.pipeline.atlas import AtlasRunner
+from backend.pipeline.atlas import AtlasRunner, dataset_keys
 
 
 def run_generation(args: Namespace) -> None:
@@ -18,7 +18,7 @@ def run_generation(args: Namespace) -> None:
         raise SystemExit("--dataset must not be empty.")
     if args.num_samples <= 0:
         raise SystemExit("--num-samples must be a positive integer.")
-    start_index = getattr(args, "start_index", 0)
+    start_index = args.start_index
     if start_index < 0:
         raise SystemExit("--start-index must not be negative.")
     if start_index >= args.num_samples:
@@ -28,6 +28,14 @@ def run_generation(args: Namespace) -> None:
         )
     if args.export_batch_images <= 0:
         raise SystemExit("--export-batch-images must be a positive integer.")
+    selected_methods = args.methods
+    known_methods = {entry.id for entry in method_catalog()}
+    if selected_methods:
+        unknown_methods = sorted(set(selected_methods) - known_methods)
+        if unknown_methods:
+            raise SystemExit(
+                f"Unknown attribution method(s): {', '.join(unknown_methods)}"
+            )
 
     dataset_dir = config.BASE_PUBLIC_DIR / dataset_name / "val"
     if not dataset_dir.is_dir():
@@ -63,34 +71,32 @@ def run_generation(args: Namespace) -> None:
             f" (model={args.model}, dataset={dataset_name}, ext={args.image_ext})"
         )
 
-    interp_methods = build_interp_methods(
-        runtime.last_conv_layer,
-        runtime.device,
-        to_rgb_heatmap,
-    )
-    if not args.recompute:
-        existing_counts = repository.method_output_counts(
+    if args.metadata_only and not args.metrics:
+        interp_methods = []
+    else:
+        interp_methods = build_interp_methods(
+            runtime.last_conv_layer,
+            runtime.device,
+        )
+        if selected_methods:
+            selected = set(selected_methods)
+            interp_methods = [
+                method for method in interp_methods if str(method) in selected
+            ]
+    if interp_methods and not args.recompute:
+        complete = repository.methods_complete_for_all(
             args.model,
             dataset_name,
+            dataset_keys(dataset_dir, start_index, args.num_samples),
             args.image_ext,
+            set(args.metrics),
         )
-        filtered_methods = []
-        for method in interp_methods:
-            method_name = str(method)
-            existing_count = existing_counts.get(method_name, 0)
-            if existing_count >= args.num_samples:
-                print(
-                    f"Skipping {method_name}: {existing_count} outputs already exist."
-                )
-            else:
-                if existing_count < start_index:
-                    print(
-                        f"Warning: {method_name} has {existing_count} outputs but the "
-                        f"window starts at {start_index}; samples "
-                        f"{existing_count}-{start_index - 1} will stay missing."
-                    )
-                filtered_methods.append(method)
-        interp_methods = filtered_methods
+        skipped = sorted(str(method) for method in interp_methods if str(method) in complete)
+        interp_methods = [
+            method for method in interp_methods if str(method) not in complete
+        ]
+        if skipped:
+            print(f"Skipping {len(skipped)} methods complete for this window: {', '.join(skipped)}")
 
     if not interp_methods:
         print("No new methods to run; exporting model predictions only.")
@@ -111,6 +117,7 @@ def run_generation(args: Namespace) -> None:
         dataset_name=dataset_name,
         image_ext=args.image_ext,
         metrics=set(args.metrics),
+        render_images=not args.metadata_only,
     ):
         buffer.append(record)
         if len(buffer) >= args.export_batch_images:

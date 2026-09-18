@@ -82,8 +82,8 @@ class CodexImageGenerator(ImageGenerator):
 def codex_image_generator_from_env(model: str, timeout: int) -> CodexImageGenerator:
     return CodexImageGenerator(
         command=os.getenv("CODEX_BIN", "codex"),
-        model=os.getenv("CODEX_IMAGE_MODEL", model),
-        timeout=int(os.getenv("CODEX_IMAGE_TIMEOUT", str(timeout))),
+        model=model,
+        timeout=timeout,
         image_size=os.getenv("CODEX_IMAGE_SIZE", "1024x1024"),
         output_format=os.getenv("CODEX_IMAGE_FORMAT", "jpeg"),
         output_name=os.getenv("CODEX_IMAGE_OUTPUT", "result.jpg"),

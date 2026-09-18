@@ -6,8 +6,6 @@ DATASET_NAME = "imagenet-pico-ai"
 BASE_PUBLIC_DIR = Path("interpretability-viewer/public")
 OUTPUT_ROOT = BASE_PUBLIC_DIR / "outputs"
 OUTPUT_IMAGES_DIR = OUTPUT_ROOT / "images"
-OUTPUT_CATALOGS_DIR = OUTPUT_ROOT / "catalogs"
-OUTPUT_RUNS_DIR = OUTPUT_ROOT / "runs"
 DEFAULT_IMAGE_EXT = "avif"
 DEFAULT_NUM_SAMPLES = 20
 DEFAULT_EXPORT_BATCH_IMAGES = 5
@@ -16,8 +14,19 @@ FAITHFULNESS_N_STEPS = 100
 FAITHFULNESS_BLUR_SIGMA = None
 # Gaussian blur sigma of the PeS/PdS source paper (tau=0.5, phi=1%, 100 steps).
 MORPH_BLUR_SIGMA = 10.0
+# Draws per image. Methods marked `calibrate_fidelity` in the catalog draw this
+# many twice: one set fits the scale, the other is scored against it.
 FIDELITY_N_PERTURB_SAMPLES = 25
+# Local explanations use the noisy baseline of Yeh et al. (2019), global ones
+# square removal. Both land under the same "fidelity" key, so the scores of the
+# two families are not comparable and must not be ranked against each other.
+# Methods carrying a segmentation additionally score "fidelity_superpixel",
+# which removes one whole attribution segment per draw with the same baseline.
 FIDELITY_NOISE_STD = 0.2
+FIDELITY_SQUARE_SIZE = 56
+# The reference point every removal and every catalog baseline is built from
+# (see `build_interp_methods`), so a removed patch means the same thing everywhere.
+FIDELITY_SQUARE_BASELINE = 0.0
 FIDELITY_MAX_EXAMPLES_PER_BATCH = 5
 FIDELITY_RANDOM_SEED = 0
 METRIC_BATCH_SIZE = 32
@@ -32,27 +41,3 @@ ATTRIBUTION_ENCODING = {
     "colormap": "jet",
     "colormap_applied_by": "frontend",
 }
-
-
-def manifest_path() -> Path:
-    return OUTPUT_ROOT / "manifest.json"
-
-
-def models_catalog_path() -> Path:
-    return OUTPUT_CATALOGS_DIR / "models.json"
-
-
-def methods_catalog_path() -> Path:
-    return OUTPUT_CATALOGS_DIR / "methods.json"
-
-
-def run_dir(model: str, dataset: str) -> Path:
-    return OUTPUT_RUNS_DIR / model / dataset
-
-
-def run_images_path(model: str, dataset: str) -> Path:
-    return run_dir(model, dataset) / "images.json"
-
-
-def run_summary_path(model: str, dataset: str) -> Path:
-    return run_dir(model, dataset) / "summary.json"

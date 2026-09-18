@@ -23,7 +23,17 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--recompute",
         action="store_true",
-        help="Recompute all methods regardless of existing outputs.",
+        help="Recompute the selected methods regardless of existing outputs.",
+    )
+    parser.add_argument(
+        "--methods",
+        nargs="+",
+        help="Only run these attribution method ids (default: all).",
+    )
+    parser.add_argument(
+        "--metadata-only",
+        action="store_true",
+        help="Compute metrics without rendering attribution image files.",
     )
     parser.add_argument(
         "--model",

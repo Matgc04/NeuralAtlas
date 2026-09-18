@@ -7,13 +7,20 @@ from captum.attr import Attribution
 from torch.nn import functional as F
 from torchvision.transforms.functional import gaussian_blur
 
+from backend.rise import centered_saliency
+
 
 class CBRISE(Attribution):
-    """RISE with convergence detection and blurred perturbations.
+    """RISE with convergence detection and blurred perturbations, centered.
 
     This implementation also applies prediction-relative normalization (PRN),
     the third component of CB-RISE. Model logits are converted to probabilities
     before PRN so the score ratios have the meaning defined by the method.
+
+    PRN factors are non-negative, so the raw map inherits the sign problem of
+    RISE, and the map is finished by the same `centered_saliency`. The
+    convergence test is unaffected by the centering because it compares min-max
+    normalized snapshots, which are invariant to a constant shift.
     """
 
     @staticmethod
@@ -27,6 +34,9 @@ class CBRISE(Attribution):
         device: torch.device,
         dtype: torch.dtype,
     ) -> torch.Tensor:
+        # Only the coarse grid is drawn from the CPU generator, so a seed keeps
+        # meaning the same masks; the upsampling to full resolution and the
+        # normalization run on `device` (see `RISE._generate_masks`).
         coarse = (
             torch.rand(
                 count,
@@ -36,7 +46,7 @@ class CBRISE(Attribution):
                 generator=generator,
             )
             > 1.0 - probability
-        ).float()
+        ).float().to(device=device)
         masks = F.interpolate(
             coarse,
             size=(height, width),
@@ -46,7 +56,7 @@ class CBRISE(Attribution):
         minimum = masks.amin(dim=(1, 2, 3), keepdim=True)
         masks = masks - minimum
         maximum = masks.amax(dim=(1, 2, 3), keepdim=True)
-        return (masks / (maximum + 1e-8)).to(device=device, dtype=dtype)
+        return (masks / (maximum + 1e-8)).to(dtype=dtype)
 
     @staticmethod
     def _blurred_inputs(inputs: torch.Tensor, sigma: float) -> torch.Tensor:
@@ -120,6 +130,7 @@ class CBRISE(Attribution):
         blurred = self._blurred_inputs(inputs, sigma)
         heatmap = inputs.new_zeros(input_batch, height, width)
         mask_sum = inputs.new_zeros(height, width)
+        factor_sum = inputs.new_zeros(input_batch)
         running_mean = inputs.new_zeros(input_batch, height, width)
         running_sum_squares = inputs.new_zeros(input_batch, height, width)
         previous_variance = inputs.new_zeros(input_batch, height, width)
@@ -173,6 +184,7 @@ class CBRISE(Attribution):
                 factors = factors / original_scores[:, None]
                 heatmap += torch.einsum("bm,mhw->bhw", factors, masks[:, 0])
                 mask_sum += masks[:, 0].sum(dim=0)
+                factor_sum += factors.sum(dim=1)
                 processed += count
 
                 if processed % patience != 0:
@@ -194,5 +206,4 @@ class CBRISE(Attribution):
                     break
                 previous_variance = variance
 
-        saliency = heatmap / mask_sum.clamp_min(torch.finfo(inputs.dtype).eps)
-        return saliency[:, None].expand(-1, channels, -1, -1) / channels
+        return centered_saliency(heatmap, mask_sum, factor_sum, processed, channels)

@@ -9,20 +9,20 @@
     "outlier_perc": 2.0,
     "sign": "absolute_value"
   },
-  "classCount": 10,
+  "classCount": 1000,
   "dataset": "imagenet-pico",
-  "imageCount": 20,
-  "methodCount": 20,
+  "imageCount": 3000,
+  "methodCount": 17,
   "metrics": {
-    "accuracy": 0.6,
-    "classCount": 13,
-    "correct": 12,
-    "incorrect": 8,
-    "macroF1": 0.46153846153846156,
-    "macroPrecision": 0.5,
-    "macroRecall": 0.46153846153846156,
+    "accuracy": 0.5753333333333334,
+    "classCount": 1000,
+    "correct": 1726,
+    "incorrect": 1274,
+    "macroF1": 0.5536197691197667,
+    "macroPrecision": 0.5851761904761902,
+    "macroRecall": 0.5753333333333327,
     "missingPredictions": 0,
-    "total": 20
+    "total": 3000
   },
   "model": "alexnet"
 }

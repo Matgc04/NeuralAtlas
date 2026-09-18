@@ -214,6 +214,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  padding-top: var(--chrome-h);
 }
 
 .app-status {
@@ -237,8 +238,10 @@ body {
    navigation — it sits with the identity, not down among the filters. */
 
 .topbar {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 200;
   height: var(--topbar-h);
   display: flex;
@@ -323,8 +326,10 @@ body {
    filter you tune while reading. */
 
 .selection-bar {
-  position: sticky;
+  position: fixed;
   top: var(--topbar-h);
+  left: 0;
+  right: 0;
   z-index: 150;
   height: var(--selbar-h);
   display: flex;
@@ -1923,9 +1928,18 @@ body {
 
 /* ── Heatmap overlay ────────────────────────────────────────── */
 
+/* Hidden until both layers hold THIS image: the bed shows through, never the
+   original alone. Hiding is instant and only the reveal fades — a fade-out
+   would keep the stale photo on screen for exactly the flash we are killing. */
 .overlay-stack {
   position: relative;
   overflow: hidden;
+  opacity: 0;
+}
+
+.overlay-stack.is-ready {
+  opacity: 1;
+  transition: opacity var(--t-standard) ease;
 }
 
 .overlay-stack__base,
@@ -2092,6 +2106,10 @@ body {
     --panel-bar-h: 36px;
     /* The mode tabs, fixed along the bottom edge. */
     --mode-bar-h: 52px;
+  }
+
+  .app-shell {
+    padding-top: 0;
   }
 
   .topbar {

@@ -3,13 +3,13 @@ from __future__ import annotations
 import json
 import os
 import tempfile
-from collections import Counter
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any, Iterator, Mapping
 
 from backend import config
-from backend.methods import MethodCatalogEntry, method_catalog
+from backend.methods import MethodCatalogEntry, extra_metric_keys, method_catalog
 from backend.records import ImageRecord
 
 
@@ -73,10 +73,6 @@ class MetricsBucket:
     per_class: dict[str, ClassMetricsBucket] = field(default_factory=dict)
 
 
-def _create_metrics_bucket() -> MetricsBucket:
-    return MetricsBucket()
-
-
 def _get_per_class_bucket(bucket: MetricsBucket, class_id: str) -> ClassMetricsBucket:
     if class_id not in bucket.per_class:
         bucket.per_class[class_id] = ClassMetricsBucket()
@@ -107,14 +103,13 @@ def _record_prediction(
 
 
 def _finalize_metrics_bucket(bucket: MetricsBucket) -> dict[str, int | float]:
-    per_class_entries = list(bucket.per_class.values())
-    class_count = len(per_class_entries)
+    class_count = len(bucket.per_class)
 
     precision_sum = 0.0
     recall_sum = 0.0
     f1_sum = 0.0
 
-    for class_bucket in per_class_entries:
+    for class_bucket in bucket.per_class.values():
         tp = class_bucket.tp
         fp = class_bucket.fp
         fn = class_bucket.fn
@@ -163,6 +158,67 @@ class OutputRepository:
     def _run_summary_path(self, model: str, dataset: str) -> Path:
         return self._run_dir(model, dataset) / "summary.json"
 
+    def vlm_descriptions_path(self, model: str, dataset: str, class_id: str) -> Path:
+        return self._run_dir(model, dataset) / "vlm" / f"{class_id}.json"
+
+    def load_vlm_descriptions(
+        self,
+        model: str,
+        dataset: str,
+        class_id: str,
+    ) -> dict[str, Any] | None:
+        """Load a class shard, checking its identity and image mapping shape."""
+        path = self.vlm_descriptions_path(model, dataset, class_id)
+        if not path.exists():
+            return None
+        with path.open() as handle:
+            payload = json.load(handle)
+        if not isinstance(payload, dict):
+            raise ValueError(f"Invalid VLM description shard: {path}")
+        identity = (payload.get("model"), payload.get("dataset"), payload.get("class_id"))
+        if identity != (model, dataset, class_id):
+            raise ValueError(f"VLM description shard identity does not match its path: {path}")
+        images = payload.get("images")
+        if not isinstance(images, dict) or not all(
+            isinstance(entry, dict) for entry in images.values()
+        ):
+            raise ValueError(f"Invalid VLM description shard images: {path}")
+        return payload
+
+    def upsert_vlm_description(
+        self,
+        model: str,
+        dataset: str,
+        class_id: str,
+        image_id: str,
+        method: str,
+        generator: Mapping[str, object],
+        description: Mapping[str, str],
+        *,
+        force: bool = False,
+    ) -> Path:
+        payload = self.load_vlm_descriptions(model, dataset, class_id)
+        stale = payload is None or payload.get("generator") != generator
+        if stale and payload is not None and not force:
+            raise ValueError(
+                f"VLM generator mismatch for {model}/{dataset}/{class_id}; use force to replace the shard"
+            )
+        if stale:
+            payload = {
+                "schema_version": 1,
+                "model": model,
+                "dataset": dataset,
+                "class_id": class_id,
+                "generator": dict(generator),
+                "images": {},
+            }
+
+        payload["images"].setdefault(image_id, {})[method] = dict(description)
+
+        path = self.vlm_descriptions_path(model, dataset, class_id)
+        _atomic_write_json(path, payload)
+        return path
+
     def load_images(self, model: str, dataset: str) -> list[ImageRecord]:
         payload = _read_json(self._run_images_path(model, dataset), {"model": model, "dataset": dataset, "images": []})
         images = payload.get("images", []) if isinstance(payload, dict) else []
@@ -174,22 +230,65 @@ class OutputRepository:
             if isinstance(item, dict)
         ]
 
-    def method_output_counts(
+    def _records_by_key(
         self,
         model: str,
         dataset: str,
+    ) -> dict[tuple[str, str], ImageRecord]:
+        return {
+            (record.class_id, record.image_id): record
+            for record in self.load_images(model, dataset)
+        }
+
+    def _completed_by_key(
+        self,
+        model: str,
+        dataset: str,
+        keys: list[tuple[str, str]],
         image_ext: str,
-    ) -> dict[str, int]:
-        """Count every method in one pass through a run payload."""
-        target_ext = f".{image_ext.lower()}"
-        counts: Counter[str] = Counter()
-        for record in self.load_images(model, dataset):
-            counts.update(
-                method
-                for method, url in record.outputs.items()
-                if url.lower().endswith(target_ext)
+        metrics: set[str],
+    ) -> Iterator[set[str]]:
+        """Completed methods per key, in order; a key with no record completed none.
+
+        Completion is decided per image rather than by a global output count: the same
+        method can be done for one window and missing in the next.
+        """
+        records = self._records_by_key(model, dataset)
+        extra = extra_metric_keys(metrics)
+        for key in keys:
+            record = records.get(key)
+            yield (
+                record.completed_methods(image_ext, metrics, extra) if record else set()
             )
-        return dict(counts)
+
+    def methods_complete_for_all(
+        self,
+        model: str,
+        dataset: str,
+        keys: list[tuple[str, str]],
+        image_ext: str,
+        metrics: set[str],
+    ) -> set[str]:
+        """Methods already complete for every one of `keys`, so they can be skipped."""
+        completed = list(self._completed_by_key(model, dataset, keys, image_ext, metrics))
+        return set.intersection(*completed) if completed else set()
+
+    def first_incomplete_sample(
+        self,
+        model: str,
+        dataset: str,
+        keys: list[tuple[str, str]],
+        image_ext: str,
+        metrics: set[str],
+        methods: set[str] | None = None,
+    ) -> int:
+        """Length of the leading run of `keys` that has every catalog method complete."""
+        required = methods or {entry.id for entry in method_catalog()}
+        completed_by_key = self._completed_by_key(model, dataset, keys, image_ext, metrics)
+        for index, completed in enumerate(completed_by_key):
+            if not required <= completed:
+                return index
+        return len(keys)
 
     def upsert_image_records(
         self,
@@ -197,10 +296,7 @@ class OutputRepository:
         dataset: str,
         records: list[ImageRecord],
     ) -> None:
-        existing = {
-            (record.class_id, record.image_id): record
-            for record in self.load_images(model, dataset)
-        }
+        existing = self._records_by_key(model, dataset)
         for record in records:
             key = (record.class_id, record.image_id)
             current = existing.get(key)
@@ -212,6 +308,12 @@ class OutputRepository:
             if record.prediction is not None:
                 current.prediction = record.prediction
             current.outputs.update(record.outputs)
+            for method_name in record.outputs:
+                current.attribution_failures.pop(method_name, None)
+            for method_name, failure in record.attribution_failures.items():
+                current.outputs.pop(method_name, None)
+                current.interpretability_metrics.pop(method_name, None)
+                current.attribution_failures[method_name] = failure
             for method_name, metric_values in record.interpretability_metrics.items():
                 current.interpretability_metrics.setdefault(method_name, {}).update(metric_values)
 
@@ -236,6 +338,7 @@ class OutputRepository:
 
     def _prune_stale_outputs(self, model: str, dataset: str, image_ext: str) -> int:
         target_ext = f".{image_ext.lower()}"
+        known_methods = {entry.id for entry in method_catalog()}
         removed = 0
         remaining: list[ImageRecord] = []
         for record in self.load_images(model, dataset):
@@ -245,11 +348,25 @@ class OutputRepository:
                 if not url.lower().endswith(target_ext)
             }
             orphan_metrics = set(record.interpretability_metrics) - set(record.outputs)
-            for method_name in stale_methods | orphan_metrics:
+            # Methods dropped from the catalog keep older runs looking complete.
+            retired_methods = (
+                set(record.outputs)
+                | set(record.interpretability_metrics)
+                | set(record.attribution_failures)
+            ) - known_methods
+            pruned = stale_methods | orphan_metrics | retired_methods
+            for method_name in pruned:
                 record.outputs.pop(method_name, None)
                 record.interpretability_metrics.pop(method_name, None)
-            removed += len(stale_methods) + len(orphan_metrics)
-            if record.outputs or record.prediction is not None or record.original_url or record.interpretability_metrics:
+                record.attribution_failures.pop(method_name, None)
+            removed += len(pruned)
+            if (
+                record.outputs
+                or record.attribution_failures
+                or record.prediction is not None
+                or record.original_url
+                or record.interpretability_metrics
+            ):
                 remaining.append(record)
         if removed > 0:
             self._write_run_bundle(model, dataset, remaining)
@@ -263,12 +380,15 @@ class OutputRepository:
     ) -> int:
         target_ext = f".{image_ext.lower()}"
         prefix = f"{model}__{dataset}__"
+        known_methods = {entry.id for entry in method_catalog()}
         removed = 0
         images_dir = self.output_root / "images"
         if not images_dir.exists():
             return 0
         for path in images_dir.iterdir():
-            if path.is_file() and path.name.startswith(prefix) and path.suffix.lower() != target_ext:
+            if not (path.is_file() and path.name.startswith(prefix)):
+                continue
+            if path.suffix.lower() != target_ext or path.stem.split("__")[-1] not in known_methods:
                 path.unlink()
                 removed += 1
         return removed
@@ -277,6 +397,7 @@ class OutputRepository:
         self,
         model_entries: list[ModelCatalogEntry],
         method_entries: list[MethodCatalogEntry] | None = None,
+        run_base_urls: Mapping[tuple[str, str], str] | None = None,
     ) -> None:
         existing_models_payload = _read_json(self._models_catalog_path(), {"models": []})
         existing_models = {}
@@ -298,9 +419,12 @@ class OutputRepository:
             self._methods_catalog_path(),
             {"methods": [entry.to_dict() for entry in methods]},
         )
-        self.refresh_manifest()
+        self.refresh_manifest(run_base_urls)
 
-    def refresh_manifest(self) -> None:
+    def refresh_manifest(
+        self,
+        run_base_urls: Mapping[tuple[str, str], str] | None = None,
+    ) -> None:
         runs: dict[str, dict[str, dict[str, str]]] = {}
         datasets_by_model: dict[str, list[str]] = {}
         runs_root = self.output_root / "runs"
@@ -320,13 +444,17 @@ class OutputRepository:
                     if not images_path.exists():
                         continue
                     datasets_by_model[model].append(dataset)
-                    runs[model][dataset] = {
+                    run = {
                         "images": str(images_path.relative_to(self.public_root)).replace("\\", "/"),
                         "summary": str(summary_path.relative_to(self.public_root)).replace("\\", "/"),
                     }
+                    base_url = run_base_urls.get((model, dataset)) if run_base_urls else None
+                    if base_url:
+                        run["base_url"] = base_url
+                    runs[model][dataset] = run
 
         manifest = {
-            "schema_version": 1,
+            "schema_version": 2,
             "generated_at": datetime.now(timezone.utc).isoformat(),
             "attribution_encoding": dict(config.ATTRIBUTION_ENCODING),
             "catalogs": {
@@ -361,12 +489,13 @@ class OutputRepository:
         dataset: str,
         records: list[ImageRecord],
     ) -> dict[str, object]:
-        bucket = _create_metrics_bucket()
+        bucket = MetricsBucket()
         class_ids = set()
         methods = set()
         for record in records:
             class_ids.add(record.class_id)
             methods.update(record.outputs)
+            methods.update(record.attribution_failures)
             predicted_class_id = (
                 record.prediction.predicted_class_id if record.prediction is not None else None
             )

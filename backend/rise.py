@@ -4,21 +4,39 @@ import math
 
 import torch
 from captum._utils.common import ExpansionTypes, _expand_target, _select_targets
-from captum._utils.typing import Module, TargetType
+from captum._utils.typing import TargetType
 from captum.attr import Attribution
 from torch.nn import functional as F
 
 
+def centered_saliency(
+    weighted_scores: torch.Tensor,
+    mask_sum: torch.Tensor,
+    score_sum: torch.Tensor,
+    samples: int,
+    channels: int,
+) -> torch.Tensor:
+    """Normalize by observed mask weight and subtract the mean masked score.
+
+    Unlike published RISE, this produces signed maps. Observed mask weights
+    account for border coverage; dividing across channels avoids multiplying
+    the attribution when infidelity sums over channels.
+    """
+    saliency = weighted_scores / mask_sum.clamp_min(
+        torch.finfo(weighted_scores.dtype).eps
+    )
+    saliency -= (score_sum / samples)[:, None, None]
+    return saliency[:, None].expand(-1, channels, -1, -1) / channels
+
+
 class RISE(Attribution):
-    """Randomized Input Sampling for Explanation.
+    """Randomized Input Sampling for Explanation, centered.
 
     RISE estimates spatial importance by averaging random masks weighted by the
     model score they preserve. Masks are generated and evaluated in batches so
-    memory use does not grow with ``n_masks``.
+    memory use does not grow with ``n_masks``. The map is finished by
+    `centered_saliency`, which documents how it departs from the paper.
     """
-
-    def __init__(self, forward_func: Module) -> None:
-        super().__init__(forward_func)
 
     @staticmethod
     def _generate_masks(
@@ -36,6 +54,7 @@ class RISE(Attribution):
         upsampled_height = (grid_size + 1) * cell_height
         upsampled_width = (grid_size + 1) * cell_width
 
+        # Keep seeded draws on CPU; upsample and gather on the model device.
         coarse = (
             torch.rand(
                 count,
@@ -45,7 +64,7 @@ class RISE(Attribution):
                 generator=generator,
             )
             < probability
-        ).float()
+        ).float().to(device=device)
         upsampled = F.interpolate(
             coarse,
             size=(upsampled_height, upsampled_width),
@@ -53,13 +72,13 @@ class RISE(Attribution):
             align_corners=False,
         )
 
-        y = torch.randint(cell_height, (count,), generator=generator)
-        x = torch.randint(cell_width, (count,), generator=generator)
-        rows = y[:, None, None] + torch.arange(height)[None, :, None]
-        columns = x[:, None, None] + torch.arange(width)[None, None, :]
-        batch = torch.arange(count)[:, None, None]
+        y = torch.randint(cell_height, (count,), generator=generator).to(device)
+        x = torch.randint(cell_width, (count,), generator=generator).to(device)
+        rows = y[:, None, None] + torch.arange(height, device=device)[None, :, None]
+        columns = x[:, None, None] + torch.arange(width, device=device)[None, None, :]
+        batch = torch.arange(count, device=device)[:, None, None]
         masks = upsampled[batch, 0, rows, columns].unsqueeze(1)
-        return masks.to(device=device, dtype=dtype)
+        return masks.to(dtype=dtype)
 
     def attribute(
         self,
@@ -90,13 +109,9 @@ class RISE(Attribution):
             device=inputs.device,
             dtype=inputs.dtype,
         ).broadcast_to(inputs.shape)
-        saliency = torch.zeros(
-            input_batch,
-            height,
-            width,
-            device=inputs.device,
-            dtype=inputs.dtype,
-        )
+        saliency = inputs.new_zeros(input_batch, height, width)
+        mask_sum = inputs.new_zeros(height, width)
+        score_sum = inputs.new_zeros(input_batch)
         generator = torch.Generator().manual_seed(seed)
 
         with torch.no_grad():
@@ -133,11 +148,9 @@ class RISE(Attribution):
                     raise ValueError(
                         "RISE target must select one scalar score per masked input."
                     )
-                saliency += torch.einsum(
-                    "bm,mhw->bhw",
-                    scores.reshape(input_batch, count),
-                    masks[:, 0],
-                )
+                batch_scores = scores.reshape(input_batch, count)
+                saliency += torch.einsum("bm,mhw->bhw", batch_scores, masks[:, 0])
+                mask_sum += masks[:, 0].sum(dim=0)
+                score_sum += batch_scores.sum(dim=1)
 
-        saliency /= n_masks * probability
-        return saliency[:, None].expand(-1, channels, -1, -1) / channels
+        return centered_saliency(saliency, mask_sum, score_sum, n_masks, channels)

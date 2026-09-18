@@ -3,7 +3,6 @@ from __future__ import annotations
 import math
 from collections import defaultdict
 from dataclasses import dataclass
-from itertools import islice
 from pathlib import Path
 from typing import Any, Iterator
 
@@ -17,7 +16,27 @@ from tqdm.auto import tqdm
 
 from attr_config import AttributionConfig
 from backend import config
-from backend.records import ImageRecord, MetricValue, PredictionRecord
+from backend.methods import (
+    GLOBAL_FAMILY,
+    LOCAL_FAMILY,
+    InsufficientFeaturesError,
+    method_catalog,
+)
+from backend.metrics.fidelity_score import (
+    GaussianNoise, Perturbation, SquareRemoval, SuperpixelRemoval,
+)
+from backend.records import AttributionFailure, ImageRecord, MetricValue, PredictionRecord
+
+# Yeh et al. (2019) pair each explanation family with its own perturbation
+# (section 2.5); this is the only place that mapping is decided. Both are
+# frozen and stateless, so one instance each is shared by every method.
+PERTURBATION_FOR_FAMILY: dict[str, Perturbation] = {
+    LOCAL_FAMILY: GaussianNoise(std=config.FIDELITY_NOISE_STD),
+    GLOBAL_FAMILY: SquareRemoval(
+        size=config.FIDELITY_SQUARE_SIZE,
+        baseline=config.FIDELITY_SQUARE_BASELINE,
+    ),
+}
 
 
 def evaluate_faithfulness(
@@ -26,7 +45,11 @@ def evaluate_faithfulness(
     attribution: torch.Tensor,
     target: torch.Tensor,
     metrics: set[str],
+    perturbation: Perturbation,
+    *,
     segments: torch.Tensor | None = None,
+    feature_mask: torch.Tensor | None = None,
+    calibrate_fidelity: bool = False,
 ) -> dict[str, MetricValue]:
     """Faithfulness scores for one attribution map, keyed by metric name.
 
@@ -34,7 +57,11 @@ def evaluate_faithfulness(
     (channel sum, absolute value) and min-max normalized to [0, 1] so the
     morphology threshold is meaningful across methods with different scales.
     Fidelity instead receives the original, unreduced attribution tensor
-    because its magnitude is part of the underlying infidelity calculation.
+    because its magnitude and sign are part of the underlying infidelity
+    calculation, and `perturbation` is the one Yeh et al. (2019) pair with the
+    method's explanation family. `feature_mask` is set only for the superpixel
+    methods, whose attribution holds one coefficient per segment rather than per
+    pixel; fidelity needs it to count each coefficient once.
     """
     from backend.metrics import (
         FidelityScore,
@@ -79,16 +106,49 @@ def evaluate_faithfulness(
         metric.update()
         scores["segment"] = float(metric.compute()[0].item())
     if "fidelity" in metrics:
-        metric = FidelityScore(model, inputs, attribution, target)
-        metric.update(
-            n_perturb_samples=config.FIDELITY_N_PERTURB_SAMPLES,
-            noise_std=config.FIDELITY_NOISE_STD,
-            max_examples_per_batch=config.FIDELITY_MAX_EXAMPLES_PER_BATCH,
-            random_seed=config.FIDELITY_RANDOM_SEED,
-        )
-        fidelity = float(metric.compute()[0].item())
-        scores["fidelity"] = fidelity if math.isfinite(fidelity) else None
+        metric = FidelityScore(model, inputs, attribution, target, feature_mask)
+        variants = {"fidelity": perturbation}
+        if feature_mask is not None:
+            variants["fidelity_superpixel"] = SuperpixelRemoval(
+                feature_mask, baseline=config.FIDELITY_SQUARE_BASELINE
+            )
+        for name, removal in variants.items():
+            metric.update(
+                n_perturb_samples=config.FIDELITY_N_PERTURB_SAMPLES,
+                perturbation=removal,
+                max_examples_per_batch=config.FIDELITY_MAX_EXAMPLES_PER_BATCH,
+                random_seed=config.FIDELITY_RANDOM_SEED,
+                calibrate=calibrate_fidelity,
+            )
+            fidelity = float(metric.compute()[0].item())
+            scores[name] = fidelity if math.isfinite(fidelity) else None
     return scores
+
+
+def sample_keys(data: datasets.ImageFolder) -> list[tuple[str, str]]:
+    """(class_id, image_id) of every sample, in dataset order.
+
+    `image_id` is a per-class sequence number, so the ids of a window can only be
+    derived by walking the dataset from the start. ImageFolder sorts class
+    directories as strings, so the target index only matches the directory name for
+    small datasets ("0".."9"); read the name back instead.
+    """
+    counters: defaultdict[str, int] = defaultdict(int)
+    keys = []
+    for _, target in data.samples:
+        class_id = data.classes[target]
+        keys.append((class_id, str(counters[class_id])))
+        counters[class_id] += 1
+    return keys
+
+
+def dataset_keys(
+    dataset_dir: str | Path,
+    start_index: int = 0,
+    stop_index: int | None = None,
+) -> list[tuple[str, str]]:
+    """`sample_keys` for a dataset directory, sliced to a window."""
+    return sample_keys(datasets.ImageFolder(str(dataset_dir)))[start_index:stop_index]
 
 
 def build_output_filename(
@@ -237,26 +297,6 @@ class AtlasRunner:
         filename = Path(sample_path).name
         return f"/{dataset_name}/val/{class_id}/{filename}"
 
-    def _replay_image_counters(self, start_index: int) -> defaultdict[str, int]:
-        """Per-class image counts for the samples before `start_index`.
-
-        `image_id` is a per-class sequence number, so a window that does not begin at
-        0 has to replay the skipped samples' class ids; otherwise the ids restart at
-        "0" and collide with the ones an earlier window already wrote.
-        """
-        counters: defaultdict[str, int] = defaultdict(int)
-        if not start_index:
-            return counters
-        samples = getattr(self.data, "samples", None)
-        if not isinstance(samples, list):
-            raise TypeError(
-                "start_index requires a dataset exposing .samples (e.g. ImageFolder) so "
-                "image ids stay aligned with a run that starts at 0."
-            )
-        for _, skipped_target in islice(samples, start_index):
-            counters[self.data.classes[skipped_target]] += 1
-        return counters
-
     def stream(
         self,
         num_samples: int,
@@ -266,6 +306,7 @@ class AtlasRunner:
         image_ext: str = "webp",
         metrics: set[str] | None = None,
         start_index: int = 0,
+        render_images: bool = True,
         **kwargs: Any,
     ) -> Iterator[ImageRecord]:
 
@@ -282,23 +323,29 @@ class AtlasRunner:
         output_dir.mkdir(parents=True, exist_ok=True)
         image_ext = image_ext.lstrip(".").lower()
 
-        class_image_counters = self._replay_image_counters(start_index)
+        keys = sample_keys(self.data)[start_index:]
+        entries = {entry.id: entry for entry in method_catalog()}
+        uncatalogued = sorted(
+            name for name in map(str, self.interp_methods) if name not in entries
+        )
+        if metrics and uncatalogued:
+            raise ValueError(
+                "No explanation family for: "
+                + ", ".join(uncatalogued)
+                + ". Add the method to `method_catalog()`; the family selects which "
+                "infidelity perturbation the metric samples."
+            )
 
         with tqdm(total=len(window), desc="Interpreting + Saving") as pbar:
             for offset, (inputs, target) in enumerate(dataloader):
                 sample_index = start_index + offset
 
-                # ImageFolder sorts class directories as strings, so the target index
-                # only matches the directory name for small datasets ("0".."9"). Read
-                # the name back so class ids and attribution targets stay aligned with
-                # the real ImageNet class ids.
-                class_id = self.data.classes[target.item()]
+                class_id, image_id = keys[offset]
                 attribution_target = torch.tensor(
                     [int(class_id)],
                     device=inputs.device,
                     dtype=target.dtype,
                 )
-                image_id = str(class_image_counters[class_id])
                 original_url = self._resolve_original_url(dataset_name, class_id, sample_index)
 
                 with torch.no_grad():
@@ -326,28 +373,39 @@ class AtlasRunner:
                     for interp_method in method_pbar:
                         method_name = str(interp_method)
                         method_pbar.set_description(f"Attribution {method_name}")
-                        attribution = interp_method.attribute(
-                            self.model,
-                            inputs,
-                            attribution_target,
-                        )
+                        try:
+                            attribution = interp_method.attribute(
+                                self.model,
+                                inputs,
+                                attribution_target,
+                            )
+                        except InsufficientFeaturesError as error:
+                            record.attribution_failures[method_name] = AttributionFailure(
+                                code="insufficient_features",
+                                feature_count=error.feature_count,
+                            )
+                            method_pbar.write(
+                                f"Skipping {method_name} for sample {sample_index}: {error}"
+                            )
+                            continue
                         if not isinstance(attribution, torch.Tensor):
                             raise TypeError(
                                 "Streaming visualization requires tensor attribution output; "
                                 f"got {type(attribution)} from {method_name}."
                             )
-                        output_url = self.renderer.render(
-                            attr=attribution[0],
-                            output_dir=output_dir,
-                            model_name=model_name,
-                            dataset_name=dataset_name,
-                            class_id=class_id,
-                            image_id=image_id,
-                            method_name=method_name,
-                            image_ext=image_ext,
-                            **kwargs,
-                        )
-                        record.outputs[method_name] = output_url
+                        if render_images:
+                            output_url = self.renderer.render(
+                                attr=attribution[0],
+                                output_dir=output_dir,
+                                model_name=model_name,
+                                dataset_name=dataset_name,
+                                class_id=class_id,
+                                image_id=image_id,
+                                method_name=method_name,
+                                image_ext=image_ext,
+                                **kwargs,
+                            )
+                            record.outputs[method_name] = output_url
 
                         if metrics:
                             record.interpretability_metrics[method_name] = (
@@ -357,10 +415,20 @@ class AtlasRunner:
                                     attribution,
                                     attribution_target,
                                     metrics,
-                                    segments,
+                                    PERTURBATION_FOR_FAMILY[
+                                        entries[method_name].family
+                                    ],
+                                    segments=segments,
+                                    feature_mask=(
+                                        interp_method.last_runtime_kwargs.get(
+                                            "feature_mask"
+                                        )
+                                    ),
+                                    calibrate_fidelity=entries[
+                                        method_name
+                                    ].calibrate_fidelity,
                                 )
                             )
 
-                class_image_counters[class_id] += 1
                 pbar.update(1)
                 yield record
