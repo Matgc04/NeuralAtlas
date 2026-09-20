@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import TypeAlias
 
 MetricValue: TypeAlias = str | int | float | bool | None
@@ -60,6 +61,7 @@ class ImageRecord:
     dataset: str
     class_id: str
     image_id: str
+    source_filename: str
     original_url: str | None
     prediction: PredictionRecord | None = None
     outputs: dict[str, str] = field(default_factory=dict)
@@ -67,6 +69,10 @@ class ImageRecord:
     interpretability_metrics: InterpretabilityMetricsPayload = field(
         default_factory=dict
     )
+
+    @property
+    def sample_key(self) -> tuple[str, str]:
+        return self.class_id, self.source_filename
 
     def completed_methods(
         self,
@@ -94,6 +100,7 @@ class ImageRecord:
         return {
             "class_id": self.class_id,
             "image_id": self.image_id,
+            "source_filename": self.source_filename,
             "original_url": self.original_url,
             "prediction": self.prediction.to_dict() if self.prediction else None,
             "outputs": dict(sorted(self.outputs.items())),
@@ -111,6 +118,12 @@ class ImageRecord:
         dataset: str,
         data: dict[str, object],
     ) -> "ImageRecord":
+        source_filename = data.get("source_filename")
+        if not source_filename:
+            if not data.get("original_url"):
+                raise ValueError("Image record needs source_filename or original_url")
+            source_filename = Path(str(data["original_url"])).name
+
         prediction_data = data.get("prediction")
         prediction = PredictionRecord.from_dict(
             prediction_data if isinstance(prediction_data, Mapping) else None
@@ -146,6 +159,7 @@ class ImageRecord:
             dataset=dataset,
             class_id=str(data["class_id"]),
             image_id=str(data["image_id"]),
+            source_filename=str(source_filename),
             original_url=(
                 None
                 if data.get("original_url") in {None, ""}

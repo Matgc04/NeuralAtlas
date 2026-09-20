@@ -216,6 +216,68 @@ def adopt(
     return structure
 
 
+def adopt_from_structure(
+    split_dirs: list[Path],
+    dest: Path,
+    structure: dict[str, list[str]],
+    layout: str,
+    quality: int,
+    index_map: dict[str, int] | None,
+) -> None:
+    """Materialize exactly the class/filename pairs declared by a structure file."""
+    source_classes = [
+        {path.name: path for path in split_dir.iterdir() if path.is_dir()}
+        for split_dir in split_dirs
+    ]
+    if layout == "neuralatlas":
+        if index_map is None:
+            raise ValueError("index_map is required for neuralatlas layout")
+        source_by_class = {
+            str(index): [classes[wnid] for classes in source_classes if wnid in classes]
+            for wnid, index in index_map.items()
+        }
+    else:
+        source_by_class = {
+            class_id: [classes[class_id] for classes in source_classes if class_id in classes]
+            for class_id in set().union(*(classes.keys() for classes in source_classes))
+        }
+
+    resolved: list[tuple[Path, str, str]] = []
+    missing = []
+    for class_id, filenames in structure.items():
+        candidates = {}
+        for source_dir in source_by_class.get(class_id, []):
+            for path in source_dir.iterdir():
+                if path.is_file():
+                    candidates.setdefault(path.stem, path)
+        for filename in filenames:
+            source = candidates.get(Path(filename).stem)
+            if source is None:
+                missing.append(f"{class_id}/{filename}")
+            else:
+                resolved.append((source, class_id, filename))
+    if missing:
+        preview = ", ".join(missing[:5])
+        searched = ", ".join(map(str, split_dirs))
+        raise SystemExit(
+            f"Structure references {len(missing)} source images not found in {searched}: "
+            f"{preview}"
+        )
+
+    val_dir = dest / "val"
+    staging = dest / ".val-from-structure"
+    if staging.exists():
+        shutil.rmtree(staging)
+    for source, class_id, filename in resolved:
+        target = staging / class_id / filename
+        suffix = target.suffix.lower()
+        image_format = "jpeg" if suffix in {".jpg", ".jpeg"} else "webp"
+        write_image(source, target, image_format, quality)
+    if val_dir.exists():
+        shutil.rmtree(val_dir)
+    staging.replace(val_dir)
+
+
 # --------------------------------------------------------------------------- main
 
 
@@ -237,6 +299,9 @@ def parse_args() -> argparse.Namespace:
                         help="Output directory (default: interpretability-viewer/public/<name>)")
     parser.add_argument("--src", type=Path,
                         help="Existing extracted ImageNet-mini root; skips the Kaggle download")
+    parser.add_argument("--from-structure", type=Path,
+                        help="Materialize the exact filenames declared by this structure JSON, "
+                             "searching both validation and training splits")
     parser.add_argument("--cache-dir", type=Path, default=Path.home() / ".cache/nano-datasets",
                         help="Where to keep the Kaggle download and the nano-datasets clone")
     parser.add_argument("--layout", choices=["neuralatlas", "wnid"], default="neuralatlas",
@@ -250,6 +315,8 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
+    if args.from_structure and args.fill_from_train:
+        raise SystemExit("--from-structure cannot be combined with --fill-from-train")
     if args.fill_from_train and (args.split != "val" or args.images == 0):
         raise SystemExit("--fill-from-train requires --split val and --images greater than 0")
 
@@ -261,6 +328,38 @@ def main() -> None:
     source_root = args.src.expanduser().resolve() if args.src else download_source(cache_dir)
     split_dir = resolve_split_dir(source_root, args.split)
     index_map = imagenet_index_map(split_dir) if args.layout == "neuralatlas" else None
+
+    if args.from_structure:
+        other_split = "train" if args.split == "val" else "val"
+        source_dirs = [split_dir, resolve_split_dir(source_root, other_split)]
+        structure_path = args.from_structure.expanduser().resolve()
+        try:
+            structure = json.loads(structure_path.read_text())
+        except (OSError, json.JSONDecodeError) as error:
+            raise SystemExit(f"Cannot read structure {structure_path}: {error}") from error
+        if not isinstance(structure, dict) or not all(
+            isinstance(class_id, str)
+            and bool(class_id)
+            and Path(class_id).name == class_id
+            and isinstance(filenames, list)
+            and all(
+                isinstance(filename, str)
+                and bool(filename)
+                and Path(filename).name == filename
+                for filename in filenames
+            )
+            and filenames == sorted(set(filenames))
+            for class_id, filenames in structure.items()
+        ):
+            raise SystemExit(f"Invalid structure: {structure_path}")
+        image_count = sum(map(len, structure.values()))
+        print(f"Materializing {image_count} declared images into {dest}...")
+        adopt_from_structure(source_dirs, dest, structure, args.layout, args.quality, index_map)
+        target_structure = dest / f"{args.name}_structure.json"
+        if target_structure.resolve() != structure_path:
+            target_structure.write_text(json.dumps(structure, indent=4) + "\n")
+        print(f"Done: {len(structure)} classes, {image_count} images -> {dest}")
+        return
 
     gen_script = ensure_nano_datasets(cache_dir)
     with tempfile.TemporaryDirectory(prefix="nano-imagenet-") as tmp:

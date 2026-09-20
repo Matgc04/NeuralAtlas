@@ -134,46 +134,98 @@ def count_dataset_images(dataset: str) -> int:
     return sum(1 for path in val_dir.glob("*/*") if path.is_file())
 
 
-def expected_dataset_images(dataset: str) -> int | None:
-    """Image count declared by `<dataset>_structure.json`, if the manifest is present."""
+def dataset_structure(dataset: str) -> dict[str, list[str]] | None:
     structure_path = dataset_dir(dataset) / f"{dataset}_structure.json"
     if not structure_path.is_file():
         return None
     structure = json.loads(structure_path.read_text())
-    return sum(len(files) for files in structure.values())
+    if not isinstance(structure, dict) or not all(
+        isinstance(class_id, str)
+        and bool(class_id)
+        and Path(class_id).name == class_id
+        and isinstance(filenames, list)
+        and all(
+            isinstance(filename, str)
+            and bool(filename)
+            and Path(filename).name == filename
+            for filename in filenames
+        )
+        and filenames == sorted(set(filenames))
+        for class_id, filenames in structure.items()
+    ):
+        raise SystemExit(f"Invalid dataset structure: {structure_path}")
+    return structure
+
+
+def dataset_file_mismatches(dataset: str) -> tuple[set[str], set[str]]:
+    """Return files missing from and unexpected by the authoritative structure."""
+    structure = dataset_structure(dataset)
+    if structure is None:
+        return set(), set()
+    expected = {
+        f"{class_id}/{filename}"
+        for class_id, filenames in structure.items()
+        for filename in filenames
+    }
+    val_dir = dataset_dir(dataset) / "val"
+    present = {
+        path.relative_to(val_dir).as_posix()
+        for path in val_dir.glob("*/*")
+        if path.is_file()
+    } if val_dir.is_dir() else set()
+    return expected - present, present - expected
 
 
 def ensure_dataset(dataset: str, dry_run: bool = False) -> int:
     """Return the number of dataset images, building them first if they are missing."""
     present = count_dataset_images(dataset)
-    expected = expected_dataset_images(dataset)
-    if present > 0 and (expected is None or present == expected):
+    structure = dataset_structure(dataset)
+    expected = sum(len(files) for files in structure.values()) if structure else None
+    missing, unexpected = dataset_file_mismatches(dataset)
+    if present > 0 and (structure is None or not missing and not unexpected):
         log(f"Dataset {dataset} already present: {present} images")
         return present
 
     if dry_run:
-        log(f"Dataset {dataset} incomplete ({present} images, expected {expected}); would download")
+        log(
+            f"Dataset {dataset} differs from its structure "
+            f"({len(missing)} missing, {len(unexpected)} unexpected); would rebuild"
+        )
         return expected or present
 
-    log(f"Dataset {dataset} incomplete ({present} images, expected {expected}); downloading")
+    log(
+        f"Dataset {dataset} differs from its structure "
+        f"({len(missing)} missing, {len(unexpected)} unexpected); rebuilding"
+    )
     # Run through `uv run`, not sys.executable: the download script declares its own
     # deps (kagglehub, Pillow) in a PEP-723 header and they are not project deps.
+    command = [
+        "uv",
+        "run",
+        str(REPO_ROOT / "scripts/download_nano_imagenet.py"),
+        "--name",
+        dataset,
+    ]
+    if structure is not None:
+        command.extend([
+            "--from-structure",
+            str(dataset_dir(dataset) / f"{dataset}_structure.json"),
+        ])
+    else:
+        command.append("--fill-from-train")
     subprocess.run(
-        [
-            "uv",
-            "run",
-            str(REPO_ROOT / "scripts/download_nano_imagenet.py"),
-            "--name",
-            dataset,
-            "--fill-from-train",
-        ],
+        command,
         check=True,
         cwd=REPO_ROOT,
     )
 
     present = count_dataset_images(dataset)
-    if present == 0:
-        raise SystemExit(f"Dataset {dataset} is still empty after downloading.")
+    missing, unexpected = dataset_file_mismatches(dataset)
+    if present == 0 or missing or unexpected:
+        raise SystemExit(
+            f"Dataset {dataset} still differs from its structure after rebuilding: "
+            f"{len(missing)} missing, {len(unexpected)} unexpected."
+        )
     log(f"Dataset {dataset} ready: {present} images")
     return present
 

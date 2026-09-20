@@ -4,6 +4,7 @@ import math
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
+from collections.abc import Sequence
 from typing import Any, Iterator
 
 import numpy as np
@@ -147,8 +148,12 @@ def dataset_keys(
     start_index: int = 0,
     stop_index: int | None = None,
 ) -> list[tuple[str, str]]:
-    """`sample_keys` for a dataset directory, sliced to a window."""
-    return sample_keys(datasets.ImageFolder(str(dataset_dir)))[start_index:stop_index]
+    """Stable (class_id, source_filename) keys, sliced to a window."""
+    data = datasets.ImageFolder(str(dataset_dir))
+    return [
+        (data.classes[target], Path(path).name)
+        for path, target in data.samples[start_index:stop_index]
+    ]
 
 
 def build_output_filename(
@@ -306,24 +311,33 @@ class AtlasRunner:
         image_ext: str = "webp",
         metrics: set[str] | None = None,
         start_index: int = 0,
+        sample_indices: Sequence[int] | None = None,
         render_images: bool = True,
         **kwargs: Any,
     ) -> Iterator[ImageRecord]:
 
-        if start_index < 0:
-            raise ValueError(f"start_index must be non-negative, got {start_index}")
-        window = range(start_index, min(num_samples, len(self.data)))
-        if not window:
+        if sample_indices is None:
+            if start_index < 0:
+                raise ValueError(f"start_index must be non-negative, got {start_index}")
+            indices = list(range(start_index, min(num_samples, len(self.data))))
+        else:
+            indices = list(sample_indices)
+            if len(indices) != len(set(indices)):
+                raise ValueError("sample_indices must not contain duplicates")
+            invalid = [index for index in indices if index < 0 or index >= len(self.data)]
+            if invalid:
+                raise ValueError(f"sample index out of range: {invalid[0]}")
+        if not indices:
             return
 
         self.model.eval()
         # Subset instead of skipping inside the loop: samples before the window are
         # never decoded, so a late chunk costs the same as an early one.
-        dataloader = DataLoader(Subset(self.data, window), batch_size=1, shuffle=False)
+        dataloader = DataLoader(Subset(self.data, indices), batch_size=1, shuffle=False)
         output_dir.mkdir(parents=True, exist_ok=True)
         image_ext = image_ext.lstrip(".").lower()
 
-        keys = sample_keys(self.data)[start_index:]
+        keys = sample_keys(self.data)
         entries = {entry.id: entry for entry in method_catalog()}
         uncatalogued = sorted(
             name for name in map(str, self.interp_methods) if name not in entries
@@ -336,11 +350,11 @@ class AtlasRunner:
                 "infidelity perturbation the metric samples."
             )
 
-        with tqdm(total=len(window), desc="Interpreting + Saving") as pbar:
+        with tqdm(total=len(indices), desc="Interpreting + Saving") as pbar:
             for offset, (inputs, target) in enumerate(dataloader):
-                sample_index = start_index + offset
+                sample_index = indices[offset]
 
-                class_id, image_id = keys[offset]
+                class_id, image_id = keys[sample_index]
                 attribution_target = torch.tensor(
                     [int(class_id)],
                     device=inputs.device,
@@ -363,6 +377,7 @@ class AtlasRunner:
                     dataset=dataset_name,
                     class_id=class_id,
                     image_id=image_id,
+                    source_filename=Path(self.data.samples[sample_index][0]).name,
                     original_url=original_url,
                     prediction=prediction,
                     interpretability_metrics={},
