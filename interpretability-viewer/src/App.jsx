@@ -266,23 +266,35 @@ function getClassCompareMatrix(records, { dataset, classId, models: allowed }) {
   );
   const models = [...new Set(scoped.map((r) => r.model))].sort(compareModelNames);
 
-  const byImage = new Map();
+  // Image IDs are run-local and can point at different source files between
+  // models. Use the source filename as the comparison identity so a shared
+  // original is only shown when the models refer to the same dataset image.
+  // Without source metadata, keep models separate: the index proves no identity.
+  const sourceKeyFor = (record) => JSON.stringify([
+    record.classId,
+    record.filename || `${record.model}:image:${record.imageId}`,
+  ]);
+  const bySource = new Map();
   for (const r of scoped) {
-    if (!byImage.has(r.imageId)) byImage.set(r.imageId, new Map());
-    byImage.get(r.imageId).set(r.model, r);
+    const sourceKey = sourceKeyFor(r);
+    if (!bySource.has(sourceKey)) bySource.set(sourceKey, new Map());
+    bySource.get(sourceKey).set(r.model, r);
   }
 
-  const rows = [...byImage.keys()].sort(compareMixedIds).map((imageId) => {
-    const rowMap = byImage.get(imageId);
+  const rows = [...bySource.entries()].map(([sourceKey, rowMap]) => {
     const exemplar = rowMap.values().next().value;
     return {
-      imageId,
+      sourceKey,
+      imageId: exemplar?.imageId ?? null,
       filename: exemplar?.filename ?? null,
       classId,
       classLabel: exemplar?.classLabel ?? classId,
       cells: models.map((model) => ({ model, record: rowMap.get(model) ?? null })),
     };
-  });
+  }).sort((a, b) =>
+    compareMixedIds(a.imageId ?? '', b.imageId ?? '') ||
+    String(a.filename ?? '').localeCompare(String(b.filename ?? ''))
+  );
 
   return { models, rows };
 }
@@ -311,7 +323,7 @@ const JET_LUT = (() => {
   });
 })();
 
-function applyJet(img, canvas, overlay) {
+function applyJet(img, canvas) {
   if (!canvas || !img.naturalWidth || !img.naturalHeight) return;
   canvas.width = img.naturalWidth;
   canvas.height = img.naturalHeight;
@@ -322,18 +334,13 @@ function applyJet(img, canvas, overlay) {
   for (let i = 0; i < px.length; i += 4) {
     const gray = px[i];
     const [r, g, b] = JET_LUT[gray];
-    // Overlay: amplify low attributions via gamma so diffuse methods are visible.
-    const alpha = overlay ? Math.round(Math.pow(gray / 255, 0.5) * 255) : 255;
-    px[i] = r; px[i + 1] = g; px[i + 2] = b; px[i + 3] = alpha;
+    px[i] = r; px[i + 1] = g; px[i + 2] = b; px[i + 3] = 255;
   }
   ctx.putImageData(d, 0, 0);
 }
 
-function JetCanvas({ src, className, alt, overlay = false, opacity, onPainted }) {
+function JetCanvas({ src, className, alt, opacity, onPainted }) {
   const canvasRef = useRef(null);
-  const imageRef = useRef(null);
-  const overlayRef = useRef(overlay);
-  overlayRef.current = overlay;
   const paintedRef = useRef(onPainted);
   paintedRef.current = onPainted;
   useEffect(() => {
@@ -346,8 +353,6 @@ function JetCanvas({ src, className, alt, overlay = false, opacity, onPainted })
     // blank tile is honest, a stale heatmap from the previous image is not.
     const canvas = canvasRef.current;
     if (canvas) canvas.getContext('2d')?.clearRect(0, 0, canvas.width, canvas.height);
-    imageRef.current = null;
-
     // Needed so the canvas can read pixels for the jet colormap when the heatmap is
     // served cross-origin (Hugging Face). HF reflects the request Origin in its CORS
     // header, so an anonymous request is allowed and the canvas stays untainted.
@@ -355,23 +360,16 @@ function JetCanvas({ src, className, alt, overlay = false, opacity, onPainted })
     img.decoding = 'async';
     img.onload = () => {
       if (!cancelled) {
-        imageRef.current = img;
-        applyJet(img, canvasRef.current, overlayRef.current);
+        applyJet(img, canvasRef.current);
         paintedRef.current?.(src);
       }
     };
-    img.onerror = () => { if (!cancelled) imageRef.current = null; };
     img.src = src;
 
     return () => {
       cancelled = true;
-      imageRef.current = null;
     };
   }, [src]);
-
-  useLayoutEffect(() => {
-    if (imageRef.current) applyJet(imageRef.current, canvasRef.current, overlay);
-  }, [overlay]);
 
   if (!src) return null;
   return (
@@ -405,7 +403,7 @@ function Attribution({ src, originalSrc, alt, className }) {
       />
       <JetCanvas
         className="overlay-stack__heat" src={src} alt={alt}
-        overlay={enabled} opacity={enabled ? opacity : 1}
+        opacity={enabled ? opacity : 1}
         onPainted={setPaintedSrc}
       />
     </div>
@@ -458,7 +456,7 @@ function MetricBadges({ metrics }) {
   return (
     <dl className="metric-badges" aria-label="Interpretability metrics">
       {items.map(({ name, title, value }) => (
-        <div key={name} className="metric-badge" title={title}>
+        <div key={name} className={`metric-badge${name === 'fidelity_superpixel' ? ' metric-badge--wide' : ''}`} title={title}>
           <dt>{name}</dt>
           <dd>{formatMetricBadgeValue(value)}</dd>
         </div>
@@ -507,10 +505,12 @@ function OverlayControl({ enabled, opacity, onToggle, onOpacity }) {
       {enabled && (
         <label className="overlay-control__opacity">
           Opacity
+          <span aria-hidden="true">0</span>
           <input
             type="range" min="0" max="1" step="0.05" value={opacity}
             onChange={(e) => onOpacity(Number(e.target.value))}
           />
+          <span aria-hidden="true">1</span>
         </label>
       )}
     </div>
@@ -558,8 +558,10 @@ function RenderBar({ overlay, opacity, onToggle, onOpacity }) {
 
   return (
     <div className="render-bar" ref={ref}>
-      <OverlayControl enabled={overlay} opacity={opacity} onToggle={onToggle} onOpacity={onOpacity} />
-      <ColorbarLegend />
+      <div className="render-bar__controls">
+        <OverlayControl enabled={overlay} opacity={opacity} onToggle={onToggle} onOpacity={onOpacity} />
+        <ColorbarLegend />
+      </div>
     </div>
   );
 }
@@ -1285,12 +1287,53 @@ function ClassCompareView({ matrix, methods, ready, labels, onHideModel, totalMo
   const rowRefs = useRef([]);
   const activeRowRef = useRef(null);
 
+  useEffect(() => {
+    const row = rowRefs.current[matrix.rows.length - 1];
+    const original = row?.querySelector('.compare-original__content');
+    const maps = row?.querySelectorAll('.compare-cell--map');
+    const lastMap = maps?.[maps.length - 1];
+    if (!original || !lastMap) return;
+
+    // Keep the usual sticky position until the final stretch of page scroll,
+    // then align the original with the last map without adding page height.
+    const update = () => {
+      original.style.translate = '';
+      if (getComputedStyle(original).position !== 'sticky') return;
+      const remaining = document.documentElement.scrollHeight - window.innerHeight - window.scrollY;
+      const image = original.querySelector('.mini-image__asset');
+      if (!image || window.scrollY <= 0) return;
+      const distance = lastMap.getBoundingClientRect().top - image.getBoundingClientRect().top;
+      const offset = Math.max(0, Math.min(window.scrollY, distance - 2 * Math.max(0, remaining)));
+      original.style.translate = `0 ${offset}px`;
+    };
+    let frame;
+    const schedule = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(update);
+    };
+    const observer = new ResizeObserver(schedule);
+    observer.observe(document.documentElement);
+    observer.observe(row);
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    update();
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
+      original.style.translate = '';
+    };
+  }, [matrix, methods, ready]);
+
   const scrollToRow = (index) => {
     const row = rowRefs.current[index];
     if (!row) return;
     activeRowRef.current = index;
     const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    row.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+    const top = row.getBoundingClientRect().top + window.scrollY
+      - parseFloat(getComputedStyle(row).scrollMarginTop);
+    window.scrollTo({ left: window.scrollX, top, behavior: reduceMotion ? 'auto' : 'smooth' });
   };
 
   useEffect(() => {
@@ -1347,8 +1390,8 @@ function ClassCompareView({ matrix, methods, ready, labels, onHideModel, totalMo
 
   const style = { '--compare-columns': matrix.models.length + 1 };
   return (
-    <section className="compare-matrix" aria-label="Class comparison matrix">
-      <div className="compare-header" style={style}>
+    <section className="compare-matrix" style={style} aria-label="Class comparison matrix">
+      <div className="compare-header">
         <div className="compare-header__gutter" aria-hidden="true" />
         <div className="compare-header__cell compare-header__cell--original">Original</div>
         {matrix.models.map((m) => (
@@ -1371,35 +1414,38 @@ function ClassCompareView({ matrix, methods, ready, labels, onHideModel, totalMo
       {matrix.rows.map((row, rowIndex) => {
         const origUrl = row.cells.find((c) => c.record?.originalUrl)?.record?.originalUrl ?? null;
         const methodRows = compareMethodRows(methods, row.cells);
+        const rowLabel = `Image ${row.imageId}`;
         // The original spans every method row, so the grid needs those rows to
         // be explicit — an implicit grid has nothing for `1 / -1` to reach.
         // Two rows per method: the name, then the band of maps it names.
-        const rowStyle = { ...style, '--compare-rows': methodRows.length * 2 + 1 };
+        const rowStyle = { '--compare-rows': methodRows.length * 2 + 1 };
         return (
           <div
-            key={row.imageId} className="compare-row" style={rowStyle}
+            key={row.sourceKey} className="compare-row" style={rowStyle}
             ref={(node) => { rowRefs.current[rowIndex] = node; }}
           >
             <article className="compare-cell compare-cell--original">
-              <MiniImage
-                caption={`Image ${row.imageId}`} src={origUrl} alt={`Original image ${row.imageId}`}
-                missingText="Original unavailable" variant="original"
-                captionActions={(
-                  <nav className="compare-nav" aria-label={`Image ${rowIndex + 1} of ${matrix.rows.length}`}>
-                    <span className="compare-nav__count">{rowIndex + 1} / {matrix.rows.length}</span>
-                  <button
-                    type="button" className="compare-nav__button"
-                    disabled={rowIndex === 0} onClick={() => scrollToRow(rowIndex - 1)}
-                    aria-label="Previous image" title="Previous image · K or ←"
-                  >&#8249;</button>
-                  <button
-                    type="button" className="compare-nav__button"
-                    disabled={rowIndex === matrix.rows.length - 1} onClick={() => scrollToRow(rowIndex + 1)}
-                    aria-label="Next image" title="Next image · J or →"
-                  >&#8250;</button>
-                  </nav>
-                )}
-              />
+              <div className="compare-original__content">
+                <MiniImage
+                  caption={rowLabel} src={origUrl} alt={`Original ${rowLabel.toLowerCase()}`}
+                  missingText="Original unavailable" variant="original"
+                  captionActions={(
+                    <nav className="compare-nav" aria-label={`Image ${rowIndex + 1} of ${matrix.rows.length}`}>
+                      <span className="compare-nav__count">{rowIndex + 1} / {matrix.rows.length}</span>
+                      <button
+                        type="button" className="compare-nav__button"
+                        disabled={rowIndex === 0} onClick={() => scrollToRow(rowIndex - 1)}
+                        aria-label="Previous image" title="Previous image · K or ←"
+                      >&#8249;</button>
+                      <button
+                        type="button" className="compare-nav__button"
+                        disabled={rowIndex === matrix.rows.length - 1} onClick={() => scrollToRow(rowIndex + 1)}
+                        aria-label="Next image" title="Next image · J or →"
+                      >&#8250;</button>
+                    </nav>
+                  )}
+                />
+              </div>
             </article>
             {/* Row 1 of the matrix: what each model called this image. The
                 gutter above the method names stays empty on purpose. */}
@@ -1415,8 +1461,10 @@ function ClassCompareView({ matrix, methods, ready, labels, onHideModel, totalMo
             {methodRows.map((method) => (
               <Fragment key={method}>
                 <h4 className="compare-row__method">
-                  <span className="compare-row__method-name">{method}</span>
-                  <InfoDot kind="method" id={method} label={method} />
+                  <span className="compare-row__method-label">
+                    <span className="compare-row__method-name">{method}</span>
+                    <InfoDot kind="method" id={method} label={method} />
+                  </span>
                 </h4>
                 {row.cells.map((cell) => (
                   <div key={`${method}__${cell.model}`} className="compare-cell compare-cell--map" data-model={cell.model}>
@@ -1631,7 +1679,7 @@ function ModelForm({ atlas, runs }) {
   // whether it is on screen at all (the book in the top bar).
   const [contextTab, setContextTab] = useState('model');
   const [contextOpen, setContextOpen] = useState(false);
-  const [contextShown, setContextShown] = useState(true);
+  const [contextShown, setContextShown] = useState(false);
   const [pickedMethod, setPickedMethod] = useState(null);
   const [pickedModel, setPickedModel] = useState(null);
   // A method named from the sidebar may not be checked, so it is enough that

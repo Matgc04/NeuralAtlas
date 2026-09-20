@@ -311,10 +311,12 @@ body {
   color: var(--accent-strong);
 }
 
-/* On is ink, not a fill: the card being on screen is already the loud signal,
-   and a second filled control up here would compete with the mode pill. */
-.topbar__wiki.is-on {
-  color: var(--accent);
+/* Keep the open state visible even when the pointer leaves the button. */
+.topbar__wiki.is-on,
+.topbar__wiki.is-on:hover {
+  background: var(--accent-subtle);
+  color: var(--accent-strong);
+  box-shadow: inset 0 0 0 1px var(--accent);
 }
 
 /* ── Selection bar ──────────────────────────────────────────────
@@ -1023,9 +1025,24 @@ body {
   transition: margin-left var(--t-emphasis) ease, width var(--t-emphasis) ease;
 }
 
+/* The sticky bars need the matrix's full width to cover maps underneath. */
+.viewer-content:has(.compare-matrix) {
+  min-width: max-content;
+  --compare-sticky-left: calc(var(--sidebar-width) + var(--content-gutter));
+}
+
 .viewer-layout--collapsed .viewer-content {
   margin-left: var(--sidebar-collapsed-width);
   width: calc(100vw - var(--sidebar-collapsed-width));
+}
+
+.viewer-layout--collapsed .viewer-content:has(.compare-matrix) {
+  --compare-sticky-left: calc(var(--sidebar-collapsed-width) + var(--content-gutter));
+}
+
+/* Model columns determine horizontal overflow, not the context card's text. */
+.viewer-content:has(.compare-matrix) .context-card {
+  contain: inline-size;
 }
 
 .theme-toggle {
@@ -1274,6 +1291,10 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+.metric-badge--wide {
+  grid-column: 1 / -1;
+}
+
 .metric-badge dt {
   min-width: 0;
   overflow: hidden;
@@ -1285,6 +1306,11 @@ body {
   line-height: 1.2;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.metric-badge--wide dt {
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .metric-badge dd {
@@ -1359,13 +1385,28 @@ body {
      no content padding above it left to cancel. */
   margin: 0 calc(var(--content-gutter) * -1);
   padding: var(--space-sm) var(--content-gutter);
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.render-bar__controls {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: var(--space-md);
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
+}
+
+/* Keep the controls in their viewport position while the bar's background
+   continues over the horizontally scrolling comparison columns. */
+.viewer-content:has(.compare-matrix) .render-bar__controls {
+  position: sticky;
+  left: var(--compare-sticky-left);
+  width: calc(100vw - var(--sidebar-width) - var(--content-gutter) - var(--content-gutter));
+}
+
+.viewer-layout--collapsed .viewer-content:has(.compare-matrix) .render-bar__controls {
+  width: calc(100vw - var(--sidebar-collapsed-width) - var(--content-gutter) - var(--content-gutter));
 }
 
 /* ── Colorbar legend ────────────────────────────────────────────
@@ -1688,20 +1729,25 @@ body {
    sticky so it holds while its attribution maps scroll past. */
 
 .compare-matrix {
+  background: var(--bg);
+  --compare-min-width: 220px;
+  --compare-gap: var(--space-lg);
+  /* Equal image sizes, filling the viewport when only a few models are shown. */
+  --compare-column-width: max(var(--compare-min-width), calc((100vw - var(--compare-sticky-left) - var(--content-gutter) - (var(--compare-columns) - 1) * var(--compare-gap)) / var(--compare-columns)));
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
-}
-
-.compare-matrix {
   gap: var(--space-lg);
+  /* Keep the header background as wide as its model columns without moving
+     the separate attribution bar out of the viewport. */
+  width: max-content;
+  min-width: 100%;
 }
 
 .compare-header,
 .compare-row {
   display: grid;
-  grid-template-columns: repeat(var(--compare-columns, 1), minmax(220px, 1fr));
-  gap: var(--space-lg);
+  grid-template-columns: repeat(var(--compare-columns), var(--compare-column-width));
+  gap: var(--compare-gap);
 }
 
 /* Sticks under the top bar and the render strip, not under the viewport edge. */
@@ -1732,6 +1778,30 @@ body {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+.compare-header__cell--original {
+  position: sticky;
+  left: var(--compare-sticky-left);
+  z-index: 1;
+  background: var(--bg);
+}
+
+/* Mask the entire reference column, including the gutter, as maps pass behind it. */
+.compare-header__cell--original::after,
+.compare-cell--original::after {
+  content: '';
+  position: absolute;
+  inset: 0 calc(var(--compare-gap) / -2) 0 calc(-1 * var(--content-gutter));
+  z-index: -1;
+  background: var(--bg);
+  border-right: 1px solid var(--border);
+  pointer-events: none;
+}
+
+.compare-header__cell--original::after {
+  top: calc(-1 * var(--space-sm));
+  bottom: calc(-1 * var(--space-sm));
 }
 
 /* Always on screen, not summoned by hover: a control nobody can see is a
@@ -1787,6 +1857,19 @@ body {
   color: var(--text2);
 }
 
+.compare-row__method-label {
+  position: sticky;
+  left: calc(var(--compare-sticky-left) + var(--compare-column-width) + var(--compare-gap));
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  flex-shrink: 0;
+  max-width: calc(100vw - var(--compare-sticky-left) - var(--compare-column-width) - var(--compare-gap) - var(--content-gutter));
+  padding-right: var(--space-sm);
+  background: var(--bg);
+}
+
 .compare-row__method-name {
   min-width: 0;
   overflow-wrap: anywhere;
@@ -1818,14 +1901,20 @@ body {
   min-width: 0;
 }
 
-/* Column one, and it holds every method row: the thing being compared against
-   is one image, not one image per method. */
+/* Freeze a full-height column horizontally; its contents stick vertically. */
 .compare-cell--original {
   grid-column: 1;
   grid-row: 1 / -1;
   position: sticky;
+  left: var(--compare-sticky-left);
+  z-index: 3;
+  align-self: stretch;
+  background: var(--bg);
+}
+
+.compare-original__content {
+  position: sticky;
   top: calc(var(--chrome-h) + var(--renderbar-h) + 48px);
-  align-self: start;
 }
 
 /* The gutter they used to fill is gone; the markup keeps them for the
@@ -2102,10 +2191,9 @@ body {
     display: none;
   }
 
-  .compare-header,
-  .compare-row {
-    grid-template-columns: repeat(var(--compare-columns, 1), minmax(200px, 1fr));
-    gap: var(--space-md);
+  .compare-matrix {
+    --compare-min-width: 200px;
+    --compare-gap: var(--space-md);
   }
 }
 
@@ -2267,6 +2355,16 @@ body {
     width: 100%;
   }
 
+  .viewer-content:has(.compare-matrix) {
+    min-width: 0;
+  }
+
+  .viewer-content:has(.compare-matrix) .render-bar__controls,
+  .viewer-layout--collapsed .viewer-content:has(.compare-matrix) .render-bar__controls {
+    position: static;
+    width: auto;
+  }
+
   /* Nothing is pinned to the top of a phone screen any more. The overlay
      switch and the colorbar are a setting you touch once and then read maps
      for ten screens; sticky, they spent 110px of an 850px screen on it, and
@@ -2318,6 +2416,10 @@ body {
     display: none;
   }
 
+  .compare-matrix {
+    width: 100%;
+  }
+
   /* One column: the matrix unrolls into a list, so the gutter has nowhere to
      go. The method name becomes a section heading over its own maps, and each
      map names its model — grouped by method, which is what the labels imply. */
@@ -2334,6 +2436,11 @@ body {
   .compare-cell--original {
     grid-column: auto;
     grid-row: auto;
+    background: transparent;
+  }
+
+  .compare-cell--original::after {
+    display: none;
   }
 
   .compare-header__gutter,
@@ -2346,6 +2453,12 @@ body {
     grid-column: auto;
   }
 
+  .compare-row__method-label {
+    position: static;
+    max-width: none;
+    background: transparent;
+  }
+
   .compare-row__empty {
     grid-column: auto;
   }
@@ -2354,11 +2467,9 @@ body {
     position: relative;
   }
 
-  /* Unrolled into a list, the original already sits directly above its maps.
-     Sticky here only made it ride down over the predictions — and once
-     .compare-cell above claimed position: relative, the leftover `top` turned
-     into a plain 63px nudge that dragged it over the first heatmap. Both go. */
-  .compare-cell--original {
+  /* The reference returns to normal document flow in the mobile list. */
+  .compare-cell--original,
+  .compare-original__content {
     position: static;
     top: auto;
   }
