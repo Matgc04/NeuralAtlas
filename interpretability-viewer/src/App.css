@@ -1917,6 +1917,27 @@ body {
   top: calc(var(--chrome-h) + var(--renderbar-h) + 48px);
 }
 
+/* The last row has no next row to scroll into, so the page would end with its
+   original still under the header and the last maps a screen below it.
+   ClassCompareView measures the trip the original still has to make into
+   --compare-tail. The tail is that much more scroll; the row is pinned at
+   --compare-pin-top — negative, its bottom edge on the fold — and holds still
+   while the tail passes behind it; the same effect brings the original down by
+   as much as the row is held. It has to be a box inside the matrix: sticky keeps
+   the row within the matrix's content box, so padding would give it no room. */
+.compare-matrix::after {
+  content: '';
+  flex: none;
+  height: var(--compare-tail, 0px);
+  /* Cancels the flex gap, so that no tail means no extra page at all. */
+  margin-top: calc(-1 * var(--space-lg));
+}
+
+.compare-row:last-child {
+  position: sticky;
+  top: var(--compare-pin-top, auto);
+}
+
 /* The gutter they used to fill is gone; the markup keeps them for the
    one-column layout, where they are hidden too. */
 .compare-header__gutter,
@@ -2467,11 +2488,17 @@ body {
     position: relative;
   }
 
-  /* The reference returns to normal document flow in the mobile list. */
+  /* The reference returns to normal document flow in the mobile list, and
+     with nothing sticky the last row needs neither its pin nor its tail. */
   .compare-cell--original,
-  .compare-original__content {
+  .compare-original__content,
+  .compare-row:last-child {
     position: static;
     top: auto;
+  }
+
+  .compare-matrix::after {
+    display: none;
   }
 
   /* The column header collapses into a micro-label on each cell. */
