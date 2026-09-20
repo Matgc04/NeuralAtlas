@@ -9,7 +9,7 @@ const BASE_URL = import.meta.env.BASE_URL ?? '/';
 const USE_LOCAL_ASSETS = import.meta.env.VITE_ASSET_SOURCE === 'local';
 
 // Overlay display preference (heatmap composited over the original), shared by all views.
-const OverlayContext = createContext({ enabled: false, opacity: 0.8 });
+const OverlayContext = createContext({ enabled: false, opacity: 0.5 });
 const useOverlay = () => useContext(OverlayContext);
 
 // Aiming the context card at a subject is available anywhere a name is shown.
@@ -1286,43 +1286,108 @@ function ModelGridView({ records, methods, ready, labels }) {
 function ClassCompareView({ matrix, methods, ready, labels, onHideModel, totalModels }) {
   const rowRefs = useRef([]);
   const activeRowRef = useRef(null);
+  // How far position: sticky is holding the last row below its place in the
+  // flow right now. scrollToRow has to take it back out of the row's rect.
+  const heldRef = useRef(0);
 
-  useEffect(() => {
+  // The last row has no next row to scroll into: the page runs out with the
+  // original still parked under the header, a screen above the maps that just
+  // arrived. So the maps scroll through first, like in any other row, and the
+  // scroll that is left after that belongs to the original. The matrix grows a
+  // tail exactly as long as the trip the original still has ahead of it
+  // (--compare-tail), the row holds still while that tail goes by (sticky at
+  // --compare-pin-top, see App.css), and the original comes down by however
+  // far the row is being held. One thing moves at a time, and since the held
+  // row covers the tail, the page never shows a blank stretch.
+  // useLayoutEffect, because the tail and the pin are layout: a new matrix
+  // should not paint one frame with the previous one's numbers.
+  useLayoutEffect(() => {
     const row = rowRefs.current[matrix.rows.length - 1];
+    const section = row?.parentElement;
     const original = row?.querySelector('.compare-original__content');
     const maps = row?.querySelectorAll('.compare-cell--map');
     const lastMap = maps?.[maps.length - 1];
     if (!original || !lastMap) return;
 
-    // Keep the usual sticky position until the final stretch of page scroll,
-    // then align the original with the last map without adding page height.
-    const update = () => {
+    const root = document.documentElement;
+    let tail = 0;
+    let inset = 0;
+
+    const clear = () => {
+      tail = 0;
+      heldRef.current = 0;
+      section.style.removeProperty('--compare-tail');
+      section.style.removeProperty('--compare-pin-top');
       original.style.translate = '';
-      if (getComputedStyle(original).position !== 'sticky') return;
-      const remaining = document.documentElement.scrollHeight - window.innerHeight - window.scrollY;
-      const image = original.querySelector('.mini-image__asset');
-      if (!image || window.scrollY <= 0) return;
-      const distance = lastMap.getBoundingClientRect().top - image.getBoundingClientRect().top;
-      const offset = Math.max(0, Math.min(window.scrollY, distance - 2 * Math.max(0, remaining)));
-      original.style.translate = `0 ${offset}px`;
     };
-    let frame;
-    const schedule = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(update);
+
+    // Geometry. It changes with the viewport and the content, never with the
+    // scroll position, so none of this runs per frame.
+    const measure = () => {
+      const style = getComputedStyle(original);
+      // One-column list: nothing sticks, so there is nothing to line up.
+      if (style.position !== 'sticky') { clear(); return; }
+      const image = original.querySelector('.mini-image__asset, .mini-image__missing') ?? original;
+      const target = lastMap.querySelector('.mini-image__asset, .mini-image__missing') ?? lastMap;
+      const sectionStyle = getComputedStyle(section);
+      inset = parseFloat(sectionStyle.paddingBottom) + parseFloat(sectionStyle.borderBottomWidth);
+
+      const rowRect = row.getBoundingClientRect();
+      const contentRect = original.getBoundingClientRect();
+      // The matrix is the last child of the content column. Use its bottom
+      // padding, not the page's scrollHeight: the tail changes scrollHeight
+      // and would feed its own measurement back into the pin position.
+      const below = parseFloat(getComputedStyle(section.parentElement).paddingBottom);
+      // Where the row's top edge sits once its bottom edge has reached the fold.
+      const pinTop = root.clientHeight - below - rowRect.height;
+      const stickyTop = parseFloat(style.top) || 0;
+      // Where the original rests at that moment: under the header, inside its cell.
+      const rest = Math.min(Math.max(stickyTop, pinTop), pinTop + rowRect.height - contentRect.height);
+      // Both offsets are internal to the row, so scroll and translate cancel out.
+      const imageInContent = image.getBoundingClientRect().top - contentRect.top;
+      const targetInRow = target.getBoundingClientRect().top - rowRect.top;
+      const travel = pinTop + targetInRow - (rest + imageInContent);
+
+      // A row that fits under the header shows its original and its maps together
+      // already. Keep the added scroll distance on whole pixels.
+      tail = pinTop < stickyTop ? Math.max(0, Math.round(travel)) : 0;
+      if (!tail) { clear(); return; }
+      section.style.setProperty('--compare-tail', `${tail}px`);
+      section.style.setProperty('--compare-pin-top', `${pinTop}px`);
     };
-    const observer = new ResizeObserver(schedule);
-    observer.observe(document.documentElement);
+
+    // Per scroll frame: the original comes down exactly as far as sticky is
+    // holding the row. Reads first, one write after, so no forced reflow.
+    const update = () => {
+      if (!tail) return;
+      const slack = section.getBoundingClientRect().bottom - inset - row.getBoundingClientRect().bottom;
+      const held = Math.max(0, Math.min(tail, tail - slack));
+      heldRef.current = held;
+      original.style.translate = held ? `0 ${held}px` : '';
+    };
+
+    let frame = 0;
+    let stale = false;
+    const run = () => {
+      frame = 0;
+      if (stale) { stale = false; measure(); }
+      update();
+    };
+    const onScroll = () => { if (!frame) frame = requestAnimationFrame(run); };
+    const onResize = () => { stale = true; onScroll(); };
+    const observer = new ResizeObserver(onResize);
     observer.observe(row);
-    window.addEventListener('scroll', schedule, { passive: true });
-    window.addEventListener('resize', schedule);
+    observer.observe(original);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onResize);
+    measure();
     update();
     return () => {
       cancelAnimationFrame(frame);
       observer.disconnect();
-      window.removeEventListener('scroll', schedule);
-      window.removeEventListener('resize', schedule);
-      original.style.translate = '';
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onResize);
+      clear();
     };
   }, [matrix, methods, ready]);
 
@@ -1331,7 +1396,9 @@ function ClassCompareView({ matrix, methods, ready, labels, onHideModel, totalMo
     if (!row) return;
     activeRowRef.current = index;
     const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    const top = row.getBoundingClientRect().top + window.scrollY
+    // A pinned last row reports where sticky is holding it, not where it lives.
+    const held = row.matches(':last-child') ? heldRef.current : 0;
+    const top = row.getBoundingClientRect().top - held + window.scrollY
       - parseFloat(getComputedStyle(row).scrollMarginTop);
     window.scrollTo({ left: window.scrollX, top, behavior: reduceMotion ? 'auto' : 'smooth' });
   };
@@ -1505,7 +1572,7 @@ function ModelForm({ atlas, runs }) {
   const panelRef = useRef(null);
   const [facet, setFacet] = useState('method');
   const [overlay, setOverlay] = useState(false);
-  const [overlayOpacity, setOverlayOpacity] = useState(0.8);
+  const [overlayOpacity, setOverlayOpacity] = useState(0.5);
   const [lblCache, setLblCache] = useState({});
   const [dsStatus, setDsStatus] = useState({});
 
