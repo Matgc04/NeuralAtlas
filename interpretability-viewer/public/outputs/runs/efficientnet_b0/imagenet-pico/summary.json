@@ -12,7 +12,7 @@
   "classCount": 1000,
   "dataset": "imagenet-pico",
   "imageCount": 3000,
-  "methodCount": 22,
+  "methodCount": 17,
   "metrics": {
     "accuracy": 0.7756666666666666,
     "classCount": 1000,
