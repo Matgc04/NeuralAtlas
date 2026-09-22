@@ -110,6 +110,13 @@ function compareModelNames(a, b) {
   return String(a).localeCompare(String(b));
 }
 
+// Family first, then depth: the compare columns keep the rail's order, so
+// efficientnet_b0 and _b4 sit together instead of around mobilenet_v2.
+const FAMILY_RANK = new Map([...MODEL_FAMILIES.map((f) => f.key), 'other'].map((key, i) => [key, i]));
+function compareModelsByFamily(a, b) {
+  return FAMILY_RANK.get(categorizeModel(a)) - FAMILY_RANK.get(categorizeModel(b)) || compareModelNames(a, b);
+}
+
 // Groups for the rail, in family order, skipping families this dataset has no
 // run for. Same shape FacetFilter takes for methods, so one component serves both.
 function groupModels(models) {
@@ -264,7 +271,7 @@ function getClassCompareMatrix(records, { dataset, classId, models: allowed }) {
   const scoped = records.filter((r) =>
     r.dataset === dataset && r.classId === classId && (!allow || allow.has(r.model))
   );
-  const models = [...new Set(scoped.map((r) => r.model))].sort(compareModelNames);
+  const models = [...new Set(scoped.map((r) => r.model))].sort(compareModelsByFamily);
 
   // Image IDs are run-local and can point at different source files between
   // models. Use the source filename as the comparison identity so a shared

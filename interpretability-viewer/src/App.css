@@ -1809,6 +1809,8 @@ body {
    names still reads as a row of names, and comes up to full ink on hover. */
 .compare-header__hide {
   flex-shrink: 0;
+  /* Pinned to the column's right edge, so every X lines up down the header. */
+  margin-left: auto;
   border-radius: var(--radius-pill);
   width: 18px;
   height: 18px;
