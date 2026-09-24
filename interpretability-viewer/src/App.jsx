@@ -997,11 +997,21 @@ function MethodFigures({ methods, outputs, imageId, originalSrc, interpretabilit
   ));
 }
 
+// Predictions and class names index the dataset's label space (`labels.names`). A class
+// folder is its own label-space index unless the dataset catalog maps it (`labels.classes`).
+function classTarget(labels, classId) {
+  return String(labels?.classes?.[classId] ?? classId);
+}
+
+function className(labels, classId) {
+  return labels?.names?.[Number(classTarget(labels, classId))] ?? classId;
+}
+
 function PredictionBadge({ prediction, classId, labels }) {
   if (!prediction) return null;
   const predId = prediction.predicted_class_id;
-  const predLabel = labels?.[predId] ?? `Class ${predId}`;
-  const isCorrect = String(predId) === String(classId);
+  const predLabel = labels?.names?.[Number(predId)] ?? `Class ${predId}`;
+  const isCorrect = String(predId) === classTarget(labels, classId);
   const confidencePct = prediction.confidence == null
     ? null
     : `${(Number(prediction.confidence) * 100).toFixed(1)}%`;
@@ -1568,7 +1578,7 @@ function resolveSelection(options, currentValue) {
 
 /* ── Main Form ──────────────────────────────────────────────── */
 
-function ModelForm({ atlas, runs }) {
+function ModelForm({ atlas, runs, datasets }) {
   const { models, records } = atlas;
 
   const [vs, setVs] = useState(() => ({
@@ -1581,7 +1591,7 @@ function ModelForm({ atlas, runs }) {
   const [overlay, setOverlay] = useState(false);
   const [overlayOpacity, setOverlayOpacity] = useState(0.5);
   const [lblCache, setLblCache] = useState({});
-  const [dsStatus, setDsStatus] = useState({});
+  const [lblStatus, setLblStatus] = useState({});
 
   const patch = (update) => { const next = { ...vs, ...update }; setVs(next); writeStateToUrl(next); };
 
@@ -1640,43 +1650,46 @@ function ModelForm({ atlas, runs }) {
 
   const effectiveDataset = resolveSelection(datasetOptions, vs.dataset);
 
-  // Load dataset metadata (images structure + labels)
+  // Load the label space of the selected dataset; datasets that share one share the fetch.
   useEffect(() => {
-    if (!effectiveDataset) return;
+    const entry = datasets[effectiveDataset];
+    if (!entry || lblCache[entry.label_space]) return;
     const controller = new AbortController();
     const { signal } = controller;
-    const ds = effectiveDataset;
+    const space = entry.label_space;
     const updStatus = (fields) =>
-      !signal.aborted && setDsStatus((p) => ({ ...p, [ds]: { ...p[ds], ...fields } }));
+      !signal.aborted && setLblStatus((p) => ({ ...p, [space]: { ...p[space], ...fields } }));
 
-    if (!lblCache[ds]) {
-      updStatus({ labelsLoading: true, labelsError: null });
-      fetchJson('imagenet-mini/imagenet-1k-id2label.json', { signal, retryCount: 2 })
-        .then((data) => { if (!signal.aborted) setLblCache((p) => ({ ...p, [ds]: data })); })
-        .catch((e) => {
-          if (e.name !== 'AbortError') {
-            updStatus({ labelsError: 'Failed to load.' });
-          }
-        })
-        .finally(() => updStatus({ labelsLoading: false }));
-    }
+    updStatus({ labelsLoading: true, labelsError: null });
+    fetchJson(entry.labels, { signal, retryCount: 2 })
+      .then((data) => { if (!signal.aborted) setLblCache((p) => ({ ...p, [space]: data.labels })); })
+      .catch((e) => {
+        if (e.name !== 'AbortError') {
+          updStatus({ labelsError: 'Failed to load.' });
+        }
+      })
+      .finally(() => updStatus({ labelsLoading: false }));
 
     return () => controller.abort();
-  }, [effectiveDataset, lblCache]);
+  }, [datasets, effectiveDataset, lblCache]);
+
+  const labelsByDataset = useMemo(() => Object.fromEntries(
+    Object.values(datasets).map((d) => [d.id, { classes: d.classes, names: lblCache[d.label_space] }])
+  ), [datasets, lblCache]);
+  const datasetLabels = labelsByDataset[effectiveDataset];
 
   const imageRecords = useMemo(
-    () => records.map((r) => ({ ...r, classLabel: lblCache[r.dataset]?.[r.classId] ?? r.classId })),
-    [records, lblCache]
+    () => records.map((r) => ({ ...r, classLabel: className(labelsByDataset[r.dataset], r.classId) })),
+    [records, labelsByDataset]
   );
 
   const classOptions = useMemo(() => {
     if (!effectiveDataset) return [];
-    const labels = lblCache[effectiveDataset] ?? {};
     const classes = imageRecords.filter((r) => r.dataset === effectiveDataset &&
       (vs.mode === 'class_compare' || r.model === effectiveModel)).map((r) => r.classId);
     return [...new Set(classes)].sort(compareMixedIds)
-      .map((id) => ({ value: id, label: `${id} - ${labels[id] ?? id}` }));
-  }, [vs.mode, effectiveDataset, effectiveModel, lblCache, imageRecords]);
+      .map((id) => ({ value: id, label: `${id} - ${className(datasetLabels, id)}` }));
+  }, [vs.mode, effectiveDataset, effectiveModel, datasetLabels, imageRecords]);
 
   const effectiveClassId = resolveSelection(classOptions, vs.classId);
 
@@ -1834,7 +1847,7 @@ function ModelForm({ atlas, runs }) {
     (vs.mode === 'model_grid' && modelGridRecords.length > 0) ||
     (vs.mode === 'class_compare' && classCompareMatrix.rows.length > 0);
 
-  const dsInfo = effectiveDataset ? dsStatus[effectiveDataset] ?? {} : {};
+  const dsInfo = lblStatus[datasets[effectiveDataset]?.label_space] ?? {};
   const isLoading = dsInfo.labelsLoading;
 
   const handleModeChange = (mode) => {
@@ -2000,13 +2013,13 @@ function ModelForm({ atlas, runs }) {
           <ModelStatsRail model={effectiveModel} dataset={effectiveDataset} stats={selectedModelStats} />
         )}
 
-        {vs.mode === 'single' && <SingleImageGallery imageData={singleImageData} labels={lblCache[effectiveDataset]} />}
+        {vs.mode === 'single' && <SingleImageGallery imageData={singleImageData} labels={datasetLabels} />}
         {vs.mode === 'model_grid' && (
-          <ModelGridView records={modelGridRecords} methods={selectedMethods} ready={Boolean(effectiveModel && effectiveDataset)} labels={lblCache[effectiveDataset]} />
+          <ModelGridView records={modelGridRecords} methods={selectedMethods} ready={Boolean(effectiveModel && effectiveDataset)} labels={datasetLabels} />
         )}
         {vs.mode === 'class_compare' && (
           <ClassCompareView matrix={classCompareMatrix} methods={selectedMethods}
-            ready={Boolean(effectiveDataset && effectiveClassId)} labels={lblCache[effectiveDataset]}
+            ready={Boolean(effectiveDataset && effectiveClassId)} labels={datasetLabels}
             totalModels={availableModels.length}
             onHideModel={(m) => setSelectedModels(selectedModels.filter((x) => x !== m))} />
         )}
@@ -2020,6 +2033,7 @@ function ModelForm({ atlas, runs }) {
 function App() {
   const [manifest, setManifest] = useState(null);
   const [runs, setRuns] = useState({});
+  const [datasets, setDatasets] = useState({});
   const [error, setError] = useState(null);
 
   useAtlasFavicon();
@@ -2032,6 +2046,11 @@ function App() {
       .then((data) => {
         if (signal.aborted) return;
         setManifest(data);
+        fetchJson(data.catalogs.datasets, { signal, retryCount: 2 })
+          .then((catalog) => {
+            if (!signal.aborted) setDatasets(Object.fromEntries(catalog.datasets.map((d) => [d.id, d])));
+          })
+          .catch((error) => { if (!signal.aborted) setError(error); });
         for (const [model, datasets] of Object.entries(data.runs ?? {})) {
           for (const [dataset, paths] of Object.entries(datasets)) {
             const key = `${model}::${dataset}`;
@@ -2074,7 +2093,7 @@ function App() {
   if (error) return <AppStatus>Could not read outputs/manifest.json. Check that the run outputs are published, then reload.</AppStatus>;
   if (!manifest) return <AppStatus>Reading run manifest.</AppStatus>;
 
-  return <div className="app-shell"><ModelForm atlas={atlas} runs={runs} /></div>;
+  return <div className="app-shell"><ModelForm atlas={atlas} runs={runs} datasets={datasets} /></div>;
 }
 
 export default App;

@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any, Iterator, Mapping
 
 from backend import config
+from backend.datasets import dataset_ids, load_dataset
 from backend.methods import MethodCatalogEntry, extra_metric_keys, method_catalog
 from backend.records import ImageRecord
 
@@ -148,6 +149,9 @@ class OutputRepository:
 
     def _methods_catalog_path(self) -> Path:
         return self.output_root / "catalogs" / "methods.json"
+
+    def _datasets_catalog_path(self) -> Path:
+        return self.output_root / "catalogs" / "datasets.json"
 
     def _run_dir(self, model: str, dataset: str) -> Path:
         return self.output_root / "runs" / model / dataset
@@ -429,12 +433,28 @@ class OutputRepository:
             self._methods_catalog_path(),
             {"methods": [entry.to_dict() for entry in methods]},
         )
+        _atomic_write_json(
+            self._datasets_catalog_path(),
+            {
+                "datasets": [
+                    load_dataset(dataset, self.public_root).catalog_entry()
+                    for dataset in dataset_ids(self.public_root)
+                ]
+            },
+        )
         self.refresh_manifest(run_base_urls)
 
     def refresh_manifest(
         self,
         run_base_urls: Mapping[tuple[str, str], str] | None = None,
     ) -> None:
+        """Rewrite the manifest from the local runs.
+
+        `run_base_urls` replaces every run's remote `base_url`; when omitted, the ones
+        already in the manifest are kept, so a local run does not unpublish the rest.
+        """
+        if run_base_urls is None:
+            run_base_urls = self._manifest_base_urls()
         runs: dict[str, dict[str, dict[str, str]]] = {}
         datasets_by_model: dict[str, list[str]] = {}
         runs_root = self.output_root / "runs"
@@ -458,7 +478,7 @@ class OutputRepository:
                         "images": str(images_path.relative_to(self.public_root)).replace("\\", "/"),
                         "summary": str(summary_path.relative_to(self.public_root)).replace("\\", "/"),
                     }
-                    base_url = run_base_urls.get((model, dataset)) if run_base_urls else None
+                    base_url = run_base_urls.get((model, dataset))
                     if base_url:
                         run["base_url"] = base_url
                     runs[model][dataset] = run
@@ -470,12 +490,23 @@ class OutputRepository:
             "catalogs": {
                 "models": str(self._models_catalog_path().relative_to(self.public_root)).replace("\\", "/"),
                 "methods": str(self._methods_catalog_path().relative_to(self.public_root)).replace("\\", "/"),
+                "datasets": str(self._datasets_catalog_path().relative_to(self.public_root)).replace("\\", "/"),
             },
             "models": sorted(runs),
             "datasets_by_model": {model: datasets_by_model[model] for model in sorted(datasets_by_model)},
             "runs": runs,
         }
         _atomic_write_json(self._manifest_path(), manifest)
+
+    def _manifest_base_urls(self) -> dict[tuple[str, str], str]:
+        payload = _read_json(self._manifest_path(), {})
+        runs = payload.get("runs", {}) if isinstance(payload, dict) else {}
+        return {
+            (model, dataset): run["base_url"]
+            for model, datasets in runs.items()
+            for dataset, run in datasets.items()
+            if isinstance(run, dict) and run.get("base_url")
+        }
 
 
     def _write_run_bundle(
@@ -499,6 +530,7 @@ class OutputRepository:
         dataset: str,
         records: list[ImageRecord],
     ) -> dict[str, object]:
+        spec = load_dataset(dataset, self.public_root)
         bucket = MetricsBucket()
         class_ids = set()
         methods = set()
@@ -509,7 +541,8 @@ class OutputRepository:
             predicted_class_id = (
                 record.prediction.predicted_class_id if record.prediction is not None else None
             )
-            _record_prediction(bucket, record.class_id, predicted_class_id)
+            # Predictions index the label space, so the class is compared by its target there.
+            _record_prediction(bucket, str(spec.target(record.class_id)), predicted_class_id)
         return {
             "model": model,
             "dataset": dataset,

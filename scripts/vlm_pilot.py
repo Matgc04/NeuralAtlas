@@ -23,7 +23,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from backend import config  # noqa: E402
-from backend.ai_dataset.core import load_labels  # noqa: E402
+from backend.datasets import load_dataset  # noqa: E402
 from backend.hf import attributions_base_repo, model_repo_id  # noqa: E402
 from backend.records import ImageRecord  # noqa: E402
 from backend.vlm import (  # noqa: E402
@@ -133,7 +133,7 @@ def main() -> None:
     chosen = pick(records, args.methods, args.images, args.seed)
     if len(chosen) < 2:
         raise SystemExit("Hacen falta al menos dos imagenes para el control intercambiado")
-    labels = load_labels(ROOT / config.BASE_PUBLIC_DIR / "imagenet-mini/imagenet-1k-id2label.json")
+    dataset = load_dataset(args.dataset, ROOT / config.BASE_PUBLIC_DIR)
     client = LlamaVlmClient(args.server_url, args.vlm_model, seed=args.seed)
 
     total = len(chosen) * len(args.methods) * len(args.conditions)
@@ -153,7 +153,7 @@ def main() -> None:
             crop = model_view(source_image(args.images_root, record))
             clean_url = vlm_data_url(crop)
             # The label is always the real one, so only the map varies.
-            label = labels.get(record.class_id, record.class_id).split(",")[0]
+            label = dataset.short_label(record.class_id)
             other = chosen[(index + 1) % len(chosen)]
             for method in args.methods:
                 real = fetch_map(api, repo_id, revision, args.dataset, record, method)

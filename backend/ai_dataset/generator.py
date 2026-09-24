@@ -8,6 +8,8 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
+from backend.datasets import DESCRIPTOR_NAME, DatasetSpec
+
 from .core import Captioner, ImageGenerator, now_iso, read_json, sort_key, write_json
 
 
@@ -15,12 +17,12 @@ class Generator:
     def __init__(
         self,
         args: argparse.Namespace,
-        labels: dict[str, str],
+        source: DatasetSpec,
         captioner: Captioner,
         image_generator: ImageGenerator,
     ) -> None:
         self.args = args
-        self.labels = labels
+        self.source = source
         self.captioner = captioner
         self.image_generator = image_generator
         self.only = self._parse_only(args.only)
@@ -135,12 +137,12 @@ class Generator:
         if not recaption and existing and existing.get("generation_prompt"):
             return existing  # reuse the saved caption (resume, or --stage image) for generation
 
-        source_image = self.source_dir / "val" / class_id / filename
+        source_image = self.source.images_path / class_id / filename
         if not source_image.exists():
             raise FileNotFoundError(f"missing source image: {source_image}")
 
         mime_type = mimetypes.guess_type(source_image.name)[0] or "image/webp"
-        label = self.labels.get(class_id, "")
+        label = self.source.short_label(class_id)
         print(f"{prefix} captioning...", flush=True)
         caption, raw_caption = self.captioner.caption(source_image.read_bytes(), mime_type, label)
         return {
@@ -148,7 +150,7 @@ class Generator:
             "image_id": image_id,
             "label": label,
             "source_filename": filename,
-            "source_url": f"/{self.args.source}/val/{class_id}/{filename}",
+            "source_url": self.source.image_url(class_id, filename),
             "caption": asdict(caption),
             "raw_caption": raw_caption,
             "generation_prompt": caption.regeneration_prompt or raw_caption,
@@ -162,7 +164,7 @@ class Generator:
         print(f"{prefix} generating image...", flush=True)
         image = self.image_generator.generate_image(record["generation_prompt"])
         generated_filename = f"{Path(record['source_filename']).stem}__ai{image.extension}"
-        output_dir = self.target_dir / "val" / class_id
+        output_dir = self.target_dir / self.source.images_dir / class_id
         output_dir.mkdir(parents=True, exist_ok=True)
 
         # Drop the previous file when regenerating into a different extension, else it orphans.
@@ -174,7 +176,7 @@ class Generator:
 
         record.update({
             "generated_filename": generated_filename,
-            "generated_url": f"/{self.args.target}/val/{class_id}/{generated_filename}",
+            "generated_url": f"/{self.args.target}/{self.source.images_dir}/{class_id}/{generated_filename}",
             **self.image_generator.describe(),
             "generated_at": now_iso(),
         })
@@ -219,6 +221,8 @@ class Generator:
         write_json(self.structure_path, {key: self.structure[key] for key in sorted(self.structure, key=sort_key)})
         write_json(self.captions_path, self.captions)
         write_json(self.manifest_path, manifest)
+        # Paired images keep the source classes, so the target is labelled exactly like it.
+        write_json(self.target_dir / DESCRIPTOR_NAME, {**self.source.descriptor(), "title": self.args.target})
 
     def _handle_error(self, message: str) -> None:
         if self.args.continue_on_error:

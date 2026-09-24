@@ -127,8 +127,14 @@ def dataset_dir(dataset: str) -> Path:
     return REPO_ROOT / config.BASE_PUBLIC_DIR / dataset
 
 
+def images_dir(dataset: str) -> Path:
+    from backend.datasets import load_dataset
+
+    return load_dataset(dataset, REPO_ROOT / config.BASE_PUBLIC_DIR).images_path
+
+
 def count_dataset_images(dataset: str) -> int:
-    val_dir = dataset_dir(dataset) / "val"
+    val_dir = images_dir(dataset)
     if not val_dir.is_dir():
         return 0
     return sum(1 for path in val_dir.glob("*/*") if path.is_file())
@@ -167,7 +173,7 @@ def dataset_file_mismatches(dataset: str) -> tuple[set[str], set[str]]:
         for class_id, filenames in structure.items()
         for filename in filenames
     }
-    val_dir = dataset_dir(dataset) / "val"
+    val_dir = images_dir(dataset)
     present = {
         path.relative_to(val_dir).as_posix()
         for path in val_dir.glob("*/*")
@@ -247,7 +253,7 @@ def completed_samples(
     return repository.first_incomplete_sample(
         model,
         dataset,
-        dataset_keys(dataset_dir(dataset) / "val"),
+        dataset_keys(images_dir(dataset)),
         image_ext,
         set(metrics),
         methods,

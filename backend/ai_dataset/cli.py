@@ -7,7 +7,9 @@ from pathlib import Path
 
 from .cloudflare import CloudflareWorkersAIImageGenerator, cloudflare_workers_ai_client
 from .codex import codex_image_generator_from_env
-from .core import Captioner, ImageGenerator, load_env, load_labels
+from backend.datasets import load_dataset
+
+from .core import Captioner, ImageGenerator, load_env
 from .gemini import GeminiCaptioner, GeminiImageGenerator, gemini_client
 from .generator import Generator
 
@@ -47,8 +49,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--source", default="imagenet-pico")
     parser.add_argument("--target", default="imagenet-pico-ai")
     parser.add_argument("--public-dir", default="interpretability-viewer/public")
-    parser.add_argument("--id2label", default="imagenet-mini/imagenet-1k-id2label.json",
-                        help="path (under public-dir) mapping class_id -> label, used to anchor captions")
     parser.add_argument("--limit", type=int)
     parser.add_argument("--sleep", type=float, default=0.0)
     parser.add_argument("--force", action="store_true",
@@ -83,7 +83,7 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     load_env(Path(".env"))
     args = parse_args()
-    labels = load_labels(Path(args.public_dir) / args.id2label)
+    source = load_dataset(args.source, Path(args.public_dir))
     captioner = build_captioner(args.caption_provider, args)
     image_generator = build_image_generator(args.image_provider, args)
-    Generator(args, labels, captioner, image_generator).run()
+    Generator(args, source, captioner, image_generator).run()

@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "title": "imagenet-pico",
+  "label_space": "imagenet-1k",
+  "images_dir": "val"
+}

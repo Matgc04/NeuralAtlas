@@ -10,6 +10,7 @@
     "sign": "absolute_value"
   },
   "catalogs": {
+    "datasets": "outputs/catalogs/datasets.json",
     "methods": "outputs/catalogs/methods.json",
     "models": "outputs/catalogs/models.json"
   },
@@ -42,7 +43,7 @@
       "imagenet-pico-ai"
     ]
   },
-  "generated_at": "2026-09-23T19:54:39.133833+00:00",
+  "generated_at": "2026-09-24T01:34:46.208416+00:00",
   "models": [
     "alexnet",
     "convnext_tiny",

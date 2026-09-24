@@ -33,6 +33,9 @@ class ModelRuntime:
     transform: Callable[[object], "Tensor"]
     last_conv_layer: "nn.Module"
     parameter_count: int
+    # Id of the label space the model's outputs index; a dataset is run only
+    # against models that predict its label space.
+    label_space: str
 
 
 def _overwrite_named_param_strict(
@@ -263,4 +266,6 @@ def build_model_runtime(model_name: str) -> ModelRuntime:
         transform=transform,
         last_conv_layer=last_conv_layer,
         parameter_count=parameter_count,
+        # Every DEFAULT torchvision classification weight is trained on ImageNet-1k.
+        label_space="imagenet-1k",
     )

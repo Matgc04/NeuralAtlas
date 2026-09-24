@@ -24,7 +24,8 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
 from backend import config  # noqa: E402
-from backend.ai_dataset.core import load_env, load_labels, sort_key  # noqa: E402
+from backend.ai_dataset.core import load_env, sort_key  # noqa: E402
+from backend.datasets import load_dataset  # noqa: E402
 from backend.hf import attributions_base_repo, model_repo_id  # noqa: E402
 from backend.hf import with_retries as _with_retries  # noqa: E402
 from backend.persistence import OutputRepository  # noqa: E402
@@ -76,11 +77,6 @@ def parse_args() -> argparse.Namespace:
         "--no-upload",
         action="store_true",
         help="write local shards without committing to HF",
-    )
-    parser.add_argument(
-        "--id2label",
-        default="imagenet-mini/imagenet-1k-id2label.json",
-        help="label map relative to interpretability-viewer/public",
     )
     return parser.parse_args()
 
@@ -255,7 +251,7 @@ def main() -> None:
     records = [record for record in records if in_scope(record, args.only)]
     remote = set(api.list_repo_files(repo_id=repo_id, repo_type="dataset", revision=revision))
 
-    labels = load_labels(REPO_ROOT / config.BASE_PUBLIC_DIR / args.id2label)
+    dataset = load_dataset(args.dataset, REPO_ROOT / config.BASE_PUBLIC_DIR)
     repository = OutputRepository(REPO_ROOT / config.OUTPUT_ROOT)
     client = LlamaVlmClient(args.server_url, args.vlm_model, seed=args.seed)
     generator = {
@@ -330,7 +326,7 @@ def main() -> None:
             with Image.open(original_path(record)) as source:
                 crop = model_view(source)
                 original_url = vlm_data_url(crop)
-                label = labels.get(class_id, class_id)
+                label = dataset.short_label(class_id)
                 for method in methods:
                     map_path = heatmap_path(
                         api, repo_id, revision, args.dataset, class_id, record.outputs[method]
