@@ -210,50 +210,22 @@ async function fetchJson(path, { retryCount = 0, retryDelayMs = 400, signal, ...
   }
 }
 
-function resolveRunOutputUrl(baseUrl, classId, outputPath) {
-  if (!outputPath || !baseUrl || USE_LOCAL_ASSETS) return outputPath;
-  const value = String(outputPath);
-  if (/^(?:[a-z]+:)?\/\//i.test(value) || value.startsWith('data:')) return value;
-  const filename = value.split('/').pop();
-  return `${String(baseUrl).replace(/\/+$/, '')}/${encodeURIComponent(classId)}/${encodeURIComponent(filename)}`;
-}
-
-function filenameFromUrl(url) {
-  if (!url) return null;
-  return decodeURIComponent(String(url).split(/[?#]/)[0].split('/').pop());
-}
-
-function buildAtlasData(manifest, runPayloads) {
-  const models = {};
-  const records = [];
-  for (const model of manifest?.models ?? []) {
-    // Keep metadata for empty runs so their model and dataset remain selectable.
-    models[model] = {};
-    for (const dataset of manifest?.datasets_by_model?.[model] ?? []) {
-      const run = runPayloads[`${model}::${dataset}`];
-      models[model][dataset] = run?.summary?.metrics ?? null;
-      const images = new Map();
-      for (const image of run?.images?.images ?? []) {
-        const classId = String(image.class_id), imageId = String(image.image_id);
-        const originalUrl = image.original_url ?? null;
-        images.set(JSON.stringify([classId, imageId]), {
-          model, dataset, classId, imageId, originalUrl,
-          filename: filenameFromUrl(originalUrl),
-          outputs: Object.fromEntries(Object.entries(image.outputs ?? {}).map(([method, path]) => [
-            method, resolveRunOutputUrl(run.baseUrl, classId, path),
-          ])),
-          prediction: image.prediction ?? null,
-          interpretabilityMetrics: image.interpretability_metrics ?? {},
-        });
-      }
-      records.push(...images.values());
-    }
-  }
-  records.sort((a, b) =>
-    a.dataset.localeCompare(b.dataset) || compareMixedIds(a.classId, b.classId) ||
-    compareMixedIds(a.imageId, b.imageId) || a.model.localeCompare(b.model)
-  );
-  return { models, records };
+// One run's images.json as viewer records, maps pointed at the run's `base_url`.
+function normalizeRun(model, dataset, images, baseUrl) {
+  return (images?.images ?? []).map((image) => {
+    const classId = String(image.class_id);
+    return {
+      model, dataset, classId, imageId: String(image.image_id),
+      originalUrl: image.original_url ?? null,
+      filename: image.source_filename ?? null,
+      outputs: Object.fromEntries(Object.entries(image.outputs ?? {}).map(([method, path]) => [
+        method,
+        USE_LOCAL_ASSETS ? path : `${baseUrl}/${encodeURIComponent(classId)}/${encodeURIComponent(path.split('/').pop())}`,
+      ])),
+      prediction: image.prediction ?? null,
+      interpretabilityMetrics: image.interpretability_metrics ?? {},
+    };
+  }).sort((a, b) => compareMixedIds(a.classId, b.classId) || compareMixedIds(a.imageId, b.imageId));
 }
 
 // `models` is an allow-list: the columns the rail left checked. Rows are built
@@ -268,17 +240,10 @@ function getClassCompareMatrix(records, { dataset, classId, models: allowed }) {
   );
   const models = [...new Set(scoped.map((r) => r.model))].sort(compareModelsByFamily);
 
-  // Image IDs are run-local and can point at different source files between
-  // models. Use the source filename as the comparison identity so a shared
-  // original is only shown when the models refer to the same dataset image.
-  // Without source metadata, keep models separate: the index proves no identity.
-  const sourceKeyFor = (record) => JSON.stringify([
-    record.classId,
-    record.filename || `${record.model}:image:${record.imageId}`,
-  ]);
+  // A row is one source image, so every model in it was shown the same original.
   const bySource = new Map();
   for (const r of scoped) {
-    const sourceKey = sourceKeyFor(r);
+    const sourceKey = JSON.stringify([r.classId, r.filename]);
     if (!bySource.has(sourceKey)) bySource.set(sourceKey, new Map());
     bySource.get(sourceKey).set(r.model, r);
   }
@@ -849,9 +814,8 @@ function ContextCard({
 // `indeterminate` is a DOM property with no HTML attribute, so it can only be
 // set imperatively.
 function TriCheckbox({ checked, indeterminate, ...rest }) {
-  const ref = useRef(null);
-  useEffect(() => { if (ref.current) ref.current.indeterminate = Boolean(indeterminate); }, [indeterminate]);
-  return <input ref={ref} type="checkbox" checked={checked} {...rest} />;
+  const setIndeterminate = (el) => { if (el) el.indeterminate = Boolean(indeterminate); };
+  return <input ref={setIndeterminate} type="checkbox" checked={checked} {...rest} />;
 }
 
 /* Two facets, one rail. Tabs instead of a second stacked list: the panel keeps
@@ -1155,10 +1119,9 @@ function CrumbSelect({ label, value, items, onSelect, placeholder, disabled }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const rootRef = useRef(null);
-  const inputRef = useRef(null);
 
   const q = normalize(query);
-  const filtered = q ? list.filter((i) => !i.isHeader && normalize(i.label).includes(q)) : list;
+  const filtered = q ? list.filter((i) => normalize(i.label).includes(q)) : list;
 
   const commit = (v) => { onSelect(v); setOpen(false); setQuery(''); };
 
@@ -1175,8 +1138,6 @@ function CrumbSelect({ label, value, items, onSelect, placeholder, disabled }) {
       document.removeEventListener('keydown', onKey);
     };
   }, [open]);
-
-  useEffect(() => { if (open) inputRef.current?.focus(); }, [open]);
 
   return (
     <div className={`crumb${disabled ? ' is-disabled' : ''}`} ref={rootRef}>
@@ -1200,28 +1161,24 @@ function CrumbSelect({ label, value, items, onSelect, placeholder, disabled }) {
       {open && !disabled && (
         <div className="crumb__pop">
           <input
-            ref={inputRef} className="combo__input" value={query}
+            autoFocus className="combo__input" value={query}
             placeholder={placeholder} aria-label={`Search ${label}`}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter') { const f = filtered.find((i) => !i.isHeader); if (f) commit(f.value); }
+              if (e.key === 'Enter' && filtered.length) commit(filtered[0].value);
             }}
           />
           <div className="crumb__list" role="listbox">
             {filtered.length === 0 ? (
               <div className="combo__empty">No matches — try a shorter query.</div>
-            ) : filtered.slice(0, 1000).map((item) =>
-              item.isHeader ? (
-                <div key={item.value} className="combo__group-header">{item.label}</div>
-              ) : (
-                <button
-                  type="button" key={item.value} role="option"
-                  aria-selected={item.value === value}
-                  className={`combo__option${item.value === value ? ' is-on' : ''}`}
-                  onClick={() => commit(item.value)}
-                >{item.label}</button>
-              )
-            )}
+            ) : filtered.slice(0, 1000).map((item) => (
+              <button
+                type="button" key={item.value} role="option"
+                aria-selected={item.value === value}
+                className={`combo__option${item.value === value ? ' is-on' : ''}`}
+                onClick={() => commit(item.value)}
+              >{item.label}</button>
+            ))}
           </div>
         </div>
       )}
@@ -1573,7 +1530,7 @@ function resolveSelection(options, currentValue) {
 
 /* ── Main Form ──────────────────────────────────────────────── */
 
-function ModelForm({ atlas, runs, datasets }) {
+function ModelForm({ atlas, runs, datasets, labelSpaces }) {
   const { models, records } = atlas;
 
   const [vs, setVs] = useState(() => ({
@@ -1585,8 +1542,6 @@ function ModelForm({ atlas, runs, datasets }) {
   const [facet, setFacet] = useState('method');
   const [overlay, setOverlay] = useState(false);
   const [overlayOpacity, setOverlayOpacity] = useState(0.5);
-  const [lblCache, setLblCache] = useState({});
-  const [lblStatus, setLblStatus] = useState({});
 
   const patch = (update) => { const next = { ...vs, ...update }; setVs(next); writeStateToUrl(next); };
 
@@ -1645,32 +1600,9 @@ function ModelForm({ atlas, runs, datasets }) {
 
   const effectiveDataset = resolveSelection(datasetOptions, vs.dataset);
 
-  // Load the label space of the selected dataset; datasets that share one share the fetch.
-  useEffect(() => {
-    const entry = datasets[effectiveDataset];
-    if (!entry || lblCache[entry.label_space]) return;
-    const controller = new AbortController();
-    const { signal } = controller;
-    const space = entry.label_space;
-    const updStatus = (fields) =>
-      !signal.aborted && setLblStatus((p) => ({ ...p, [space]: { ...p[space], ...fields } }));
-
-    updStatus({ labelsLoading: true, labelsError: null });
-    fetchJson(entry.labels, { signal, retryCount: 2 })
-      .then((data) => { if (!signal.aborted) setLblCache((p) => ({ ...p, [space]: data.labels })); })
-      .catch((e) => {
-        if (e.name !== 'AbortError') {
-          updStatus({ labelsError: 'Failed to load.' });
-        }
-      })
-      .finally(() => updStatus({ labelsLoading: false }));
-
-    return () => controller.abort();
-  }, [datasets, effectiveDataset, lblCache]);
-
   const labelsByDataset = useMemo(() => Object.fromEntries(
-    Object.values(datasets).map((d) => [d.id, { classes: d.classes, names: lblCache[d.label_space] }])
-  ), [datasets, lblCache]);
+    Object.values(datasets).map((d) => [d.id, { classes: d.classes, names: labelSpaces[d.label_space] }])
+  ), [datasets, labelSpaces]);
   const datasetLabels = labelsByDataset[effectiveDataset];
 
   const imageRecords = useMemo(
@@ -1792,21 +1724,18 @@ function ModelForm({ atlas, runs, datasets }) {
   // the selection moved on underneath it, so it follows the last thing touched.
   // Checking a whole family at once is left alone — twenty added methods name
   // no single subject.
-  const lastSelection = useRef({ model: null, dataset: null, methods: [] });
-  useEffect(() => {
-    const prev = lastSelection.current;
-    lastSelection.current = { model: effectiveModel, dataset: effectiveDataset, methods: selectedMethods };
-    if (prev.model == null && prev.dataset == null) return; // first pass, nothing was touched
-    if (effectiveModel !== prev.model) setContextTab('model');
-    else if (effectiveDataset !== prev.dataset) { setContextTab('dataset'); setPickedMethod(null); setPickedModel(null); }
-    else {
-      const added = selectedMethods.filter((m) => !prev.methods.includes(m));
-      if (added.length === 1) { setContextTab('method'); setPickedMethod(added[0]); }
-    }
-  }, [effectiveModel, effectiveDataset, selectedMethods]);
-
+  const selectModel = (model) => {
+    if (model !== effectiveModel) setContextTab('model');
+    patch({ model, classId: null, imageId: null });
+  };
+  const selectDataset = (dataset) => {
+    if (dataset !== effectiveDataset) { setContextTab('dataset'); setPickedMethod(null); setPickedModel(null); }
+    patch({ dataset });
+  };
   const setSelectedMethods = (list) => {
     const next = availableMethods.filter((m) => list.includes(m));
+    const added = next.filter((m) => !selectedMethods.includes(m));
+    if (added.length === 1) { setContextTab('method'); setPickedMethod(added[0]); }
     patch({ methods: next.length === availableMethods.length ? null : next.join(',') });
   };
 
@@ -1845,9 +1774,6 @@ function ModelForm({ atlas, runs, datasets }) {
     (vs.mode === 'single' && Boolean(singleImageData?.original)) ||
     (vs.mode === 'model_grid' && modelGridRecords.length > 0) ||
     (vs.mode === 'class_compare' && classCompareMatrix.rows.length > 0);
-
-  const dsInfo = lblStatus[datasets[effectiveDataset]?.label_space] ?? {};
-  const isLoading = dsInfo.labelsLoading;
 
   const handleModeChange = (mode) => {
     const next = { ...vs, mode };
@@ -1929,7 +1855,7 @@ function ModelForm({ atlas, runs, datasets }) {
       {vs.mode !== 'class_compare' && (
         <CrumbSelect
           label="Model" value={effectiveModel} items={modelOptions}
-          onSelect={(v) => patch({ model: v, classId: null, imageId: null })}
+          onSelect={selectModel}
           placeholder="Search model" disabled={!modelOptions.length}
         />
       )}
@@ -1937,7 +1863,7 @@ function ModelForm({ atlas, runs, datasets }) {
       <CrumbSelect
         label="Dataset" value={effectiveDataset}
         items={datasetOptions}
-        onSelect={(v) => patch({ dataset: v })}
+        onSelect={selectDataset}
         placeholder="Search dataset"
         disabled={!datasetOptions.length}
       />
@@ -1945,7 +1871,7 @@ function ModelForm({ atlas, runs, datasets }) {
       <CrumbSelect
         label="Class" value={effectiveClassId} items={classOptions}
         onSelect={(v) => patch({ classId: v, imageId: null })}
-        placeholder={isLoading ? 'Loading class metadata...' : 'Search class'}
+        placeholder="Search class"
         disabled={!effectiveDataset || !classOptions.length}
       />
 
@@ -1984,11 +1910,6 @@ function ModelForm({ atlas, runs, datasets }) {
       </aside>
 
       <main className="viewer-content">
-        {dsInfo.labelsError && (
-          <div className="selection-status">
-            <p className="status-message" role="status">Some dataset metadata failed to load.</p>
-          </div>
-        )}
         {/* The card names what is on screen; the render strip sets how it is
             drawn. Reading order follows: subject first, then controls, then
             the maps they act on. */}
@@ -2033,6 +1954,7 @@ function App() {
   const [manifest, setManifest] = useState(null);
   const [runs, setRuns] = useState({});
   const [datasets, setDatasets] = useState({});
+  const [labelSpaces, setLabelSpaces] = useState({});
   const [error, setError] = useState(null);
 
   useAtlasFavicon();
@@ -2047,7 +1969,14 @@ function App() {
         setManifest(data);
         fetchJson(data.catalogs.datasets, { signal, retryCount: 2 })
           .then((catalog) => {
-            if (!signal.aborted) setDatasets(Object.fromEntries(catalog.datasets.map((d) => [d.id, d])));
+            if (signal.aborted) return;
+            setDatasets(Object.fromEntries(catalog.datasets.map((d) => [d.id, d])));
+            // Datasets that share a label space share the fetch. Without it classes show their id.
+            for (const [space, url] of new Map(catalog.datasets.map((d) => [d.label_space, d.labels]))) {
+              fetchJson(url, { signal, retryCount: 2 })
+                .then((payload) => { if (!signal.aborted) setLabelSpaces((p) => ({ ...p, [space]: payload.labels })); })
+                .catch((error) => { if (!signal.aborted) console.error(error); });
+            }
           })
           .catch((error) => { if (!signal.aborted) setError(error); });
         for (const [model, datasets] of Object.entries(data.runs ?? {})) {
@@ -2059,9 +1988,7 @@ function App() {
             ]).then(([images, summary]) => {
               if (signal.aborted) return;
               // Normalize each run once as it arrives; other runs never gate it.
-              const run = buildAtlasData({
-                models: [model], datasets_by_model: { [model]: [dataset] },
-              }, { [key]: { images, summary, baseUrl: paths.base_url } });
+              const run = { metrics: summary?.metrics ?? null, records: normalizeRun(model, dataset, images, paths.base_url) };
               setRuns((previous) => ({ ...previous, [key]: run }));
             }).catch((error) => {
               if (!signal.aborted) setRuns((previous) => ({ ...previous, [key]: { error } }));
@@ -2076,23 +2003,25 @@ function App() {
     return () => controller.abort();
   }, []);
 
+  // Runs still loading keep their model and dataset selectable, with no records yet.
   const atlas = useMemo(() => {
-    const data = buildAtlasData(manifest, {});
-    for (const [model, datasets] of Object.entries(data.models)) {
-      for (const dataset of Object.keys(datasets)) {
+    const models = {};
+    const records = [];
+    for (const [model, byDataset] of Object.entries(manifest?.runs ?? {})) {
+      models[model] = {};
+      for (const dataset of Object.keys(byDataset)) {
         const run = runs[`${model}::${dataset}`];
-        if (!run || run.error) continue;
-        datasets[dataset] = run.models[model][dataset];
-        data.records.push(...run.records);
+        models[model][dataset] = run?.metrics ?? null;
+        if (run?.records) records.push(...run.records);
       }
     }
-    return data;
+    return { models, records };
   }, [manifest, runs]);
 
   if (error) return <AppStatus>Could not read outputs/manifest.json. Check that the run outputs are published, then reload.</AppStatus>;
   if (!manifest) return <AppStatus>Reading run manifest.</AppStatus>;
 
-  return <div className="app-shell"><ModelForm atlas={atlas} runs={runs} datasets={datasets} /></div>;
+  return <div className="app-shell"><ModelForm atlas={atlas} runs={runs} datasets={datasets} labelSpaces={labelSpaces} /></div>;
 }
 
 export default App;
