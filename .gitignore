@@ -216,3 +216,7 @@ notebooks/*
 *.sln
 *.sw?
 AGENTS.md
+
+# Model checkpoints referenced by model_specs/<id>.json
+model_specs/*.pt
+model_specs/*.pth

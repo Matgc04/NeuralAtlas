@@ -10,13 +10,15 @@ from typing import Literal, cast, get_args
 
 import numpy as np
 from PIL import Image
+from torchvision import transforms
 
 from backend.ai_dataset.core import loads_fenced_json
-from backend.models import MODEL_VIEW
 
 PROMPT_VERSION = "attribution-description-v1"
 OVERLAY_VERSION = "jet-uniform-opacity-v2"
 VLM_IMAGE_SIZE = 512
+# The crop of the ImageNet specs in model_specs/, so the VLM sees the classifier's pixels.
+MODEL_VIEW = transforms.Compose([transforms.Resize(256), transforms.CenterCrop(224)])
 Focus = Literal["subject", "background", "mixed", "unclear"]
 FOCUS_VALUES = frozenset(get_args(Focus))
 

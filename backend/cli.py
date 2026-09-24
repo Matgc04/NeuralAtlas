@@ -39,7 +39,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--model",
         default=config.DEFAULT_MODEL_NAME,
-        help=f"Torchvision model name (default: {config.DEFAULT_MODEL_NAME}).",
+        help=f"Model spec id under model_specs/ (default: {config.DEFAULT_MODEL_NAME}).",
     )
     parser.add_argument(
         "--dataset",

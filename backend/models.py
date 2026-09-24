@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
+from functools import partial
+from pathlib import Path
 from typing import Any, Callable, Optional, Union, cast
 
 import torch
@@ -15,15 +18,8 @@ from torchvision.models.resnet import (
     conv3x3,
 )
 
-# The crop every model in the catalog is trained on. Shared with `backend.vlm`
-# so the VLM is shown exactly the pixels the classifier saw.
-MODEL_VIEW = transforms.Compose(
-    [
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
-    ]
-)
-
+from backend import config
+from backend.datasets import load_label_space
 
 @dataclass(slots=True)
 class ModelRuntime:
@@ -216,27 +212,60 @@ def disable_inplace_relu(model: nn.Module) -> nn.Module:
     return model
 
 
-def build_model_runtime(model_name: str) -> ModelRuntime:
+INTERP_RESNETS = {"resnet18": InterpResnet18, "resnet101": InterpResnet101}
+
+
+@dataclass(frozen=True, slots=True)
+class Preprocess:
+    resize: int
+    crop: int
+    mean: list[float]
+    std: list[float]
+
+
+@dataclass(frozen=True, slots=True)
+class ModelSpec:
+    """`model_specs/<id>.json`. `architecture` is a torchvision builder (resnet18/101 build
+    the Interp variants, which DeepLift needs); `weights` is "DEFAULT" or a state_dict path
+    relative to model_specs/."""
+
+    architecture: str
+    weights: str
+    label_space: str
+    preprocess: Preprocess
+
+
+def model_ids(specs_dir: Path = config.MODEL_SPECS_DIR) -> list[str]:
+    return sorted(path.stem for path in specs_dir.glob("*.json"))
+
+
+def load_model_spec(model_id: str, specs_dir: Path = config.MODEL_SPECS_DIR) -> ModelSpec:
+    payload = json.loads((specs_dir / f"{model_id}.json").read_text())
+    return ModelSpec(payload["architecture"], payload["weights"], payload["label_space"],
+                     Preprocess(**payload["preprocess"]))
+
+
+def _build_network(spec: ModelSpec, specs_dir: Path) -> nn.Module:
+    builder = INTERP_RESNETS.get(spec.architecture) or partial(models.get_model, spec.architecture)
+    if spec.weights == "DEFAULT":
+        return builder(weights="DEFAULT")
+    # A checkpoint carries its own head, sized to the label space it predicts.
+    network = builder(weights=None, num_classes=len(load_label_space(spec.label_space).labels))
+    state_dict = torch.load(specs_dir / spec.weights, map_location="cpu", weights_only=True)
+    network.load_state_dict(state_dict, strict=True)
+    return network
+
+
+def build_model_runtime(model_id: str, specs_dir: Path = config.MODEL_SPECS_DIR) -> ModelRuntime:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     dtype = torch.float32
 
-    if not hasattr(models, model_name):
-        raise SystemExit(f"Unknown model '{model_name}'.")
-
-    interp_resnets = {"resnet18": InterpResnet18, "resnet101": InterpResnet101}
-    if model_name in interp_resnets:
-        base_model = interp_resnets[model_name](weights="DEFAULT").to(
-            device=device, dtype=dtype
-        )
-    else:
-        base_model = getattr(models, model_name)(weights="DEFAULT").to(
-            device=device, dtype=dtype
-        )
-
+    spec = load_model_spec(model_id, specs_dir)
+    base_model = _build_network(spec, specs_dir).to(device=device, dtype=dtype)
     disable_inplace_relu(base_model)
 
     model = nn.Sequential(
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+        transforms.Normalize(spec.preprocess.mean, spec.preprocess.std),
         base_model,
     )
 
@@ -252,7 +281,8 @@ def build_model_runtime(model_name: str) -> ModelRuntime:
 
     transform = transforms.Compose(
         [
-            MODEL_VIEW,
+            transforms.Resize(spec.preprocess.resize),
+            transforms.CenterCrop(spec.preprocess.crop),
             transforms.ToTensor(),
             transforms.Lambda(lambda x: x.to(device=device, dtype=dtype)),
         ]
@@ -266,6 +296,5 @@ def build_model_runtime(model_name: str) -> ModelRuntime:
         transform=transform,
         last_conv_layer=last_conv_layer,
         parameter_count=parameter_count,
-        # Every DEFAULT torchvision classification weight is trained on ImageNet-1k.
-        label_space="imagenet-1k",
+        label_space=spec.label_space,
     )

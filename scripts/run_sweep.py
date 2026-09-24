@@ -64,20 +64,10 @@ def with_retries(label: str, action: Callable[[], T], attempts: int = 4) -> T:
     return _with_retries(label, action, attempts, log=log)
 
 
-def classification_model_names() -> list[str]:
-    """Return torchvision models compatible with this ImageNet classification pipeline."""
-    from torchvision import models
-
-    names = []
-    for name in models.list_models():
-        weights = models.get_model_weights(name).DEFAULT
-        if weights is not None and len(weights.meta.get("categories", ())) == 1000:
-            names.append(name)
-    return names
-
-
 def validate_model_names(model_names: list[str]) -> None:
-    available = classification_model_names()
+    from backend.models import model_ids
+
+    available = model_ids(REPO_ROOT / config.MODEL_SPECS_DIR)
     invalid = [name for name in dict.fromkeys(model_names) if name not in available]
     if not invalid:
         return
@@ -88,7 +78,7 @@ def validate_model_names(model_names: list[str]) -> None:
         hint = f" (did you mean: {', '.join(suggestions)})" if suggestions else ""
         details.append(f"{name}{hint}")
     raise SystemExit(
-        "Unsupported torchvision ImageNet classification model(s): " + "; ".join(details)
+        "Model(s) without a spec in model_specs/: " + "; ".join(details)
     )
 
 

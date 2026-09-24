@@ -18,81 +18,58 @@ Python version are pinned in `pyproject.toml` / `uv.lock` / `.python-version`
    uv run python main.py --help
    ```
 
-   The default dataset is `imagenet-pico-ai`. You can select another dataset
-   directory under `interpretability-viewer/public/` with `--dataset`:
+   The default dataset is `imagenet-pico`. You can select another dataset
+   under `interpretability-viewer/public/` (see "Bringing your own dataset") with `--dataset`:
 
    ```bash
-   uv run python main.py --dataset imagenet-pico --num-samples 20
+   uv run python main.py --dataset imagenet-pico-ai --num-samples 20
    ```
 
-### Full sweep on a remote GPU box
+### Bringing your own dataset
 
-`scripts/run_sweep.py` runs the whole matrix (many models x the whole dataset) without
-ever holding more than one chunk of attribution images on disk. It is idempotent and
-resumable: before each model it restores that run's JSON checkpoint from Hugging Face,
-so a fresh GPU box can continue an existing run.
+A dataset is a folder under `interpretability-viewer/public/` with an ImageFolder tree
+and a `dataset.json` next to it:
 
-```bash
-cp .env.example .env          # fill in HF_TOKEN
-uv run python scripts/run_sweep.py --dry-run     # print the plan, touch nothing
-uv run python scripts/run_sweep.py --chunk 100   # the real run
+```
+interpretability-viewer/public/my-dogs/
+  dataset.json
+  images/golden_retriever/*.jpg
+  images/tench/*.jpg
 ```
 
-Use `--methods` to recompute only selected attribution methods. A metadata-only run
-calculates and merges metrics without rendering image files, then uploads a JSON-only
-checkpoint after each chunk:
-
-```bash
-uv run python scripts/run_sweep.py \
-  --methods Occlusion GradientShap IntegratedGradients \
-  --metrics fidelity --recompute --metadata-only
+```json
+{
+  "schema_version": 1,
+  "title": "My dogs",
+  "label_space": "imagenet-1k",
+  "images_dir": "images",
+  "classes": { "golden_retriever": 207, "tench": 0 }
+}
 ```
 
-Passing `--metrics` with no values makes metadata-only recompute predictions and
-aggregate accuracy without constructing attribution methods:
+`label_space` names a file in `interpretability-viewer/public/label_spaces/` whose
+`labels` list is indexed by model output; `classes` maps each class folder to its index
+there. Leave `classes` out when the folders are already named after their index
+(`0/`, `207/`, ...). Then run `main.py --dataset my-dogs`. Classes outside an existing
+label space need a new label space file and a model that predicts it (see below).
 
-```bash
-uv run python scripts/run_sweep.py --metadata-only --metrics
+### Bringing your own model
+
+Every model `main.py --model <id>` can run has a spec at `model_specs/<id>.json`:
+
+```json
+{
+  "schema_version": 1,
+  "architecture": "resnet18",
+  "weights": "my-dogs.pt",
+  "label_space": "my-dogs",
+  "preprocess": {"resize": 256, "crop": 224, "mean": [0.485, 0.456, 0.406], "std": [0.229, 0.224, 0.225]}
+}
 ```
 
-Both metadata-only and regular image sweeps upload one checkpoint per chunk; only the
-regular sweep includes rendered attribution files.
-
-Per (model, chunk) it runs the pipeline, uploads `outputs/images/<model>__<dataset>__*`
-plus only that model/dataset's `images.json` and `summary.json`, then deletes the
-uploaded images locally. GPU workers never publish shared catalogs or `manifest.json`,
-so different models can run concurrently on different servers without overwriting
-global metadata.
-
-If the dataset is missing, the current fallback builds it with
-`scripts/download_nano_imagenet.py` from Kaggle (~4 GB).
-
-Because it shells out one process per chunk, it survives a crash in any single
-model/chunk: the failing model is abandoned and the sweep moves on to the next one.
-
-Run it under `tmux`/`nohup` — a full sweep is measured in days.
-
-Once one or more workers have uploaded checkpoints, rebuild the global JSON kept in
-GitHub from every per-model HF repo:
-
-```bash
-uv run python scripts/sync_hf_metadata.py --dry-run  # inspect repositories and runs
-uv run python scripts/sync_hf_metadata.py            # download JSON and rebuild indexes
-```
-
-Repositories are discovered from the `HF_ATTRIBUTIONS_REPO` prefix, so this does not
-need a hardcoded model list. Each run in the rebuilt manifest includes a `base_url`
-pinned to the HF commit that supplied its JSON. The frontend appends the class id and
-attribution filename to that URL; older runs without it keep using the legacy shared
-repository route.
-
-### AI dataset
-
-The paired AI dataset generation feature lives in the backend and can be run with:
-
-```bash
-uv run python -m backend.ai_dataset --help
-```
+`architecture` is a torchvision builder name. `weights` is `"DEFAULT"` for torchvision's
+pretrained ImageNet weights, or a `state_dict` path relative to `model_specs/`; the head is
+then sized to the label space. A model only runs on datasets labelled in its label space.
 
 ## Frontend (React + Vite)
 
