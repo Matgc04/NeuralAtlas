@@ -8,6 +8,8 @@ from dataclasses import asdict, replace
 from pathlib import Path
 from typing import Any
 
+from torchvision.datasets import ImageFolder
+
 from backend.datasets import DESCRIPTOR_NAME, DatasetSpec
 
 from .core import Captioner, ImageGenerator, now_iso, read_json, sort_key, write_json
@@ -28,16 +30,15 @@ class Generator:
         self.only = self._parse_only(args.only)
         self.exclude = [self._parse_only(value) for value in (args.exclude or [])]
 
-        public_dir = Path(args.public_dir)
-        self.source_dir = public_dir / args.source
-        self.target_dir = public_dir / args.target
-        self.structure_path = self.target_dir / f"{args.target}_structure.json"
+        self.target_dir = Path(args.public_dir) / args.target
         self.captions_path = self.target_dir / "captions.json"
         self.manifest_path = self.target_dir / "manifest.json"
 
-        self.source_structure: dict[str, list[str]] = read_json(self.source_dir / f"{args.source}_structure.json")
+        # Class folder -> filenames in ImageFolder order, so image ids match the pipeline's.
+        self.source_images: dict[str, list[str]] = {}
+        for path, _ in ImageFolder(str(source.images_path)).samples:
+            self.source_images.setdefault(Path(path).parent.name, []).append(Path(path).name)
         self.captions: dict[str, Any] = read_json(self.captions_path, default={"images": []})
-        self.structure: dict[str, list[Any]] = read_json(self.structure_path, default={})
 
     def run(self) -> None:
         # A --only target is always (re)generated; --stage decides whether its caption
@@ -51,9 +52,8 @@ class Generator:
         print(f"{total} image(s) to generate", flush=True)
 
         processed = matched = 0
-        for class_id in sorted(self.source_structure, key=sort_key):
-            self.structure.setdefault(class_id, [])
-            for image_index, filename in enumerate(self.source_structure[class_id]):
+        for class_id in sorted(self.source_images, key=sort_key):
+            for image_index, filename in enumerate(self.source_images[class_id]):
                 image_id = str(image_index)
                 if not self._targeted(class_id, image_id) or self._excluded(class_id, image_id):
                     continue
@@ -71,7 +71,7 @@ class Generator:
                     record = self._caption(class_id, image_id, filename, existing, recaption, prefix)
                     self._upsert(record)
                     self._flush()  # caption persisted before we spend an image generation
-                    self._generate(record, image_index, prefix)
+                    self._generate(record, prefix)
                     self._flush()
                 except Exception as exc:
                     self._handle_error(f"{class_id}/{filename}: {exc}")
@@ -103,7 +103,7 @@ class Generator:
         ``[i/total]`` counter matches what gets processed.
         """
         pending = 0
-        for class_id, filenames in self.source_structure.items():
+        for class_id, filenames in self.source_images.items():
             for image_index in range(len(filenames)):
                 if not self._targeted(class_id, str(image_index)) or self._excluded(class_id, str(image_index)):
                     continue
@@ -159,19 +159,18 @@ class Generator:
             "captioned_at": now_iso(),
         }
 
-    def _generate(self, record: dict[str, Any], image_index: int, prefix: str) -> None:
+    def _generate(self, record: dict[str, Any], prefix: str) -> None:
         class_id = record["class_id"]
         print(f"{prefix} generating image...", flush=True)
         image = self.image_generator.generate_image(record["generation_prompt"])
-        generated_filename = f"{Path(record['source_filename']).stem}__ai{image.extension}"
+        stem = f"{Path(record['source_filename']).stem}__ai"
+        generated_filename = stem + image.extension
         output_dir = self.target_dir / self.source.images_dir / class_id
         output_dir.mkdir(parents=True, exist_ok=True)
 
         # Drop the previous file when regenerating into a different extension, else it orphans.
-        slot = self.structure.get(class_id, [])
-        previous = slot[image_index] if image_index < len(slot) else None
-        if previous and previous != generated_filename:
-            (output_dir / previous).unlink(missing_ok=True)
+        for previous in output_dir.glob(f"{stem}.*"):
+            previous.unlink()
         (output_dir / generated_filename).write_bytes(image.data)
 
         record.update({
@@ -180,12 +179,6 @@ class Generator:
             **self.image_generator.describe(),
             "generated_at": now_iso(),
         })
-
-        # Keep the target index aligned with the source so paired comparison stays 1:1.
-        values = self.structure.setdefault(class_id, [])
-        while len(values) <= image_index:
-            values.append(None)
-        values[image_index] = generated_filename
 
     def _upsert(self, record: dict[str, Any]) -> None:
         images: list[dict[str, Any]] = self.captions.setdefault("images", [])
@@ -214,11 +207,9 @@ class Generator:
             "caption_provider": self.captioner.name,
             "caption_model": self.captioner.model,
             **self.image_generator.describe(),
-            "structure": f"{self.args.target}/{self.args.target}_structure.json",
             "captions": f"{self.args.target}/captions.json",
             "generated_at": self.captions["updated_at"],
         }
-        write_json(self.structure_path, {key: self.structure[key] for key in sorted(self.structure, key=sort_key)})
         write_json(self.captions_path, self.captions)
         write_json(self.manifest_path, manifest)
         # Paired images keep the source classes, so the target is labelled exactly like it; where
