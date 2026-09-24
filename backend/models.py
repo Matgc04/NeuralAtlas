@@ -4,12 +4,15 @@ import json
 from dataclasses import dataclass
 from functools import partial
 from pathlib import Path
+from types import MethodType
 from typing import Any, Callable, Optional, Union, cast
 
 import torch
+import torch.nn.functional as F
 from torch import Tensor, nn
 from torchvision import models, transforms
 from torchvision.models._api import WeightsEnum
+from torchvision.models.inception import BasicConv2d
 from torchvision.models.resnet import (
     ResNet,
     ResNet18_Weights,
@@ -212,6 +215,39 @@ def disable_inplace_relu(model: nn.Module) -> nn.Module:
     return model
 
 
+class HookableReLU(nn.ReLU):
+    """ReLU module for architectures that call `F.relu`, which Captum cannot hook.
+
+    GuidedBackprop and Deconvolution only override modules that are `nn.ReLU`
+    instances. DeepLift matches the exact type; `build_interp_methods` registers
+    both stand-ins with its rescale rule."""
+
+
+class HookableReLU6(nn.ReLU):
+    """`nn.ReLU6` is not an `nn.ReLU`, so GuidedBackprop and Deconvolution skip it.
+    Same forward; the backward override then clamps the gradient masked to 0 < x < 6."""
+
+    def forward(self, input: Tensor) -> Tensor:
+        return F.relu6(input)
+
+
+def _basic_conv2d_forward(self: nn.Module, x: Tensor) -> Tensor:
+    return self.relu(self.bn(self.conv(x)))
+
+
+def make_relus_hookable(model: nn.Module) -> nn.Module:
+    """Expose every ReLU-like activation as an `nn.ReLU` instance without changing
+    the forward."""
+    for parent in list(model.modules()):
+        if isinstance(parent, BasicConv2d):  # Inception v3: F.relu inside forward
+            parent.relu = HookableReLU()
+            parent.forward = MethodType(_basic_conv2d_forward, parent)
+        for name, child in parent.named_children():
+            if type(child) is nn.ReLU6:  # MobileNet v2
+                setattr(parent, name, HookableReLU6())
+    return model
+
+
 INTERP_RESNETS = {"resnet18": InterpResnet18, "resnet101": InterpResnet101}
 
 
@@ -263,6 +299,7 @@ def build_model_runtime(model_id: str, specs_dir: Path = config.MODEL_SPECS_DIR)
     spec = load_model_spec(model_id, specs_dir)
     base_model = _build_network(spec, specs_dir).to(device=device, dtype=dtype)
     disable_inplace_relu(base_model)
+    make_relus_hookable(base_model)
 
     model = nn.Sequential(
         transforms.Normalize(spec.preprocess.mean, spec.preprocess.std),

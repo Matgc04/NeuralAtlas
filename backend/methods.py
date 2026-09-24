@@ -297,10 +297,16 @@ def build_interp_methods(
         Occlusion,
         Saliency,
     )
+    from captum.attr._core.deep_lift import SUPPORTED_NON_LINEAR, nonlinear
     from skimage.segmentation import slic
 
     from backend.cb_rise import CBRISE
+    from backend.models import HookableReLU, HookableReLU6
     from backend.rise import RISE
+
+    # DeepLift picks its rule by exact module type. 
+    # Since we changed ReLu6 and F.Relu activations we need this so captum can capture them
+    SUPPORTED_NON_LINEAR.update(dict.fromkeys((HookableReLU, HookableReLU6), nonlinear))
 
     slic_medium = _SuperpixelFeatures(
         slic,
