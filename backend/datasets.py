@@ -44,6 +44,8 @@ class DatasetSpec:
     images_dir: str
     root: Path
     classes: Mapping[str, int] = field(default_factory=dict)
+    # Where the viewer fetches the originals when they are not served from public/.
+    images_base_url: str | None = None
 
     @property
     def images_path(self) -> Path:
@@ -84,6 +86,8 @@ class DatasetSpec:
         }
         if self.classes:
             payload["classes"] = dict(sorted(self.classes.items()))
+        if self.images_base_url:
+            payload["images_base_url"] = self.images_base_url
         return payload
 
     def catalog_entry(self) -> dict[str, object]:
@@ -94,6 +98,7 @@ class DatasetSpec:
             "labels": self.label_space.url,
             "images_dir": self.images_dir,
             "classes": dict(sorted(self.classes.items())),
+            "images_base_url": self.images_base_url,
         }
 
 
@@ -156,6 +161,7 @@ def load_dataset(dataset_id: str, public_root: Path = config.BASE_PUBLIC_DIR) ->
         images_dir=images_dir.strip("/"),
         root=root,
         classes=classes,
+        images_base_url=str(payload["images_base_url"]).rstrip("/") if payload.get("images_base_url") else None,
     )
 
 

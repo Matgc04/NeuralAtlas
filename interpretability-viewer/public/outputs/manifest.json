@@ -16,15 +16,13 @@
   },
   "datasets_by_model": {
     "alexnet": [
-      "imagenet-pico",
-      "imagenet-pico-ai"
+      "imagenet-pico"
     ],
     "convnext_tiny": [
       "imagenet-pico"
     ],
     "efficientnet_b0": [
-      "imagenet-pico",
-      "imagenet-pico-ai"
+      "imagenet-pico"
     ],
     "efficientnet_b4": [
       "imagenet-pico"
@@ -39,11 +37,10 @@
       "imagenet-pico"
     ],
     "resnet18": [
-      "imagenet-pico",
-      "imagenet-pico-ai"
+      "imagenet-pico"
     ]
   },
-  "generated_at": "2026-09-24T01:34:46.208416+00:00",
+  "generated_at": "2026-09-24T01:51:10.389196+00:00",
   "models": [
     "alexnet",
     "convnext_tiny",
@@ -60,10 +57,6 @@
         "base_url": "https://huggingface.co/datasets/Matgc04/neuralatlas-attributions-alexnet/resolve/82ff8751d1e4401386e33460f68758cfcf3a0608/images/imagenet-pico",
         "images": "outputs/runs/alexnet/imagenet-pico/images.json",
         "summary": "outputs/runs/alexnet/imagenet-pico/summary.json"
-      },
-      "imagenet-pico-ai": {
-        "images": "outputs/runs/alexnet/imagenet-pico-ai/images.json",
-        "summary": "outputs/runs/alexnet/imagenet-pico-ai/summary.json"
       }
     },
     "convnext_tiny": {
@@ -78,10 +71,6 @@
         "base_url": "https://huggingface.co/datasets/Matgc04/neuralatlas-attributions-efficientnet_b0/resolve/4d0985e324768b07a6d3a6ec4afe6890e9f84c0d/images/imagenet-pico",
         "images": "outputs/runs/efficientnet_b0/imagenet-pico/images.json",
         "summary": "outputs/runs/efficientnet_b0/imagenet-pico/summary.json"
-      },
-      "imagenet-pico-ai": {
-        "images": "outputs/runs/efficientnet_b0/imagenet-pico-ai/images.json",
-        "summary": "outputs/runs/efficientnet_b0/imagenet-pico-ai/summary.json"
       }
     },
     "efficientnet_b4": {
@@ -117,10 +106,6 @@
         "base_url": "https://huggingface.co/datasets/Matgc04/neuralatlas-attributions-resnet18/resolve/fb65776c7b6c3a0cd0ba30a1729e8b5135472922/images/imagenet-pico",
         "images": "outputs/runs/resnet18/imagenet-pico/images.json",
         "summary": "outputs/runs/resnet18/imagenet-pico/summary.json"
-      },
-      "imagenet-pico-ai": {
-        "images": "outputs/runs/resnet18/imagenet-pico-ai/images.json",
-        "summary": "outputs/runs/resnet18/imagenet-pico-ai/summary.json"
       }
     }
   },

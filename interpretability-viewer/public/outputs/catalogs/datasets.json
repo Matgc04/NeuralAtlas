@@ -3,6 +3,7 @@
     {
       "classes": {},
       "id": "imagenet-pico",
+      "images_base_url": "$WORKER/hf",
       "images_dir": "val",
       "label_space": "imagenet-1k",
       "labels": "label_spaces/imagenet-1k.json",
@@ -11,6 +12,7 @@
     {
       "classes": {},
       "id": "imagenet-pico-ai",
+      "images_base_url": "https://huggingface.co/datasets/Matgc04/neuralatlas-imagenet-pico-ai/resolve/main",
       "images_dir": "val",
       "label_space": "imagenet-1k",
       "labels": "label_spaces/imagenet-1k.json",

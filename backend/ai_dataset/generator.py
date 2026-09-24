@@ -4,7 +4,7 @@ from __future__ import annotations
 import argparse
 import mimetypes
 import time
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from pathlib import Path
 from typing import Any
 
@@ -221,8 +221,11 @@ class Generator:
         write_json(self.structure_path, {key: self.structure[key] for key in sorted(self.structure, key=sort_key)})
         write_json(self.captions_path, self.captions)
         write_json(self.manifest_path, manifest)
-        # Paired images keep the source classes, so the target is labelled exactly like it.
-        write_json(self.target_dir / DESCRIPTOR_NAME, {**self.source.descriptor(), "title": self.args.target})
+        # Paired images keep the source classes, so the target is labelled exactly like it; where
+        # its images are hosted is its own, so an existing descriptor is left as is.
+        if not (self.target_dir / DESCRIPTOR_NAME).exists():
+            write_json(self.target_dir / DESCRIPTOR_NAME,
+                       replace(self.source, title=self.args.target, images_base_url=None).descriptor())
 
     def _handle_error(self, message: str) -> None:
         if self.args.continue_on_error:

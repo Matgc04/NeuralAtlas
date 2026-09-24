@@ -166,28 +166,23 @@ function compareMethodRows(methods, cells) {
   return (methods ?? []).filter((m) => cells.some((c) => c.record?.outputs?.[m]));
 }
 
-// Heavy image binaries live on Hugging Face datasets; JSON metadata stays local (in git).
+// Heavy image binaries live on Hugging Face; JSON metadata stays local (in git). A run's
+// maps come from its manifest `base_url`, a dataset's originals from its `images_base_url`,
+// where `$WORKER` is the authenticated Worker in front of private datasets.
 // Set VITE_ASSET_SOURCE=local to serve everything from public/.
-const HF_DATASET = 'https://huggingface.co/datasets/Matgc04';
-// imagenet-pico images live in a private HF dataset. Its small JSON metadata stays
-// public and local, so only files below val/ go through the authenticated Worker.
 const WORKER_ORIGIN = import.meta.env.VITE_WORKER_URL;
-const HF_ROUTES = USE_LOCAL_ASSETS ? [] : [
-  { test: /^imagenet-pico-ai\/val\//, base: `${HF_DATASET}/neuralatlas-imagenet-pico-ai/resolve/main/`, strip: /^imagenet-pico-ai\// },
-  // Compatibility for runs created before manifest schema v2 added base_url.
-  { test: /^outputs\/images\//, base: `${HF_DATASET}/neuralatlas-attributions/resolve/main/`, strip: /^outputs\// },
-  ...(WORKER_ORIGIN ? [{ test: /^imagenet-pico\/val\//, base: `${WORKER_ORIGIN}/hf/`, strip: /^imagenet-pico\// }] : []),
-];
 
 function resolveAssetUrl(path) {
   if (!path) return null;
   const value = String(path);
   if (/^(?:[a-z]+:)?\/\//i.test(value) || value.startsWith('data:')) return value;
-  const rel = value.replace(/^\/+/, '');
-  for (const route of HF_ROUTES) {
-    if (route.test.test(rel)) return `${route.base}${rel.replace(route.strip, '')}`;
-  }
-  return `${BASE_URL}${rel}`;
+  return `${BASE_URL}${value.replace(/^\/+/, '')}`;
+}
+
+function datasetImageUrl(dataset, url) {
+  const base = dataset?.images_base_url;
+  if (!url || !base || USE_LOCAL_ASSETS || (base.includes('$WORKER') && !WORKER_ORIGIN)) return url;
+  return base.replace('$WORKER', WORKER_ORIGIN) + url.slice(dataset.id.length + 1);
 }
 
 async function fetchJson(path, { retryCount = 0, retryDelayMs = 400, signal, ...options } = {}) {
@@ -1679,8 +1674,12 @@ function ModelForm({ atlas, runs, datasets }) {
   const datasetLabels = labelsByDataset[effectiveDataset];
 
   const imageRecords = useMemo(
-    () => records.map((r) => ({ ...r, classLabel: className(labelsByDataset[r.dataset], r.classId) })),
-    [records, labelsByDataset]
+    () => records.map((r) => ({
+      ...r,
+      originalUrl: datasetImageUrl(datasets[r.dataset], r.originalUrl),
+      classLabel: className(labelsByDataset[r.dataset], r.classId),
+    })),
+    [records, datasets, labelsByDataset]
   );
 
   const classOptions = useMemo(() => {
