@@ -64,20 +64,10 @@ def with_retries(label: str, action: Callable[[], T], attempts: int = 4) -> T:
     return _with_retries(label, action, attempts, log=log)
 
 
-def classification_model_names() -> list[str]:
-    """Return torchvision models compatible with this ImageNet classification pipeline."""
-    from torchvision import models
-
-    names = []
-    for name in models.list_models():
-        weights = models.get_model_weights(name).DEFAULT
-        if weights is not None and len(weights.meta.get("categories", ())) == 1000:
-            names.append(name)
-    return names
-
-
 def validate_model_names(model_names: list[str]) -> None:
-    available = classification_model_names()
+    from backend.models import model_ids
+
+    available = model_ids(REPO_ROOT / config.MODEL_SPECS_DIR)
     invalid = [name for name in dict.fromkeys(model_names) if name not in available]
     if not invalid:
         return
@@ -88,7 +78,7 @@ def validate_model_names(model_names: list[str]) -> None:
         hint = f" (did you mean: {', '.join(suggestions)})" if suggestions else ""
         details.append(f"{name}{hint}")
     raise SystemExit(
-        "Unsupported torchvision ImageNet classification model(s): " + "; ".join(details)
+        "Model(s) without a spec in model_specs/: " + "; ".join(details)
     )
 
 
@@ -127,8 +117,14 @@ def dataset_dir(dataset: str) -> Path:
     return REPO_ROOT / config.BASE_PUBLIC_DIR / dataset
 
 
+def images_dir(dataset: str) -> Path:
+    from backend.datasets import load_dataset
+
+    return load_dataset(dataset, REPO_ROOT / config.BASE_PUBLIC_DIR).images_path
+
+
 def count_dataset_images(dataset: str) -> int:
-    val_dir = dataset_dir(dataset) / "val"
+    val_dir = images_dir(dataset)
     if not val_dir.is_dir():
         return 0
     return sum(1 for path in val_dir.glob("*/*") if path.is_file())
@@ -138,23 +134,7 @@ def dataset_structure(dataset: str) -> dict[str, list[str]] | None:
     structure_path = dataset_dir(dataset) / f"{dataset}_structure.json"
     if not structure_path.is_file():
         return None
-    structure = json.loads(structure_path.read_text())
-    if not isinstance(structure, dict) or not all(
-        isinstance(class_id, str)
-        and bool(class_id)
-        and Path(class_id).name == class_id
-        and isinstance(filenames, list)
-        and all(
-            isinstance(filename, str)
-            and bool(filename)
-            and Path(filename).name == filename
-            for filename in filenames
-        )
-        and filenames == sorted(set(filenames))
-        for class_id, filenames in structure.items()
-    ):
-        raise SystemExit(f"Invalid dataset structure: {structure_path}")
-    return structure
+    return json.loads(structure_path.read_text())
 
 
 def dataset_file_mismatches(dataset: str) -> tuple[set[str], set[str]]:
@@ -167,7 +147,7 @@ def dataset_file_mismatches(dataset: str) -> tuple[set[str], set[str]]:
         for class_id, filenames in structure.items()
         for filename in filenames
     }
-    val_dir = dataset_dir(dataset) / "val"
+    val_dir = images_dir(dataset)
     present = {
         path.relative_to(val_dir).as_posix()
         for path in val_dir.glob("*/*")
@@ -247,7 +227,7 @@ def completed_samples(
     return repository.first_incomplete_sample(
         model,
         dataset,
-        dataset_keys(dataset_dir(dataset) / "val"),
+        dataset_keys(images_dir(dataset)),
         image_ext,
         set(metrics),
         methods,

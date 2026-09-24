@@ -196,7 +196,6 @@ body {
 .mini-image figcaption,
 .image-card h3,
 .colorbar-legend__title,
-.combo__group-header,
 .facet-filter__group-label,
 .overlay-control__opacity,
 .panel-toggle__label {
@@ -483,12 +482,6 @@ body {
   font-weight: 600;
 }
 
-/* The one thing that can go wrong at this level: the metadata behind the
-   path. It reports right under the path it broke. */
-.selection-status {
-  padding: 0;
-}
-
 /* ── Sidebar ────────────────────────────────────────────────── */
 
 .controls-panel {
@@ -519,13 +512,6 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-.panel-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--space-sm);
 }
 
 .panel-collapse-btn,
@@ -654,16 +640,13 @@ body {
   align-items: center;
 }
 
-/* The count sits with the title; the chevron is pushed to the far edge. */
-.facet-filter__count {
-  margin-right: auto;
-}
-
 .facet-filter__head .panel-collapse-btn {
   align-self: center;
 }
 
+/* The count sits with the title; the chevron is pushed to the far edge. */
 .facet-filter__count {
+  margin-right: auto;
   font-size: var(--fs-caption);
   color: var(--text2);
   font-variant-numeric: tabular-nums;
@@ -680,11 +663,8 @@ body {
   font-size: var(--fs-caption);
   font-weight: 500;
   color: var(--text2);
-  transition: background-color var(--t-micro) ease, color var(--t-micro) ease;
-}
-
-.facet-filter__actions button {
   border: 1px solid var(--border);
+  transition: background-color var(--t-micro) ease, color var(--t-micro) ease;
 }
 
 .facet-filter__actions button:hover {
@@ -937,22 +917,6 @@ body {
   color: var(--text3);
 }
 
-.combo__list {
-  position: absolute;
-  z-index: 50;
-  top: calc(100% + var(--space-xs));
-  left: 0;
-  right: 0;
-  max-height: 280px;
-  overflow: auto;
-  background: var(--surface1);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-component);
-  padding: var(--space-xs);
-  box-shadow: var(--shadow-3);
-  animation: combo-fade-in var(--t-popover) ease;
-}
-
 @keyframes combo-fade-in {
   from {
     opacity: 0;
@@ -989,12 +953,6 @@ body {
   font-size: var(--fs-body-sm);
   color: var(--text2);
   text-align: center;
-}
-
-.combo__group-header {
-  padding: var(--space-sm) var(--space-md) var(--space-xs);
-  pointer-events: none;
-  user-select: none;
 }
 
 /* ── Status message ─────────────────────────────────────────────
@@ -1397,14 +1355,16 @@ body {
   gap: var(--space-md);
 }
 
-/* Keep the controls in their viewport position while the bar's background
-   continues over the horizontally scrolling comparison columns. */
+/* Keep the reference card and controls within the visible content area
+   while the comparison columns scroll horizontally. */
+.viewer-content:has(.compare-matrix) .context-card,
 .viewer-content:has(.compare-matrix) .render-bar__controls {
   position: sticky;
   left: var(--compare-sticky-left);
   width: calc(100vw - var(--sidebar-width) - var(--content-gutter) - var(--content-gutter));
 }
 
+.viewer-layout--collapsed .viewer-content:has(.compare-matrix) .context-card,
 .viewer-layout--collapsed .viewer-content:has(.compare-matrix) .render-bar__controls {
   width: calc(100vw - var(--sidebar-collapsed-width) - var(--content-gutter) - var(--content-gutter));
 }
@@ -1809,6 +1769,8 @@ body {
    names still reads as a row of names, and comes up to full ink on hover. */
 .compare-header__hide {
   flex-shrink: 0;
+  /* Pinned to the column's right edge, so every X lines up down the header. */
+  margin-left: auto;
   border-radius: var(--radius-pill);
   width: 18px;
   height: 18px;
@@ -2380,6 +2342,8 @@ body {
     min-width: 0;
   }
 
+  .viewer-content:has(.compare-matrix) .context-card,
+  .viewer-layout--collapsed .viewer-content:has(.compare-matrix) .context-card,
   .viewer-content:has(.compare-matrix) .render-bar__controls,
   .viewer-layout--collapsed .viewer-content:has(.compare-matrix) .render-bar__controls {
     position: static;

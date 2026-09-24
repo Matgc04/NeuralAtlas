@@ -17,6 +17,7 @@ from tqdm.auto import tqdm
 
 from attr_config import AttributionConfig
 from backend import config
+from backend.datasets import DatasetSpec
 from backend.methods import (
     GLOBAL_FAMILY,
     LOCAL_FAMILY,
@@ -246,16 +247,16 @@ class AtlasRunner:
     def __init__(
         self,
         model: Module,
-        data: str | datasets.VisionDataset,
+        dataset: DatasetSpec,
         interp_methods: list[AttributionConfig],
         renderer: AttributionRenderer | None = None,
         **kwargs: Any,
     ) -> None:
         self.model = model
-        if isinstance(data, str):
-            self.data = datasets.ImageFolder(data, transform=kwargs.get("transform", None))
-        else:
-            self.data = data
+        self.dataset = dataset
+        self.data = datasets.ImageFolder(str(dataset.images_path), transform=kwargs.get("transform", None))
+        # Resolved up front so an unmapped class folder fails before any sample is run.
+        self.targets = {class_id: dataset.target(class_id) for class_id in self.data.classes}
         self.interp_methods = interp_methods
         self.renderer = renderer or AttributionRenderer()
 
@@ -284,30 +285,11 @@ class AtlasRunner:
             confidence=confidence,
         )
 
-    def _resolve_original_url(
-        self,
-        dataset_name: str,
-        class_id: str,
-        sample_index: int,
-    ) -> str | None:
-        sample_path: str | None = None
-        if hasattr(self.data, "samples"):
-            samples = getattr(self.data, "samples")
-            if isinstance(samples, list) and sample_index < len(samples):
-                sample = samples[sample_index]
-                if isinstance(sample, tuple) and sample:
-                    sample_path = str(sample[0])
-        if sample_path is None:
-            return None
-        filename = Path(sample_path).name
-        return f"/{dataset_name}/val/{class_id}/{filename}"
-
     def stream(
         self,
         num_samples: int,
         output_dir: Path,
         model_name: str,
-        dataset_name: str,
         image_ext: str = "webp",
         metrics: set[str] | None = None,
         start_index: int = 0,
@@ -356,11 +338,11 @@ class AtlasRunner:
 
                 class_id, image_id = keys[sample_index]
                 attribution_target = torch.tensor(
-                    [int(class_id)],
+                    [self.targets[class_id]],
                     device=inputs.device,
                     dtype=target.dtype,
                 )
-                original_url = self._resolve_original_url(dataset_name, class_id, sample_index)
+                source_filename = Path(self.data.samples[sample_index][0]).name
 
                 with torch.no_grad():
                     prediction = self._serialize_prediction(self.model(inputs))
@@ -374,11 +356,11 @@ class AtlasRunner:
 
                 record = ImageRecord(
                     model=model_name,
-                    dataset=dataset_name,
+                    dataset=self.dataset.id,
                     class_id=class_id,
                     image_id=image_id,
-                    source_filename=Path(self.data.samples[sample_index][0]).name,
-                    original_url=original_url,
+                    source_filename=source_filename,
+                    original_url=self.dataset.image_url(class_id, source_filename),
                     prediction=prediction,
                     interpretability_metrics={},
                 )
@@ -413,7 +395,7 @@ class AtlasRunner:
                                 attr=attribution[0],
                                 output_dir=output_dir,
                                 model_name=model_name,
-                                dataset_name=dataset_name,
+                                dataset_name=self.dataset.id,
                                 class_id=class_id,
                                 image_id=image_id,
                                 method_name=method_name,

@@ -110,6 +110,13 @@ function compareModelNames(a, b) {
   return String(a).localeCompare(String(b));
 }
 
+// Family first, then depth: the compare columns keep the rail's order, so
+// efficientnet_b0 and _b4 sit together instead of around mobilenet_v2.
+const FAMILY_RANK = new Map([...MODEL_FAMILIES.map((f) => f.key), 'other'].map((key, i) => [key, i]));
+function compareModelsByFamily(a, b) {
+  return FAMILY_RANK.get(categorizeModel(a)) - FAMILY_RANK.get(categorizeModel(b)) || compareModelNames(a, b);
+}
+
 // Groups for the rail, in family order, skipping families this dataset has no
 // run for. Same shape FacetFilter takes for methods, so one component serves both.
 function groupModels(models) {
@@ -159,28 +166,23 @@ function compareMethodRows(methods, cells) {
   return (methods ?? []).filter((m) => cells.some((c) => c.record?.outputs?.[m]));
 }
 
-// Heavy image binaries live on Hugging Face datasets; JSON metadata stays local (in git).
+// Heavy image binaries live on Hugging Face; JSON metadata stays local (in git). A run's
+// maps come from its manifest `base_url`, a dataset's originals from its `images_base_url`,
+// where `$WORKER` is the authenticated Worker in front of private datasets.
 // Set VITE_ASSET_SOURCE=local to serve everything from public/.
-const HF_DATASET = 'https://huggingface.co/datasets/Matgc04';
-// imagenet-pico images live in a private HF dataset. Its small JSON metadata stays
-// public and local, so only files below val/ go through the authenticated Worker.
 const WORKER_ORIGIN = import.meta.env.VITE_WORKER_URL;
-const HF_ROUTES = USE_LOCAL_ASSETS ? [] : [
-  { test: /^imagenet-pico-ai\/val\//, base: `${HF_DATASET}/neuralatlas-imagenet-pico-ai/resolve/main/`, strip: /^imagenet-pico-ai\// },
-  // Compatibility for runs created before manifest schema v2 added base_url.
-  { test: /^outputs\/images\//, base: `${HF_DATASET}/neuralatlas-attributions/resolve/main/`, strip: /^outputs\// },
-  ...(WORKER_ORIGIN ? [{ test: /^imagenet-pico\/val\//, base: `${WORKER_ORIGIN}/hf/`, strip: /^imagenet-pico\// }] : []),
-];
 
 function resolveAssetUrl(path) {
   if (!path) return null;
   const value = String(path);
   if (/^(?:[a-z]+:)?\/\//i.test(value) || value.startsWith('data:')) return value;
-  const rel = value.replace(/^\/+/, '');
-  for (const route of HF_ROUTES) {
-    if (route.test.test(rel)) return `${route.base}${rel.replace(route.strip, '')}`;
-  }
-  return `${BASE_URL}${rel}`;
+  return `${BASE_URL}${value.replace(/^\/+/, '')}`;
+}
+
+function datasetImageUrl(dataset, url) {
+  const base = dataset?.images_base_url;
+  if (!url || !base || USE_LOCAL_ASSETS || (base.includes('$WORKER') && !WORKER_ORIGIN)) return url;
+  return base.replace('$WORKER', WORKER_ORIGIN) + url.slice(dataset.id.length + 1);
 }
 
 async function fetchJson(path, { retryCount = 0, retryDelayMs = 400, signal, ...options } = {}) {
@@ -208,50 +210,22 @@ async function fetchJson(path, { retryCount = 0, retryDelayMs = 400, signal, ...
   }
 }
 
-function resolveRunOutputUrl(baseUrl, classId, outputPath) {
-  if (!outputPath || !baseUrl || USE_LOCAL_ASSETS) return outputPath;
-  const value = String(outputPath);
-  if (/^(?:[a-z]+:)?\/\//i.test(value) || value.startsWith('data:')) return value;
-  const filename = value.split('/').pop();
-  return `${String(baseUrl).replace(/\/+$/, '')}/${encodeURIComponent(classId)}/${encodeURIComponent(filename)}`;
-}
-
-function filenameFromUrl(url) {
-  if (!url) return null;
-  return decodeURIComponent(String(url).split(/[?#]/)[0].split('/').pop());
-}
-
-function buildAtlasData(manifest, runPayloads) {
-  const models = {};
-  const records = [];
-  for (const model of manifest?.models ?? []) {
-    // Keep metadata for empty runs so their model and dataset remain selectable.
-    models[model] = {};
-    for (const dataset of manifest?.datasets_by_model?.[model] ?? []) {
-      const run = runPayloads[`${model}::${dataset}`];
-      models[model][dataset] = run?.summary?.metrics ?? null;
-      const images = new Map();
-      for (const image of run?.images?.images ?? []) {
-        const classId = String(image.class_id), imageId = String(image.image_id);
-        const originalUrl = image.original_url ?? null;
-        images.set(JSON.stringify([classId, imageId]), {
-          model, dataset, classId, imageId, originalUrl,
-          filename: filenameFromUrl(originalUrl),
-          outputs: Object.fromEntries(Object.entries(image.outputs ?? {}).map(([method, path]) => [
-            method, resolveRunOutputUrl(run.baseUrl, classId, path),
-          ])),
-          prediction: image.prediction ?? null,
-          interpretabilityMetrics: image.interpretability_metrics ?? {},
-        });
-      }
-      records.push(...images.values());
-    }
-  }
-  records.sort((a, b) =>
-    a.dataset.localeCompare(b.dataset) || compareMixedIds(a.classId, b.classId) ||
-    compareMixedIds(a.imageId, b.imageId) || a.model.localeCompare(b.model)
-  );
-  return { models, records };
+// One run's images.json as viewer records, maps pointed at the run's `base_url`.
+function normalizeRun(model, dataset, images, baseUrl) {
+  return (images?.images ?? []).map((image) => {
+    const classId = String(image.class_id);
+    return {
+      model, dataset, classId, imageId: String(image.image_id),
+      originalUrl: image.original_url ?? null,
+      filename: image.source_filename ?? null,
+      outputs: Object.fromEntries(Object.entries(image.outputs ?? {}).map(([method, path]) => [
+        method,
+        USE_LOCAL_ASSETS ? path : `${baseUrl}/${encodeURIComponent(classId)}/${encodeURIComponent(path.split('/').pop())}`,
+      ])),
+      prediction: image.prediction ?? null,
+      interpretabilityMetrics: image.interpretability_metrics ?? {},
+    };
+  }).sort((a, b) => compareMixedIds(a.classId, b.classId) || compareMixedIds(a.imageId, b.imageId));
 }
 
 // `models` is an allow-list: the columns the rail left checked. Rows are built
@@ -264,19 +238,12 @@ function getClassCompareMatrix(records, { dataset, classId, models: allowed }) {
   const scoped = records.filter((r) =>
     r.dataset === dataset && r.classId === classId && (!allow || allow.has(r.model))
   );
-  const models = [...new Set(scoped.map((r) => r.model))].sort(compareModelNames);
+  const models = [...new Set(scoped.map((r) => r.model))].sort(compareModelsByFamily);
 
-  // Image IDs are run-local and can point at different source files between
-  // models. Use the source filename as the comparison identity so a shared
-  // original is only shown when the models refer to the same dataset image.
-  // Without source metadata, keep models separate: the index proves no identity.
-  const sourceKeyFor = (record) => JSON.stringify([
-    record.classId,
-    record.filename || `${record.model}:image:${record.imageId}`,
-  ]);
+  // A row is one source image, so every model in it was shown the same original.
   const bySource = new Map();
   for (const r of scoped) {
-    const sourceKey = sourceKeyFor(r);
+    const sourceKey = JSON.stringify([r.classId, r.filename]);
     if (!bySource.has(sourceKey)) bySource.set(sourceKey, new Map());
     bySource.get(sourceKey).set(r.model, r);
   }
@@ -847,9 +814,8 @@ function ContextCard({
 // `indeterminate` is a DOM property with no HTML attribute, so it can only be
 // set imperatively.
 function TriCheckbox({ checked, indeterminate, ...rest }) {
-  const ref = useRef(null);
-  useEffect(() => { if (ref.current) ref.current.indeterminate = Boolean(indeterminate); }, [indeterminate]);
-  return <input ref={ref} type="checkbox" checked={checked} {...rest} />;
+  const setIndeterminate = (el) => { if (el) el.indeterminate = Boolean(indeterminate); };
+  return <input ref={setIndeterminate} type="checkbox" checked={checked} {...rest} />;
 }
 
 /* Two facets, one rail. Tabs instead of a second stacked list: the panel keeps
@@ -990,11 +956,21 @@ function MethodFigures({ methods, outputs, imageId, originalSrc, interpretabilit
   ));
 }
 
+// Predictions and class names index the dataset's label space (`labels.names`). A class
+// folder is its own label-space index unless the dataset catalog maps it (`labels.classes`).
+function classTarget(labels, classId) {
+  return String(labels?.classes?.[classId] ?? classId);
+}
+
+function className(labels, classId) {
+  return labels?.names?.[Number(classTarget(labels, classId))] ?? classId;
+}
+
 function PredictionBadge({ prediction, classId, labels }) {
   if (!prediction) return null;
   const predId = prediction.predicted_class_id;
-  const predLabel = labels?.[predId] ?? `Class ${predId}`;
-  const isCorrect = String(predId) === String(classId);
+  const predLabel = labels?.names?.[Number(predId)] ?? `Class ${predId}`;
+  const isCorrect = String(predId) === classTarget(labels, classId);
   const confidencePct = prediction.confidence == null
     ? null
     : `${(Number(prediction.confidence) * 100).toFixed(1)}%`;
@@ -1143,10 +1119,9 @@ function CrumbSelect({ label, value, items, onSelect, placeholder, disabled }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const rootRef = useRef(null);
-  const inputRef = useRef(null);
 
   const q = normalize(query);
-  const filtered = q ? list.filter((i) => !i.isHeader && normalize(i.label).includes(q)) : list;
+  const filtered = q ? list.filter((i) => normalize(i.label).includes(q)) : list;
 
   const commit = (v) => { onSelect(v); setOpen(false); setQuery(''); };
 
@@ -1163,8 +1138,6 @@ function CrumbSelect({ label, value, items, onSelect, placeholder, disabled }) {
       document.removeEventListener('keydown', onKey);
     };
   }, [open]);
-
-  useEffect(() => { if (open) inputRef.current?.focus(); }, [open]);
 
   return (
     <div className={`crumb${disabled ? ' is-disabled' : ''}`} ref={rootRef}>
@@ -1188,28 +1161,24 @@ function CrumbSelect({ label, value, items, onSelect, placeholder, disabled }) {
       {open && !disabled && (
         <div className="crumb__pop">
           <input
-            ref={inputRef} className="combo__input" value={query}
+            autoFocus className="combo__input" value={query}
             placeholder={placeholder} aria-label={`Search ${label}`}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter') { const f = filtered.find((i) => !i.isHeader); if (f) commit(f.value); }
+              if (e.key === 'Enter' && filtered.length) commit(filtered[0].value);
             }}
           />
           <div className="crumb__list" role="listbox">
             {filtered.length === 0 ? (
               <div className="combo__empty">No matches — try a shorter query.</div>
-            ) : filtered.slice(0, 1000).map((item) =>
-              item.isHeader ? (
-                <div key={item.value} className="combo__group-header">{item.label}</div>
-              ) : (
-                <button
-                  type="button" key={item.value} role="option"
-                  aria-selected={item.value === value}
-                  className={`combo__option${item.value === value ? ' is-on' : ''}`}
-                  onClick={() => commit(item.value)}
-                >{item.label}</button>
-              )
-            )}
+            ) : filtered.slice(0, 1000).map((item) => (
+              <button
+                type="button" key={item.value} role="option"
+                aria-selected={item.value === value}
+                className={`combo__option${item.value === value ? ' is-on' : ''}`}
+                onClick={() => commit(item.value)}
+              >{item.label}</button>
+            ))}
           </div>
         </div>
       )}
@@ -1561,7 +1530,7 @@ function resolveSelection(options, currentValue) {
 
 /* ── Main Form ──────────────────────────────────────────────── */
 
-function ModelForm({ atlas, runs }) {
+function ModelForm({ atlas, runs, datasets, labelSpaces }) {
   const { models, records } = atlas;
 
   const [vs, setVs] = useState(() => ({
@@ -1573,8 +1542,6 @@ function ModelForm({ atlas, runs }) {
   const [facet, setFacet] = useState('method');
   const [overlay, setOverlay] = useState(false);
   const [overlayOpacity, setOverlayOpacity] = useState(0.5);
-  const [lblCache, setLblCache] = useState({});
-  const [dsStatus, setDsStatus] = useState({});
 
   const patch = (update) => { const next = { ...vs, ...update }; setVs(next); writeStateToUrl(next); };
 
@@ -1633,43 +1600,27 @@ function ModelForm({ atlas, runs }) {
 
   const effectiveDataset = resolveSelection(datasetOptions, vs.dataset);
 
-  // Load dataset metadata (images structure + labels)
-  useEffect(() => {
-    if (!effectiveDataset) return;
-    const controller = new AbortController();
-    const { signal } = controller;
-    const ds = effectiveDataset;
-    const updStatus = (fields) =>
-      !signal.aborted && setDsStatus((p) => ({ ...p, [ds]: { ...p[ds], ...fields } }));
-
-    if (!lblCache[ds]) {
-      updStatus({ labelsLoading: true, labelsError: null });
-      fetchJson('imagenet-mini/imagenet-1k-id2label.json', { signal, retryCount: 2 })
-        .then((data) => { if (!signal.aborted) setLblCache((p) => ({ ...p, [ds]: data })); })
-        .catch((e) => {
-          if (e.name !== 'AbortError') {
-            updStatus({ labelsError: 'Failed to load.' });
-          }
-        })
-        .finally(() => updStatus({ labelsLoading: false }));
-    }
-
-    return () => controller.abort();
-  }, [effectiveDataset, lblCache]);
+  const labelsByDataset = useMemo(() => Object.fromEntries(
+    Object.values(datasets).map((d) => [d.id, { classes: d.classes, names: labelSpaces[d.label_space] }])
+  ), [datasets, labelSpaces]);
+  const datasetLabels = labelsByDataset[effectiveDataset];
 
   const imageRecords = useMemo(
-    () => records.map((r) => ({ ...r, classLabel: lblCache[r.dataset]?.[r.classId] ?? r.classId })),
-    [records, lblCache]
+    () => records.map((r) => ({
+      ...r,
+      originalUrl: datasetImageUrl(datasets[r.dataset], r.originalUrl),
+      classLabel: className(labelsByDataset[r.dataset], r.classId),
+    })),
+    [records, datasets, labelsByDataset]
   );
 
   const classOptions = useMemo(() => {
     if (!effectiveDataset) return [];
-    const labels = lblCache[effectiveDataset] ?? {};
     const classes = imageRecords.filter((r) => r.dataset === effectiveDataset &&
       (vs.mode === 'class_compare' || r.model === effectiveModel)).map((r) => r.classId);
     return [...new Set(classes)].sort(compareMixedIds)
-      .map((id) => ({ value: id, label: `${id} - ${labels[id] ?? id}` }));
-  }, [vs.mode, effectiveDataset, effectiveModel, lblCache, imageRecords]);
+      .map((id) => ({ value: id, label: `${id} - ${className(datasetLabels, id)}` }));
+  }, [vs.mode, effectiveDataset, effectiveModel, datasetLabels, imageRecords]);
 
   const effectiveClassId = resolveSelection(classOptions, vs.classId);
 
@@ -1773,21 +1724,18 @@ function ModelForm({ atlas, runs }) {
   // the selection moved on underneath it, so it follows the last thing touched.
   // Checking a whole family at once is left alone — twenty added methods name
   // no single subject.
-  const lastSelection = useRef({ model: null, dataset: null, methods: [] });
-  useEffect(() => {
-    const prev = lastSelection.current;
-    lastSelection.current = { model: effectiveModel, dataset: effectiveDataset, methods: selectedMethods };
-    if (prev.model == null && prev.dataset == null) return; // first pass, nothing was touched
-    if (effectiveModel !== prev.model) setContextTab('model');
-    else if (effectiveDataset !== prev.dataset) { setContextTab('dataset'); setPickedMethod(null); setPickedModel(null); }
-    else {
-      const added = selectedMethods.filter((m) => !prev.methods.includes(m));
-      if (added.length === 1) { setContextTab('method'); setPickedMethod(added[0]); }
-    }
-  }, [effectiveModel, effectiveDataset, selectedMethods]);
-
+  const selectModel = (model) => {
+    if (model !== effectiveModel) setContextTab('model');
+    patch({ model, classId: null, imageId: null });
+  };
+  const selectDataset = (dataset) => {
+    if (dataset !== effectiveDataset) { setContextTab('dataset'); setPickedMethod(null); setPickedModel(null); }
+    patch({ dataset });
+  };
   const setSelectedMethods = (list) => {
     const next = availableMethods.filter((m) => list.includes(m));
+    const added = next.filter((m) => !selectedMethods.includes(m));
+    if (added.length === 1) { setContextTab('method'); setPickedMethod(added[0]); }
     patch({ methods: next.length === availableMethods.length ? null : next.join(',') });
   };
 
@@ -1826,9 +1774,6 @@ function ModelForm({ atlas, runs }) {
     (vs.mode === 'single' && Boolean(singleImageData?.original)) ||
     (vs.mode === 'model_grid' && modelGridRecords.length > 0) ||
     (vs.mode === 'class_compare' && classCompareMatrix.rows.length > 0);
-
-  const dsInfo = effectiveDataset ? dsStatus[effectiveDataset] ?? {} : {};
-  const isLoading = dsInfo.labelsLoading;
 
   const handleModeChange = (mode) => {
     const next = { ...vs, mode };
@@ -1910,7 +1855,7 @@ function ModelForm({ atlas, runs }) {
       {vs.mode !== 'class_compare' && (
         <CrumbSelect
           label="Model" value={effectiveModel} items={modelOptions}
-          onSelect={(v) => patch({ model: v, classId: null, imageId: null })}
+          onSelect={selectModel}
           placeholder="Search model" disabled={!modelOptions.length}
         />
       )}
@@ -1918,7 +1863,7 @@ function ModelForm({ atlas, runs }) {
       <CrumbSelect
         label="Dataset" value={effectiveDataset}
         items={datasetOptions}
-        onSelect={(v) => patch({ dataset: v })}
+        onSelect={selectDataset}
         placeholder="Search dataset"
         disabled={!datasetOptions.length}
       />
@@ -1926,7 +1871,7 @@ function ModelForm({ atlas, runs }) {
       <CrumbSelect
         label="Class" value={effectiveClassId} items={classOptions}
         onSelect={(v) => patch({ classId: v, imageId: null })}
-        placeholder={isLoading ? 'Loading class metadata...' : 'Search class'}
+        placeholder="Search class"
         disabled={!effectiveDataset || !classOptions.length}
       />
 
@@ -1965,11 +1910,6 @@ function ModelForm({ atlas, runs }) {
       </aside>
 
       <main className="viewer-content">
-        {dsInfo.labelsError && (
-          <div className="selection-status">
-            <p className="status-message" role="status">Some dataset metadata failed to load.</p>
-          </div>
-        )}
         {/* The card names what is on screen; the render strip sets how it is
             drawn. Reading order follows: subject first, then controls, then
             the maps they act on. */}
@@ -1993,13 +1933,13 @@ function ModelForm({ atlas, runs }) {
           <ModelStatsRail model={effectiveModel} dataset={effectiveDataset} stats={selectedModelStats} />
         )}
 
-        {vs.mode === 'single' && <SingleImageGallery imageData={singleImageData} labels={lblCache[effectiveDataset]} />}
+        {vs.mode === 'single' && <SingleImageGallery imageData={singleImageData} labels={datasetLabels} />}
         {vs.mode === 'model_grid' && (
-          <ModelGridView records={modelGridRecords} methods={selectedMethods} ready={Boolean(effectiveModel && effectiveDataset)} labels={lblCache[effectiveDataset]} />
+          <ModelGridView records={modelGridRecords} methods={selectedMethods} ready={Boolean(effectiveModel && effectiveDataset)} labels={datasetLabels} />
         )}
         {vs.mode === 'class_compare' && (
           <ClassCompareView matrix={classCompareMatrix} methods={selectedMethods}
-            ready={Boolean(effectiveDataset && effectiveClassId)} labels={lblCache[effectiveDataset]}
+            ready={Boolean(effectiveDataset && effectiveClassId)} labels={datasetLabels}
             totalModels={availableModels.length}
             onHideModel={(m) => setSelectedModels(selectedModels.filter((x) => x !== m))} />
         )}
@@ -2013,6 +1953,8 @@ function ModelForm({ atlas, runs }) {
 function App() {
   const [manifest, setManifest] = useState(null);
   const [runs, setRuns] = useState({});
+  const [datasets, setDatasets] = useState({});
+  const [labelSpaces, setLabelSpaces] = useState({});
   const [error, setError] = useState(null);
 
   useAtlasFavicon();
@@ -2025,6 +1967,18 @@ function App() {
       .then((data) => {
         if (signal.aborted) return;
         setManifest(data);
+        fetchJson(data.catalogs.datasets, { signal, retryCount: 2 })
+          .then((catalog) => {
+            if (signal.aborted) return;
+            setDatasets(Object.fromEntries(catalog.datasets.map((d) => [d.id, d])));
+            // Datasets that share a label space share the fetch. Without it classes show their id.
+            for (const [space, url] of new Map(catalog.datasets.map((d) => [d.label_space, d.labels]))) {
+              fetchJson(url, { signal, retryCount: 2 })
+                .then((payload) => { if (!signal.aborted) setLabelSpaces((p) => ({ ...p, [space]: payload.labels })); })
+                .catch((error) => { if (!signal.aborted) console.error(error); });
+            }
+          })
+          .catch((error) => { if (!signal.aborted) setError(error); });
         for (const [model, datasets] of Object.entries(data.runs ?? {})) {
           for (const [dataset, paths] of Object.entries(datasets)) {
             const key = `${model}::${dataset}`;
@@ -2034,9 +1988,7 @@ function App() {
             ]).then(([images, summary]) => {
               if (signal.aborted) return;
               // Normalize each run once as it arrives; other runs never gate it.
-              const run = buildAtlasData({
-                models: [model], datasets_by_model: { [model]: [dataset] },
-              }, { [key]: { images, summary, baseUrl: paths.base_url } });
+              const run = { metrics: summary?.metrics ?? null, records: normalizeRun(model, dataset, images, paths.base_url) };
               setRuns((previous) => ({ ...previous, [key]: run }));
             }).catch((error) => {
               if (!signal.aborted) setRuns((previous) => ({ ...previous, [key]: { error } }));
@@ -2051,23 +2003,25 @@ function App() {
     return () => controller.abort();
   }, []);
 
+  // Runs still loading keep their model and dataset selectable, with no records yet.
   const atlas = useMemo(() => {
-    const data = buildAtlasData(manifest, {});
-    for (const [model, datasets] of Object.entries(data.models)) {
-      for (const dataset of Object.keys(datasets)) {
+    const models = {};
+    const records = [];
+    for (const [model, byDataset] of Object.entries(manifest?.runs ?? {})) {
+      models[model] = {};
+      for (const dataset of Object.keys(byDataset)) {
         const run = runs[`${model}::${dataset}`];
-        if (!run || run.error) continue;
-        datasets[dataset] = run.models[model][dataset];
-        data.records.push(...run.records);
+        models[model][dataset] = run?.metrics ?? null;
+        if (run?.records) records.push(...run.records);
       }
     }
-    return data;
+    return { models, records };
   }, [manifest, runs]);
 
   if (error) return <AppStatus>Could not read outputs/manifest.json. Check that the run outputs are published, then reload.</AppStatus>;
   if (!manifest) return <AppStatus>Reading run manifest.</AppStatus>;
 
-  return <div className="app-shell"><ModelForm atlas={atlas} runs={runs} /></div>;
+  return <div className="app-shell"><ModelForm atlas={atlas} runs={runs} datasets={datasets} labelSpaces={labelSpaces} /></div>;
 }
 
 export default App;

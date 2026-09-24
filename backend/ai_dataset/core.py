@@ -132,14 +132,6 @@ def _b64(data: bytes) -> str:
     return base64.b64encode(data).decode("ascii")
 
 
-def load_labels(path: Path) -> dict[str, str]:
-    """Map class_id -> primary class name (first synonym) from an id2label file."""
-    if not path.exists():
-        return {}
-    raw: dict[str, Any] = json.loads(path.read_text())
-    return {str(key): str(value).split(",")[0].strip() for key, value in raw.items()}
-
-
 def load_env(path: Path) -> None:
     if not path.exists():
         return

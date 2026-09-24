@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "title": "imagenet-pico-ai",
+  "label_space": "imagenet-1k",
+  "images_dir": "val",
+  "images_base_url": "https://huggingface.co/datasets/Matgc04/neuralatlas-imagenet-pico-ai/resolve/main"
+}

@@ -6,6 +6,7 @@ import torch
 from torchvision import datasets
 
 from backend import config
+from backend.datasets import load_dataset
 from backend.methods import build_interp_methods, method_catalog
 from backend.models import build_model_runtime
 from backend.persistence import ModelCatalogEntry, OutputRepository
@@ -40,9 +41,10 @@ def run_generation(args: Namespace) -> None:
                 f"Unknown attribution method(s): {', '.join(unknown_methods)}"
             )
 
-    dataset_dir = config.BASE_PUBLIC_DIR / dataset_name / "val"
+    dataset = load_dataset(dataset_name)
+    dataset_dir = dataset.images_path
     if not dataset_dir.is_dir():
-        raise SystemExit(f"Dataset directory not found: {dataset_dir}")
+        raise SystemExit(f"Dataset images not found: {dataset_dir}")
 
     sample_indices = None
     if sample_selection is not None:
@@ -60,6 +62,11 @@ def run_generation(args: Namespace) -> None:
     runtime = build_model_runtime(args.model)
     print(f"Using device: {runtime.device}, dtype: {runtime.dtype}")
     print(f"Model {args.model} total parameters: {runtime.parameter_count}")
+    if runtime.label_space != dataset.label_space.id:
+        raise SystemExit(
+            f"Model {args.model} predicts label space {runtime.label_space!r}, but dataset "
+            f"{dataset_name} is labelled in {dataset.label_space.id!r}."
+        )
 
     repository = OutputRepository()
     repository.write_catalogs(
@@ -118,7 +125,7 @@ def run_generation(args: Namespace) -> None:
 
     atlas = AtlasRunner(
         runtime.model,
-        str(dataset_dir),
+        dataset,
         interp_methods,
         transform=runtime.transform,
     )
@@ -129,7 +136,6 @@ def run_generation(args: Namespace) -> None:
         start_index=start_index,
         output_dir=config.OUTPUT_IMAGES_DIR,
         model_name=args.model,
-        dataset_name=dataset_name,
         image_ext=args.image_ext,
         metrics=set(args.metrics),
         sample_indices=sample_indices,

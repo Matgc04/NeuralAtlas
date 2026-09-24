@@ -29,6 +29,91 @@ export const WIKI_SECTIONS = [
     label: 'Models',
     entries: [
       {
+        id: 'convnext_tiny',
+        title: 'ConvNeXt Tiny',
+        tags: ['CNN', '2022'],
+        summary: 'A convolutional network with four stages of residual blocks.',
+        differs: 'Uses 7x7 depthwise convolutions, layer normalization and GELU activations.',
+        facts: [
+          ['Family', 'CNN, ConvNeXt'],
+          ['Params', '28.6M'],
+          ['Year', '2022'],
+          ['Depth', '18 residual blocks'],
+          ['Read-out', 'Last depthwise convolution'],
+        ],
+        links: [
+          { label: 'torchvision: ConvNeXt Tiny', href: 'https://docs.pytorch.org/vision/main/models/generated/torchvision.models.convnext_tiny.html' },
+        ],
+      },
+      {
+        id: 'efficientnet_b4',
+        title: 'EfficientNet-B4',
+        tags: ['CNN', 'Compound scaling'],
+        summary: 'A larger EfficientNet variant that scales network depth, width and training resolution together.',
+        differs: 'Uses more and wider inverted residual blocks than B0, with squeeze-and-excitation channel weighting.',
+        facts: [
+          ['Family', 'CNN, EfficientNet'],
+          ['Params', '19.3M'],
+          ['Year', '2019'],
+          ['Depth', '32 inverted residual blocks'],
+          ['Read-out', 'Last conv block'],
+        ],
+        links: [
+          { label: 'torchvision: EfficientNet-B4', href: 'https://docs.pytorch.org/vision/main/models/generated/torchvision.models.efficientnet_b4.html' },
+        ],
+      },
+      {
+        id: 'inception_v3',
+        title: 'Inception v3',
+        tags: ['CNN', 'Multi-branch'],
+        summary: 'A CNN that combines parallel convolution and pooling branches in Inception modules.',
+        differs: 'Factorizes larger convolutions into smaller or asymmetric kernels and concatenates features from parallel branches.',
+        facts: [
+          ['Family', 'CNN, Inception'],
+          ['Params', '27.2M including auxiliary classifier'],
+          ['Year', '2015'],
+          ['Depth', '11 Inception modules'],
+          ['Read-out', 'Last convolution in Mixed_7c'],
+        ],
+        links: [
+          { label: 'torchvision: Inception v3', href: 'https://docs.pytorch.org/vision/main/models/generated/torchvision.models.inception_v3.html' },
+        ],
+      },
+      {
+        id: 'mobilenet_v2',
+        title: 'MobileNetV2',
+        tags: ['CNN', 'Mobile'],
+        summary: 'A compact CNN designed for image classification with limited compute.',
+        differs: 'Expands channels before depthwise convolution, then projects them into a narrow linear bottleneck.',
+        facts: [
+          ['Family', 'CNN, MobileNet'],
+          ['Params', '3.5M'],
+          ['Year', '2018'],
+          ['Depth', '17 inverted residual blocks'],
+          ['Read-out', 'Last conv block'],
+        ],
+        links: [
+          { label: 'torchvision: MobileNetV2', href: 'https://docs.pytorch.org/vision/main/models/generated/torchvision.models.mobilenet_v2.html' },
+        ],
+      },
+      {
+        id: 'resnet101',
+        title: 'ResNet-101',
+        tags: ['CNN', 'Residual'],
+        summary: 'A 101-layer residual network built from bottleneck blocks.',
+        differs: 'Uses 1x1 convolutions around each 3x3 convolution to reduce computation, with more blocks than ResNet-18.',
+        facts: [
+          ['Family', 'CNN, residual'],
+          ['Params', '44.5M'],
+          ['Year', '2015'],
+          ['Depth', '101 layers'],
+          ['Read-out', 'Last convolution in layer4'],
+        ],
+        links: [
+          { label: 'torchvision: ResNet-101', href: 'https://docs.pytorch.org/vision/main/models/generated/torchvision.models.resnet101.html' },
+        ],
+      },
+      {
         id: 'alexnet',
         title: 'AlexNet',
         tags: ['CNN', '2012'],
@@ -67,7 +152,7 @@ export const WIKI_SECTIONS = [
         id: 'efficientnet_b0',
         title: 'EfficientNet-B0',
         tags: ['CNN', 'NAS'],
-        summary: 'The smallest model in this comparison and the baseline for the EfficientNet family.',
+        summary: 'The baseline model for the EfficientNet family.',
         differs: 'Squeeze-and-excitation reweights complete channels using global context, so some of the evidence is not tied to a particular location.',
         facts: [
           ['Family', 'CNN, found by NAS'],

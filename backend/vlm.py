@@ -10,13 +10,15 @@ from typing import Literal, cast, get_args
 
 import numpy as np
 from PIL import Image
+from torchvision import transforms
 
 from backend.ai_dataset.core import loads_fenced_json
-from backend.models import MODEL_VIEW
 
 PROMPT_VERSION = "attribution-description-v1"
-OVERLAY_VERSION = "jet-gamma-v1"
+OVERLAY_VERSION = "jet-uniform-opacity-v2"
 VLM_IMAGE_SIZE = 512
+# The crop of the ImageNet specs in model_specs/, so the VLM sees the classifier's pixels.
+MODEL_VIEW = transforms.Compose([transforms.Resize(256), transforms.CenterCrop(224)])
 Focus = Literal["subject", "background", "mixed", "unclear"]
 FOCUS_VALUES = frozenset(get_args(Focus))
 
@@ -150,11 +152,8 @@ def overlay(crop: Image.Image, heatmap: Image.Image) -> Image.Image:
         ],
         axis=-1,
     ) * 255.0
-    # sqrt is the gamma of applyJet in App.jsx and 0.8 the default opacity of
-    # its OverlayContext, so this is the overlay the viewer shows by default.
-    alpha = (np.sqrt(values) * 0.8)[..., None]
+    # Match the viewer's overlay when enabled at its default 0.5 opacity.
     pixels = np.asarray(crop, dtype=np.float32)
-    combined = pixels * (1.0 - alpha) + colors * alpha
+    combined = pixels * 0.5 + colors * 0.5
     return Image.fromarray(np.clip(combined, 0, 255).round().astype(np.uint8), mode="RGB")
-
 

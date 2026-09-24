@@ -10,20 +10,19 @@
     "sign": "absolute_value"
   },
   "catalogs": {
+    "datasets": "outputs/catalogs/datasets.json",
     "methods": "outputs/catalogs/methods.json",
     "models": "outputs/catalogs/models.json"
   },
   "datasets_by_model": {
     "alexnet": [
-      "imagenet-pico",
-      "imagenet-pico-ai"
+      "imagenet-pico"
     ],
     "convnext_tiny": [
       "imagenet-pico"
     ],
     "efficientnet_b0": [
-      "imagenet-pico",
-      "imagenet-pico-ai"
+      "imagenet-pico"
     ],
     "efficientnet_b4": [
       "imagenet-pico"
@@ -38,11 +37,10 @@
       "imagenet-pico"
     ],
     "resnet18": [
-      "imagenet-pico",
-      "imagenet-pico-ai"
+      "imagenet-pico"
     ]
   },
-  "generated_at": "2026-09-20T16:18:28.706889+00:00",
+  "generated_at": "2026-09-24T19:27:10.216377+00:00",
   "models": [
     "alexnet",
     "convnext_tiny",
@@ -56,70 +54,58 @@
   "runs": {
     "alexnet": {
       "imagenet-pico": {
-        "base_url": "https://huggingface.co/datasets/Matgc04/neuralatlas-attributions-alexnet/resolve/fa5b03ad58434065c5a858e64af22c12545f2130/images/imagenet-pico",
+        "base_url": "https://huggingface.co/datasets/Matgc04/neuralatlas-attributions-alexnet/resolve/82ff8751d1e4401386e33460f68758cfcf3a0608/images/imagenet-pico",
         "images": "outputs/runs/alexnet/imagenet-pico/images.json",
         "summary": "outputs/runs/alexnet/imagenet-pico/summary.json"
-      },
-      "imagenet-pico-ai": {
-        "images": "outputs/runs/alexnet/imagenet-pico-ai/images.json",
-        "summary": "outputs/runs/alexnet/imagenet-pico-ai/summary.json"
       }
     },
     "convnext_tiny": {
       "imagenet-pico": {
-        "base_url": "https://huggingface.co/datasets/Matgc04/neuralatlas-attributions-convnext_tiny/resolve/2a7ba8b808d41f26a32c781f577e0e7aa12cd6a9/images/imagenet-pico",
+        "base_url": "https://huggingface.co/datasets/Matgc04/neuralatlas-attributions-convnext_tiny/resolve/0374adb45cca73b59d937db81a138c78a1cc7827/images/imagenet-pico",
         "images": "outputs/runs/convnext_tiny/imagenet-pico/images.json",
         "summary": "outputs/runs/convnext_tiny/imagenet-pico/summary.json"
       }
     },
     "efficientnet_b0": {
       "imagenet-pico": {
-        "base_url": "https://huggingface.co/datasets/Matgc04/neuralatlas-attributions-efficientnet_b0/resolve/5545d8704e41c7dd93d0a4c62c95775cb283d7f0/images/imagenet-pico",
+        "base_url": "https://huggingface.co/datasets/Matgc04/neuralatlas-attributions-efficientnet_b0/resolve/4d0985e324768b07a6d3a6ec4afe6890e9f84c0d/images/imagenet-pico",
         "images": "outputs/runs/efficientnet_b0/imagenet-pico/images.json",
         "summary": "outputs/runs/efficientnet_b0/imagenet-pico/summary.json"
-      },
-      "imagenet-pico-ai": {
-        "images": "outputs/runs/efficientnet_b0/imagenet-pico-ai/images.json",
-        "summary": "outputs/runs/efficientnet_b0/imagenet-pico-ai/summary.json"
       }
     },
     "efficientnet_b4": {
       "imagenet-pico": {
-        "base_url": "https://huggingface.co/datasets/Matgc04/neuralatlas-attributions-efficientnet_b4/resolve/edacb88af7574c939525d3ec2510d5c716d0e8d8/images/imagenet-pico",
+        "base_url": "https://huggingface.co/datasets/Matgc04/neuralatlas-attributions-efficientnet_b4/resolve/1d08a1315bf3ee2491eeca96e59d60b473e13e02/images/imagenet-pico",
         "images": "outputs/runs/efficientnet_b4/imagenet-pico/images.json",
         "summary": "outputs/runs/efficientnet_b4/imagenet-pico/summary.json"
       }
     },
     "inception_v3": {
       "imagenet-pico": {
-        "base_url": "https://huggingface.co/datasets/Matgc04/neuralatlas-attributions-inception_v3/resolve/57d2896909a79f2ab4b6926c8fca275e48222302/images/imagenet-pico",
+        "base_url": "https://huggingface.co/datasets/Matgc04/neuralatlas-attributions-inception_v3/resolve/67b76e8bf1cefc44683d5a73fc0c6430dbb31792/images/imagenet-pico",
         "images": "outputs/runs/inception_v3/imagenet-pico/images.json",
         "summary": "outputs/runs/inception_v3/imagenet-pico/summary.json"
       }
     },
     "mobilenet_v2": {
       "imagenet-pico": {
-        "base_url": "https://huggingface.co/datasets/Matgc04/neuralatlas-attributions-mobilenet_v2/resolve/10d67ea8801f901f14f0dfd5da06f07aaaf4ee36/images/imagenet-pico",
+        "base_url": "https://huggingface.co/datasets/Matgc04/neuralatlas-attributions-mobilenet_v2/resolve/aa59ff73eff98e6baab4b130fa5845b94cc5f99b/images/imagenet-pico",
         "images": "outputs/runs/mobilenet_v2/imagenet-pico/images.json",
         "summary": "outputs/runs/mobilenet_v2/imagenet-pico/summary.json"
       }
     },
     "resnet101": {
       "imagenet-pico": {
-        "base_url": "https://huggingface.co/datasets/Matgc04/neuralatlas-attributions-resnet101/resolve/907cab91015d1843f6223ebeb78710a59ee6735c/images/imagenet-pico",
+        "base_url": "https://huggingface.co/datasets/Matgc04/neuralatlas-attributions-resnet101/resolve/5625ef56f8aa2374cee311b4e68003875d2b2a0c/images/imagenet-pico",
         "images": "outputs/runs/resnet101/imagenet-pico/images.json",
         "summary": "outputs/runs/resnet101/imagenet-pico/summary.json"
       }
     },
     "resnet18": {
       "imagenet-pico": {
-        "base_url": "https://huggingface.co/datasets/Matgc04/neuralatlas-attributions-resnet18/resolve/de8d6225bab019c2f9dd241869e0cc7f56b4cce8/images/imagenet-pico",
+        "base_url": "https://huggingface.co/datasets/Matgc04/neuralatlas-attributions-resnet18/resolve/fb65776c7b6c3a0cd0ba30a1729e8b5135472922/images/imagenet-pico",
         "images": "outputs/runs/resnet18/imagenet-pico/images.json",
         "summary": "outputs/runs/resnet18/imagenet-pico/summary.json"
-      },
-      "imagenet-pico-ai": {
-        "images": "outputs/runs/resnet18/imagenet-pico-ai/images.json",
-        "summary": "outputs/runs/resnet18/imagenet-pico-ai/summary.json"
       }
     }
   },
