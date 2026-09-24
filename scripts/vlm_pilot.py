@@ -86,10 +86,8 @@ def pick(records: list[ImageRecord], methods: list[str], count: int, seed: int) 
 
 def fetch_map(api, repo_id: str, revision: str, dataset: str, record: ImageRecord, method: str) -> Image.Image:
     name = Path(record.outputs[method]).name
-    local = ROOT / config.OUTPUT_IMAGES_DIR / name
-    path = local if local.is_file() else Path(api.hf_hub_download(
-        repo_id=repo_id, repo_type="dataset", revision=revision,
-        filename=f"images/{dataset}/{record.class_id}/{name}"))
+    path = api.hf_hub_download(repo_id=repo_id, repo_type="dataset", revision=revision,
+                               filename=f"images/{dataset}/{record.class_id}/{name}")
     with Image.open(path) as handle:
         return handle.convert("L").copy()
 

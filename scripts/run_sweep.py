@@ -134,23 +134,7 @@ def dataset_structure(dataset: str) -> dict[str, list[str]] | None:
     structure_path = dataset_dir(dataset) / f"{dataset}_structure.json"
     if not structure_path.is_file():
         return None
-    structure = json.loads(structure_path.read_text())
-    if not isinstance(structure, dict) or not all(
-        isinstance(class_id, str)
-        and bool(class_id)
-        and Path(class_id).name == class_id
-        and isinstance(filenames, list)
-        and all(
-            isinstance(filename, str)
-            and bool(filename)
-            and Path(filename).name == filename
-            for filename in filenames
-        )
-        and filenames == sorted(set(filenames))
-        for class_id, filenames in structure.items()
-    ):
-        raise SystemExit(f"Invalid dataset structure: {structure_path}")
-    return structure
+    return json.loads(structure_path.read_text())
 
 
 def dataset_file_mismatches(dataset: str) -> tuple[set[str], set[str]]:

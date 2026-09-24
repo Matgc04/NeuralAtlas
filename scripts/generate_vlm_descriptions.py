@@ -143,10 +143,6 @@ def original_path(record: ImageRecord) -> Path:
     return path
 
 
-def local_heatmap(output_url: str) -> Path:
-    return REPO_ROOT / config.OUTPUT_IMAGES_DIR / Path(output_url).name
-
-
 def remote_heatmap(dataset: str, class_id: str, output_url: str) -> str:
     return f"images/{dataset}/{class_id}/{Path(output_url).name}"
 
@@ -177,9 +173,6 @@ def heatmap_path(
     class_id: str,
     output_url: str,
 ) -> Path:
-    local = local_heatmap(output_url)
-    if local.is_file():
-        return local
     return Path(
         api.hf_hub_download(
             repo_id=repo_id,
@@ -313,7 +306,6 @@ def main() -> None:
                 remote_heatmap(args.dataset, class_id, record.outputs[method])
                 for record in groups[class_id]
                 for method in plan[record.image_id]
-                if not local_heatmap(record.outputs[method]).is_file()
             ],
         )
 
