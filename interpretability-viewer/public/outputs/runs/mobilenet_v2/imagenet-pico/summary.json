@@ -11,18 +11,18 @@
   },
   "classCount": 1000,
   "dataset": "imagenet-pico",
-  "imageCount": 3000,
+  "imageCount": 3068,
   "methodCount": 17,
   "metrics": {
-    "accuracy": 0.718,
+    "accuracy": 0.720013037809648,
     "classCount": 1000,
-    "correct": 2154,
-    "incorrect": 846,
-    "macroF1": 0.7036002164502136,
-    "macroPrecision": 0.7343607142857139,
-    "macroRecall": 0.7179999999999999,
+    "correct": 2209,
+    "incorrect": 859,
+    "macroF1": 0.705209595959593,
+    "macroPrecision": 0.7359392857142854,
+    "macroRecall": 0.7192499999999998,
     "missingPredictions": 0,
-    "total": 3000
+    "total": 3068
   },
   "model": "mobilenet_v2"
 }
