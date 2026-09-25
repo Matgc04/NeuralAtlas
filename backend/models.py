@@ -231,12 +231,33 @@ class HookableReLU6(nn.ReLU):
         return F.relu6(input)
 
 
+class HookableGELU(nn.ReLU):
+    """GELU exposed as `nn.ReLU` so GuidedBackprop and Deconvolution hook it.
+    GuidedBackprop then yields relu(grad * gelu'(x)) and Deconvolution relu(grad).
+    Our extension: neither method is defined for smooth activations. DeepLift is
+    left unregistered (it reduces to InputXGradient here anyway)."""
+
+    def __init__(self, approximate: str) -> None:
+        super().__init__()
+        self.approximate = approximate
+
+    def forward(self, input: Tensor) -> Tensor:
+        return F.gelu(input, approximate=self.approximate)
+
+
+class HookableSiLU(nn.ReLU):
+    """SiLU counterpart of `HookableGELU` (EfficientNet, including its SE blocks)."""
+
+    def forward(self, input: Tensor) -> Tensor:
+        return F.silu(input)
+
+
 def _basic_conv2d_forward(self: nn.Module, x: Tensor) -> Tensor:
     return self.relu(self.bn(self.conv(x)))
 
 
 def make_relus_hookable(model: nn.Module) -> nn.Module:
-    """Expose every ReLU-like activation as an `nn.ReLU` instance without changing
+    """Expose every elementwise activation as an `nn.ReLU` instance without changing
     the forward."""
     for parent in list(model.modules()):
         if isinstance(parent, BasicConv2d):  # Inception v3: F.relu inside forward
@@ -245,6 +266,10 @@ def make_relus_hookable(model: nn.Module) -> nn.Module:
         for name, child in parent.named_children():
             if type(child) is nn.ReLU6:  # MobileNet v2
                 setattr(parent, name, HookableReLU6())
+            elif type(child) is nn.GELU:  # ConvNeXt
+                setattr(parent, name, HookableGELU(child.approximate))
+            elif type(child) is nn.SiLU:  # EfficientNet
+                setattr(parent, name, HookableSiLU())
     return model
 
 
