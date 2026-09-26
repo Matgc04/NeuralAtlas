@@ -972,49 +972,6 @@
       "class_id": "2",
       "image_id": "1",
       "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -81968472.0,
-          "lif": 0.8036355376243591,
-          "morph": 3.422945976257324,
-          "segment": 5.461277961730957
-        },
-        "DeepLift": {
-          "fidelity": -0.24758517742156982,
-          "lif": 3.5399818420410156,
-          "morph": 3.405834913253784,
-          "segment": 5.8499755859375
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.012640833854675293,
-          "lif": 3.7080893516540527,
-          "morph": 3.1438114643096924,
-          "segment": 5.43733024597168
-        },
-        "GuidedGradCam": {
-          "fidelity": 0.0038213133811950684,
-          "lif": 3.9784438610076904,
-          "morph": 3.1305840015411377,
-          "segment": 5.474077224731445
-        }
-      },
-      "original_url": "/imagenet-pico/val/2/ILSVRC2012_val_00019409.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__2__1__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__2__1__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__2__1__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__2__1__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.20658934116363525,
-        "predicted_class_id": "2"
-      },
-      "source_filename": "ILSVRC2012_val_00019409.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "2",
-      "image_id": "1",
-      "interpretability_metrics": {
         "CB-RISE": {
           "fidelity": 0.17989176511764526,
           "lif": 8.025090217590332,
@@ -4327,49 +4284,6 @@
       "class_id": "10",
       "image_id": "1",
       "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -47681860.0,
-          "lif": 1.4581313133239746,
-          "morph": 5.143970966339111,
-          "segment": 5.29592227935791
-        },
-        "DeepLift": {
-          "fidelity": -8.133790016174316,
-          "lif": 3.9066715240478516,
-          "morph": 5.030649185180664,
-          "segment": 6.838697910308838
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.019122719764709473,
-          "lif": 4.083541393280029,
-          "morph": 5.401350021362305,
-          "segment": 6.391601085662842
-        },
-        "GuidedGradCam": {
-          "fidelity": 0.0002321004867553711,
-          "lif": 4.778537750244141,
-          "morph": 5.325547695159912,
-          "segment": 6.591207504272461
-        }
-      },
-      "original_url": "/imagenet-pico/val/10/ILSVRC2012_val_00002023.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__10__1__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__10__1__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__10__1__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__10__1__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.6821152567863464,
-        "predicted_class_id": "10"
-      },
-      "source_filename": "ILSVRC2012_val_00002023.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "10",
-      "image_id": "1",
-      "interpretability_metrics": {
         "CB-RISE": {
           "fidelity": 0.0,
           "lif": 7.473681449890137,
@@ -4916,49 +4830,6 @@
         "predicted_class_id": "11"
       },
       "source_filename": "ILSVRC2012_val_00025151.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "11",
-      "image_id": "1",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -36198228.0,
-          "lif": 1.7741978168487549,
-          "morph": 2.212559700012207,
-          "segment": 6.153738975524902
-        },
-        "DeepLift": {
-          "fidelity": -82.27086639404297,
-          "lif": 5.616903781890869,
-          "morph": 2.580475330352783,
-          "segment": 6.274788856506348
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.07984471321105957,
-          "lif": 5.519843578338623,
-          "morph": 2.6486549377441406,
-          "segment": 6.178271293640137
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.001898646354675293,
-          "lif": 5.7956862449646,
-          "morph": 2.428072690963745,
-          "segment": 6.176257133483887
-        }
-      },
-      "original_url": "/imagenet-pico/val/11/ILSVRC2012_val_00029581.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__11__1__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__11__1__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__11__1__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__11__1__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.2024916410446167,
-        "predicted_class_id": "11"
-      },
-      "source_filename": "ILSVRC2012_val_00029581.webp"
     },
     {
       "attribution_failures": {},
@@ -5928,49 +5799,6 @@
     },
     {
       "attribution_failures": {},
-      "class_id": "13",
-      "image_id": "2",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -38562856.0,
-          "lif": 1.8391985893249512,
-          "morph": 2.5739760398864746,
-          "segment": 5.90091609954834
-        },
-        "DeepLift": {
-          "fidelity": -1.1589434146881104,
-          "lif": 4.884034156799316,
-          "morph": 2.9475457668304443,
-          "segment": 5.640066146850586
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.062076568603515625,
-          "lif": 5.132429122924805,
-          "morph": 2.980738878250122,
-          "segment": 5.934422016143799
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.0047081708908081055,
-          "lif": 5.401597023010254,
-          "morph": 2.9748804569244385,
-          "segment": 5.921670913696289
-        }
-      },
-      "original_url": "/imagenet-pico/val/13/ILSVRC2012_val_00047333.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__13__2__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__13__2__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__13__2__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__13__2__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.3990015983581543,
-        "predicted_class_id": "13"
-      },
-      "source_filename": "ILSVRC2012_val_00047333.webp"
-    },
-    {
-      "attribution_failures": {},
       "class_id": "14",
       "image_id": "0",
       "interpretability_metrics": {
@@ -6106,49 +5934,6 @@
         "predicted_class_id": "14"
       },
       "source_filename": "ILSVRC2012_val_00023573.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "14",
-      "image_id": "0",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -36037472.0,
-          "lif": 1.273581624031067,
-          "morph": 3.5254902839660645,
-          "segment": 5.197096824645996
-        },
-        "DeepLift": {
-          "fidelity": -1.7559313774108887,
-          "lif": 3.6332943439483643,
-          "morph": 3.259636878967285,
-          "segment": 5.091670513153076
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.15466010570526123,
-          "lif": 3.783153772354126,
-          "morph": 3.2284443378448486,
-          "segment": 5.412812232971191
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.01293802261352539,
-          "lif": 4.223820209503174,
-          "morph": 3.202897548675537,
-          "segment": 5.237726211547852
-        }
-      },
-      "original_url": "/imagenet-pico/val/14/ILSVRC2012_val_00023438.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__14__0__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__14__0__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__14__0__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__14__0__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.18338525295257568,
-        "predicted_class_id": "14"
-      },
-      "source_filename": "ILSVRC2012_val_00023438.webp"
     },
     {
       "attribution_failures": {},
@@ -8081,49 +7866,6 @@
         "predicted_class_id": "18"
       },
       "source_filename": "n01582220_9087.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "19",
-      "image_id": "0",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -7131336.0,
-          "lif": 1.2498281002044678,
-          "morph": 3.0285210609436035,
-          "segment": 6.3772969245910645
-        },
-        "DeepLift": {
-          "fidelity": -41.36394500732422,
-          "lif": 4.493218421936035,
-          "morph": 3.3643651008605957,
-          "segment": 6.545374870300293
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.05441772937774658,
-          "lif": 5.042399883270264,
-          "morph": 3.381801128387451,
-          "segment": 6.722497940063477
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.01384890079498291,
-          "lif": 5.628421783447266,
-          "morph": 3.3634817600250244,
-          "segment": 6.816729545593262
-        }
-      },
-      "original_url": "/imagenet-pico/val/19/ILSVRC2012_val_00017017.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__19__0__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__19__0__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__19__0__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__19__0__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.5687429308891296,
-        "predicted_class_id": "19"
-      },
-      "source_filename": "ILSVRC2012_val_00017017.webp"
     },
     {
       "attribution_failures": {},
@@ -41802,49 +41544,6 @@
       "class_id": "100",
       "image_id": "1",
       "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -9572731.0,
-          "lif": 1.4791064262390137,
-          "morph": 4.284163475036621,
-          "segment": 7.60153341293335
-        },
-        "DeepLift": {
-          "fidelity": -4.458981990814209,
-          "lif": 2.8475184440612793,
-          "morph": 4.040755271911621,
-          "segment": 6.160271167755127
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.014578461647033691,
-          "lif": 4.799304962158203,
-          "morph": 3.94033145904541,
-          "segment": 8.039522171020508
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.002087831497192383,
-          "lif": 5.510807037353516,
-          "morph": 3.94033145904541,
-          "segment": 8.017724990844727
-        }
-      },
-      "original_url": "/imagenet-pico/val/100/ILSVRC2012_val_00017441.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__100__1__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__100__1__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__100__1__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__100__1__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.7395690083503723,
-        "predicted_class_id": "100"
-      },
-      "source_filename": "ILSVRC2012_val_00017441.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "100",
-      "image_id": "1",
-      "interpretability_metrics": {
         "CB-RISE": {
           "fidelity": 0.0,
           "lif": 6.742555618286133,
@@ -43081,49 +42780,6 @@
         "predicted_class_id": "344"
       },
       "source_filename": "ILSVRC2012_val_00007800.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "103",
-      "image_id": "0",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -19195212.0,
-          "lif": 0.4977147877216339,
-          "morph": 4.448385715484619,
-          "segment": 6.369180202484131
-        },
-        "DeepLift": {
-          "fidelity": -0.6879007816314697,
-          "lif": 2.602543830871582,
-          "morph": 5.826160907745361,
-          "segment": 6.805991172790527
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.08418285846710205,
-          "lif": 3.0083813667297363,
-          "morph": 5.7364182472229,
-          "segment": 6.626314640045166
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.024548768997192383,
-          "lif": 3.921877145767212,
-          "morph": 5.7357177734375,
-          "segment": 6.773838996887207
-        }
-      },
-      "original_url": "/imagenet-pico/val/103/ILSVRC2012_val_00008907.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__103__0__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__103__0__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__103__0__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__103__0__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.8635784983634949,
-        "predicted_class_id": "103"
-      },
-      "source_filename": "ILSVRC2012_val_00008907.webp"
     },
     {
       "attribution_failures": {},
@@ -46304,49 +45960,6 @@
       "class_id": "111",
       "image_id": "0",
       "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -8078934.0,
-          "lif": 0.8282333612442017,
-          "morph": 4.285617828369141,
-          "segment": 4.550987243652344
-        },
-        "DeepLift": {
-          "fidelity": -11.466793060302734,
-          "lif": 2.325802803039551,
-          "morph": 5.29849100112915,
-          "segment": 6.370359420776367
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.0928196907043457,
-          "lif": 2.9946136474609375,
-          "morph": 5.408650875091553,
-          "segment": 6.43731689453125
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.02432560920715332,
-          "lif": 3.410508155822754,
-          "morph": 5.4765625,
-          "segment": 6.571918487548828
-        }
-      },
-      "original_url": "/imagenet-pico/val/111/ILSVRC2012_val_00000836.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__111__0__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__111__0__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__111__0__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__111__0__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.29131561517715454,
-        "predicted_class_id": "111"
-      },
-      "source_filename": "ILSVRC2012_val_00000836.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "111",
-      "image_id": "0",
-      "interpretability_metrics": {
         "CB-RISE": {
           "fidelity": 0.0,
           "lif": 8.249950408935547,
@@ -46758,49 +46371,6 @@
     },
     {
       "attribution_failures": {},
-      "class_id": "111",
-      "image_id": "2",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -12455187.0,
-          "lif": 4.943953514099121,
-          "morph": 5.414474964141846,
-          "segment": 6.459957122802734
-        },
-        "DeepLift": {
-          "fidelity": -1.150392770767212,
-          "lif": 6.43168830871582,
-          "morph": 5.617988109588623,
-          "segment": 7.225852012634277
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.08537483215332031,
-          "lif": 6.494146347045898,
-          "morph": 5.62816047668457,
-          "segment": 6.979837417602539
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.007599353790283203,
-          "lif": 6.525510787963867,
-          "morph": 5.829093933105469,
-          "segment": 7.0777506828308105
-        }
-      },
-      "original_url": "/imagenet-pico/val/111/ILSVRC2012_val_00036635.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__111__2__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__111__2__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__111__2__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__111__2__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.4231313467025757,
-        "predicted_class_id": "111"
-      },
-      "source_filename": "ILSVRC2012_val_00036635.webp"
-    },
-    {
-      "attribution_failures": {},
       "class_id": "112",
       "image_id": "0",
       "interpretability_metrics": {
@@ -47074,49 +46644,6 @@
         "predicted_class_id": "113"
       },
       "source_filename": "ILSVRC2012_val_00012672.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "112",
-      "image_id": "1",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -34953172.0,
-          "lif": 0.4859543442726135,
-          "morph": 2.5538487434387207,
-          "segment": 3.9275455474853516
-        },
-        "DeepLift": {
-          "fidelity": -0.31613194942474365,
-          "lif": 1.3716989755630493,
-          "morph": 2.668717622756958,
-          "segment": 3.6980819702148438
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.11200881004333496,
-          "lif": 1.205795168876648,
-          "morph": 2.793550968170166,
-          "segment": 3.366182804107666
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.021451592445373535,
-          "lif": 1.7872538566589355,
-          "morph": 2.7202365398406982,
-          "segment": 3.65971040725708
-        }
-      },
-      "original_url": "/imagenet-pico/val/112/ILSVRC2012_val_00037632.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__112__1__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__112__1__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__112__1__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__112__1__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.0414067842066288,
-        "predicted_class_id": "113"
-      },
-      "source_filename": "ILSVRC2012_val_00037632.webp"
     },
     {
       "attribution_failures": {},
@@ -47945,49 +47472,6 @@
         "predicted_class_id": "114"
       },
       "source_filename": "ILSVRC2012_val_00018757.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "114",
-      "image_id": "1",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -80378272.0,
-          "lif": 0.9251168370246887,
-          "morph": 1.436577320098877,
-          "segment": 2.685178279876709
-        },
-        "DeepLift": {
-          "fidelity": -0.2418128252029419,
-          "lif": 1.3727291822433472,
-          "morph": 1.6760879755020142,
-          "segment": 3.1165874004364014
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.07241952419281006,
-          "lif": 2.719338893890381,
-          "morph": 1.7224671840667725,
-          "segment": 2.818542003631592
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.0028150081634521484,
-          "lif": 3.2310304641723633,
-          "morph": 1.7224671840667725,
-          "segment": 3.1551711559295654
-        }
-      },
-      "original_url": "/imagenet-pico/val/114/ILSVRC2012_val_00035202.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__114__1__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__114__1__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__114__1__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__114__1__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.031073743477463722,
-        "predicted_class_id": "307"
-      },
-      "source_filename": "ILSVRC2012_val_00035202.webp"
     },
     {
       "attribution_failures": {},
@@ -51027,49 +50511,6 @@
     },
     {
       "attribution_failures": {},
-      "class_id": "121",
-      "image_id": "2",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -23785220.0,
-          "lif": 0.937302827835083,
-          "morph": 1.3665374517440796,
-          "segment": 5.293025016784668
-        },
-        "DeepLift": {
-          "fidelity": -2.3101308345794678,
-          "lif": 0.5613213181495667,
-          "morph": 2.208796262741089,
-          "segment": 4.881933212280273
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.021569013595581055,
-          "lif": 0.9394683241844177,
-          "morph": 2.101773977279663,
-          "segment": 5.362099647521973
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.0030972957611083984,
-          "lif": 2.0041017532348633,
-          "morph": 2.095106601715088,
-          "segment": 5.502782344818115
-        }
-      },
-      "original_url": "/imagenet-pico/val/121/ILSVRC2012_val_00042159.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__121__2__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__121__2__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__121__2__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__121__2__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.14152783155441284,
-        "predicted_class_id": "121"
-      },
-      "source_filename": "ILSVRC2012_val_00042159.webp"
-    },
-    {
-      "attribution_failures": {},
       "class_id": "122",
       "image_id": "0",
       "interpretability_metrics": {
@@ -53831,49 +53272,6 @@
     {
       "attribution_failures": {},
       "class_id": "128",
-      "image_id": "1",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -21565760.0,
-          "lif": 1.4259892702102661,
-          "morph": 3.1032984256744385,
-          "segment": 3.0133581161499023
-        },
-        "DeepLift": {
-          "fidelity": 0.7394911646842957,
-          "lif": 2.726437568664551,
-          "morph": 3.846653938293457,
-          "segment": 3.2263267040252686
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.014056563377380371,
-          "lif": 3.921884059906006,
-          "morph": 3.9389469623565674,
-          "segment": 3.4371986389160156
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.002232670783996582,
-          "lif": 4.542773246765137,
-          "morph": 3.912168502807617,
-          "segment": 3.597137689590454
-        }
-      },
-      "original_url": "/imagenet-pico/val/128/ILSVRC2012_val_00023789.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__128__1__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__128__1__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__128__1__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__128__1__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.1435244381427765,
-        "predicted_class_id": "128"
-      },
-      "source_filename": "ILSVRC2012_val_00023789.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "128",
       "image_id": "2",
       "interpretability_metrics": {
         "CB-RISE": {
@@ -54422,49 +53820,6 @@
         "predicted_class_id": "129"
       },
       "source_filename": "ILSVRC2012_val_00029168.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "129",
-      "image_id": "2",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -10611705.0,
-          "lif": 0.9786519408226013,
-          "morph": 3.2614622116088867,
-          "segment": 6.459903717041016
-        },
-        "DeepLift": {
-          "fidelity": -4.465579509735107,
-          "lif": 3.1123416423797607,
-          "morph": 3.269303560256958,
-          "segment": 6.685029029846191
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.021548151969909668,
-          "lif": 3.10036563873291,
-          "morph": 3.4339096546173096,
-          "segment": 7.113608360290527
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.0008721351623535156,
-          "lif": 3.6484334468841553,
-          "morph": 3.389845371246338,
-          "segment": 6.714259147644043
-        }
-      },
-      "original_url": "/imagenet-pico/val/129/ILSVRC2012_val_00025075.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__129__2__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__129__2__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__129__2__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__129__2__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.5783747434616089,
-        "predicted_class_id": "129"
-      },
-      "source_filename": "ILSVRC2012_val_00025075.webp"
     },
     {
       "attribution_failures": {},
@@ -55293,49 +54648,6 @@
         "predicted_class_id": "131"
       },
       "source_filename": "ILSVRC2012_val_00018197.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "131",
-      "image_id": "2",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -6094409.5,
-          "lif": 1.4247097969055176,
-          "morph": 3.367976427078247,
-          "segment": 6.1938934326171875
-        },
-        "DeepLift": {
-          "fidelity": -9.36979866027832,
-          "lif": 4.86482048034668,
-          "morph": 3.4989256858825684,
-          "segment": 6.710349082946777
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.027018189430236816,
-          "lif": 4.425586700439453,
-          "morph": 3.489531993865967,
-          "segment": 6.913327693939209
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.0038872957229614258,
-          "lif": 5.10383415222168,
-          "morph": 3.501356363296509,
-          "segment": 6.9275312423706055
-        }
-      },
-      "original_url": "/imagenet-pico/val/131/ILSVRC2012_val_00034578.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__131__2__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__131__2__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__131__2__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__131__2__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.6589527130126953,
-        "predicted_class_id": "131"
-      },
-      "source_filename": "ILSVRC2012_val_00034578.webp"
     },
     {
       "attribution_failures": {},
@@ -59618,49 +58930,6 @@
     {
       "attribution_failures": {},
       "class_id": "142",
-      "image_id": "0",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -10816102.0,
-          "lif": 1.7028391361236572,
-          "morph": 3.6285343170166016,
-          "segment": 4.877849578857422
-        },
-        "DeepLift": {
-          "fidelity": -10.441365242004395,
-          "lif": 2.83933162689209,
-          "morph": 3.7852022647857666,
-          "segment": 5.37860631942749
-        },
-        "GuidedBackprop": {
-          "fidelity": 0.08952176570892334,
-          "lif": 4.800299644470215,
-          "morph": 3.8415074348449707,
-          "segment": 5.176675319671631
-        },
-        "GuidedGradCam": {
-          "fidelity": 0.01658952236175537,
-          "lif": 5.004695892333984,
-          "morph": 3.8461735248565674,
-          "segment": 5.425483703613281
-        }
-      },
-      "original_url": "/imagenet-pico/val/142/ILSVRC2012_val_00026178.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__142__0__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__142__0__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__142__0__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__142__0__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.3933008909225464,
-        "predicted_class_id": "142"
-      },
-      "source_filename": "ILSVRC2012_val_00026178.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "142",
       "image_id": "1",
       "interpretability_metrics": {
         "CB-RISE": {
@@ -60764,49 +60033,6 @@
     },
     {
       "attribution_failures": {},
-      "class_id": "144",
-      "image_id": "2",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -3719742.0,
-          "lif": 0.8224176168441772,
-          "morph": 3.4513211250305176,
-          "segment": 6.372579574584961
-        },
-        "DeepLift": {
-          "fidelity": -3.7323670387268066,
-          "lif": 1.8103200197219849,
-          "morph": 3.942901134490967,
-          "segment": 6.044797420501709
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.03885495662689209,
-          "lif": 1.5844943523406982,
-          "morph": 4.052901268005371,
-          "segment": 6.173439979553223
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.00443720817565918,
-          "lif": 2.74965238571167,
-          "morph": 4.044990539550781,
-          "segment": 7.32147741317749
-        }
-      },
-      "original_url": "/imagenet-pico/val/144/ILSVRC2012_val_00048664.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__144__2__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__144__2__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__144__2__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__144__2__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.7449355125427246,
-        "predicted_class_id": "144"
-      },
-      "source_filename": "ILSVRC2012_val_00048664.webp"
-    },
-    {
-      "attribution_failures": {},
       "class_id": "145",
       "image_id": "0",
       "interpretability_metrics": {
@@ -61770,49 +60996,6 @@
         "predicted_class_id": "147"
       },
       "source_filename": "ILSVRC2012_val_00009440.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "147",
-      "image_id": "0",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -6633772.0,
-          "lif": 1.4159927368164062,
-          "morph": 4.528560161590576,
-          "segment": 4.438578128814697
-        },
-        "DeepLift": {
-          "fidelity": -2.729053258895874,
-          "lif": 1.8582690954208374,
-          "morph": 5.203994274139404,
-          "segment": 5.038130760192871
-        },
-        "GuidedBackprop": {
-          "fidelity": 0.012074947357177734,
-          "lif": 4.449612617492676,
-          "morph": 5.116992473602295,
-          "segment": 6.325121879577637
-        },
-        "GuidedGradCam": {
-          "fidelity": 0.005186140537261963,
-          "lif": 5.127468109130859,
-          "morph": 5.085695266723633,
-          "segment": 6.333080291748047
-        }
-      },
-      "original_url": "/imagenet-pico/val/147/ILSVRC2012_val_00011468.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__147__0__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__147__0__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__147__0__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__147__0__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.6153857707977295,
-        "predicted_class_id": "147"
-      },
-      "source_filename": "ILSVRC2012_val_00011468.webp"
     },
     {
       "attribution_failures": {},
@@ -62783,49 +61966,6 @@
     {
       "attribution_failures": {},
       "class_id": "149",
-      "image_id": "1",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -3835636.75,
-          "lif": 0.44636350870132446,
-          "morph": 5.458424091339111,
-          "segment": 7.348502159118652
-        },
-        "DeepLift": {
-          "fidelity": -3.882408618927002,
-          "lif": 1.3250763416290283,
-          "morph": 6.503500461578369,
-          "segment": 7.675915241241455
-        },
-        "GuidedBackprop": {
-          "fidelity": 0.0017356276512145996,
-          "lif": 2.4934749603271484,
-          "morph": 6.55396842956543,
-          "segment": 7.766365051269531
-        },
-        "GuidedGradCam": {
-          "fidelity": 0.007937014102935791,
-          "lif": 3.03503680229187,
-          "morph": 6.539061546325684,
-          "segment": 7.739433765411377
-        }
-      },
-      "original_url": "/imagenet-pico/val/149/ILSVRC2012_val_00039158.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__149__1__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__149__1__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__149__1__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__149__1__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.9329169988632202,
-        "predicted_class_id": "149"
-      },
-      "source_filename": "ILSVRC2012_val_00039158.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "149",
       "image_id": "2",
       "interpretability_metrics": {
         "CB-RISE": {
@@ -63380,49 +62520,6 @@
       "class_id": "151",
       "image_id": "0",
       "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -11959562.0,
-          "lif": 0.47196391224861145,
-          "morph": 1.21217679977417,
-          "segment": 3.3200314044952393
-        },
-        "DeepLift": {
-          "fidelity": -0.04941129684448242,
-          "lif": 0.2713005542755127,
-          "morph": 1.7594332695007324,
-          "segment": 3.7287721633911133
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.16271591186523438,
-          "lif": 1.3874313831329346,
-          "morph": 1.782360553741455,
-          "segment": 4.045797348022461
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.02198326587677002,
-          "lif": 2.1657745838165283,
-          "morph": 1.7915534973144531,
-          "segment": 4.032916069030762
-        }
-      },
-      "original_url": "/imagenet-pico/val/151/ILSVRC2012_val_00006079.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__151__0__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__151__0__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__151__0__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__151__0__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.06491607427597046,
-        "predicted_class_id": "266"
-      },
-      "source_filename": "ILSVRC2012_val_00006079.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "151",
-      "image_id": "0",
-      "interpretability_metrics": {
         "CB-RISE": {
           "fidelity": 0.062422871589660645,
           "lif": 6.411200523376465,
@@ -63969,49 +63066,6 @@
         "predicted_class_id": "152"
       },
       "source_filename": "ILSVRC2012_val_00015730.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "152",
-      "image_id": "1",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -5882089.0,
-          "lif": 1.5520466566085815,
-          "morph": 3.6187615394592285,
-          "segment": 6.141265392303467
-        },
-        "DeepLift": {
-          "fidelity": -9.731576919555664,
-          "lif": 4.316795349121094,
-          "morph": 5.174676895141602,
-          "segment": 6.194554328918457
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.017987608909606934,
-          "lif": 3.695643186569214,
-          "morph": 5.370096683502197,
-          "segment": 6.155409812927246
-        },
-        "GuidedGradCam": {
-          "fidelity": 0.0025963187217712402,
-          "lif": 4.78486967086792,
-          "morph": 5.436888694763184,
-          "segment": 6.2530717849731445
-        }
-      },
-      "original_url": "/imagenet-pico/val/152/ILSVRC2012_val_00033222.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__152__1__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__152__1__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__152__1__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__152__1__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.3724968135356903,
-        "predicted_class_id": "152"
-      },
-      "source_filename": "ILSVRC2012_val_00033222.webp"
     },
     {
       "attribution_failures": {},
@@ -65119,49 +64173,6 @@
     },
     {
       "attribution_failures": {},
-      "class_id": "154",
-      "image_id": "2",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -2912519.25,
-          "lif": 0.9148998260498047,
-          "morph": 2.7313244342803955,
-          "segment": 5.521226406097412
-        },
-        "DeepLift": {
-          "fidelity": -4.165045738220215,
-          "lif": 1.6045000553131104,
-          "morph": 3.842930555343628,
-          "segment": 6.053122520446777
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.009028911590576172,
-          "lif": 2.9331278800964355,
-          "morph": 3.871879816055298,
-          "segment": 5.301176071166992
-        },
-        "GuidedGradCam": {
-          "fidelity": 0.004994511604309082,
-          "lif": 3.8490328788757324,
-          "morph": 3.8701486587524414,
-          "segment": 5.231815338134766
-        }
-      },
-      "original_url": "/imagenet-pico/val/154/ILSVRC2012_val_00020926.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__154__2__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__154__2__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__154__2__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__154__2__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.4330745041370392,
-        "predicted_class_id": "154"
-      },
-      "source_filename": "ILSVRC2012_val_00020926.webp"
-    },
-    {
-      "attribution_failures": {},
       "class_id": "155",
       "image_id": "0",
       "interpretability_metrics": {
@@ -65435,49 +64446,6 @@
         "predicted_class_id": "155"
       },
       "source_filename": "ILSVRC2012_val_00026911.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "155",
-      "image_id": "1",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -4190055.0,
-          "lif": 1.318679690361023,
-          "morph": 2.522944450378418,
-          "segment": 4.7427897453308105
-        },
-        "DeepLift": {
-          "fidelity": -2.1179096698760986,
-          "lif": 2.78090238571167,
-          "morph": 3.0405120849609375,
-          "segment": 5.632107257843018
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.05770695209503174,
-          "lif": 2.6036415100097656,
-          "morph": 3.0948140621185303,
-          "segment": 5.735105991363525
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.011186480522155762,
-          "lif": 3.531968355178833,
-          "morph": 3.1226279735565186,
-          "segment": 5.793608665466309
-        }
-      },
-      "original_url": "/imagenet-pico/val/155/ILSVRC2012_val_00033199.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__155__1__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__155__1__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__155__1__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__155__1__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.1843673586845398,
-        "predicted_class_id": "155"
-      },
-      "source_filename": "ILSVRC2012_val_00033199.webp"
     },
     {
       "attribution_failures": {},
@@ -66724,49 +65692,6 @@
     {
       "attribution_failures": {},
       "class_id": "158",
-      "image_id": "1",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -5462250.5,
-          "lif": 0.6765227913856506,
-          "morph": 2.43896484375,
-          "segment": 3.5023586750030518
-        },
-        "DeepLift": {
-          "fidelity": -1.3316659927368164,
-          "lif": 1.4643323421478271,
-          "morph": 4.198129653930664,
-          "segment": 5.246180534362793
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.0502547025680542,
-          "lif": 1.602189302444458,
-          "morph": 4.167881965637207,
-          "segment": 3.979111909866333
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.006764531135559082,
-          "lif": 2.0887222290039062,
-          "morph": 4.222043037414551,
-          "segment": 4.972892761230469
-        }
-      },
-      "original_url": "/imagenet-pico/val/158/ILSVRC2012_val_00019883.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__158__1__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__158__1__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__158__1__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__158__1__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.14855539798736572,
-        "predicted_class_id": "158"
-      },
-      "source_filename": "ILSVRC2012_val_00019883.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "158",
       "image_id": "2",
       "interpretability_metrics": {
         "CB-RISE": {
@@ -66901,49 +65826,6 @@
         "predicted_class_id": "195"
       },
       "source_filename": "ILSVRC2012_val_00033726.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "158",
-      "image_id": "2",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -7034427.5,
-          "lif": 1.6132415533065796,
-          "morph": 2.8514318466186523,
-          "segment": 4.885312080383301
-        },
-        "DeepLift": {
-          "fidelity": -10.587085723876953,
-          "lif": 3.3805124759674072,
-          "morph": 3.802670955657959,
-          "segment": 4.898874282836914
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.006798982620239258,
-          "lif": 3.77561092376709,
-          "morph": 4.209512710571289,
-          "segment": 4.383731842041016
-        },
-        "GuidedGradCam": {
-          "fidelity": 0.003493964672088623,
-          "lif": 4.393030643463135,
-          "morph": 4.291106224060059,
-          "segment": 4.628662109375
-        }
-      },
-      "original_url": "/imagenet-pico/val/158/ILSVRC2012_val_00020484.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__158__2__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__158__2__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__158__2__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__158__2__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.16549646854400635,
-        "predicted_class_id": "263"
-      },
-      "source_filename": "ILSVRC2012_val_00020484.webp"
     },
     {
       "attribution_failures": {},
@@ -68606,49 +67488,6 @@
       "class_id": "163",
       "image_id": "0",
       "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -5386415.5,
-          "lif": 0.6887377500534058,
-          "morph": 1.773796796798706,
-          "segment": 4.338309288024902
-        },
-        "DeepLift": {
-          "fidelity": -0.6750375032424927,
-          "lif": 1.6830668449401855,
-          "morph": 2.5606513023376465,
-          "segment": 4.013406276702881
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.1895461082458496,
-          "lif": 1.449432134628296,
-          "morph": 2.656130075454712,
-          "segment": 4.060229778289795
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.024709582328796387,
-          "lif": 2.4891796112060547,
-          "morph": 2.651843547821045,
-          "segment": 4.009071350097656
-        }
-      },
-      "original_url": "/imagenet-pico/val/163/ILSVRC2012_val_00000909.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__163__0__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__163__0__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__163__0__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__163__0__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.13867931067943573,
-        "predicted_class_id": "165"
-      },
-      "source_filename": "ILSVRC2012_val_00000909.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "163",
-      "image_id": "0",
-      "interpretability_metrics": {
         "CB-RISE": {
           "fidelity": -0.011144757270812988,
           "lif": 4.616626739501953,
@@ -69613,49 +68452,6 @@
     {
       "attribution_failures": {},
       "class_id": "165",
-      "image_id": "0",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -4235161.5,
-          "lif": 1.1805570125579834,
-          "morph": 2.8886778354644775,
-          "segment": 4.218836307525635
-        },
-        "DeepLift": {
-          "fidelity": -1.5046494007110596,
-          "lif": 2.9907422065734863,
-          "morph": 4.528138637542725,
-          "segment": 4.697928428649902
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.004842996597290039,
-          "lif": 3.404139518737793,
-          "morph": 4.855728626251221,
-          "segment": 4.561013221740723
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.0022858381271362305,
-          "lif": 3.898710250854492,
-          "morph": 4.877762317657471,
-          "segment": 4.345632553100586
-        }
-      },
-      "original_url": "/imagenet-pico/val/165/ILSVRC2012_val_00003905.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__165__0__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__165__0__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__165__0__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__165__0__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.43062835931777954,
-        "predicted_class_id": "165"
-      },
-      "source_filename": "ILSVRC2012_val_00003905.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "165",
       "image_id": "1",
       "interpretability_metrics": {
         "CB-RISE": {
@@ -70480,49 +69276,6 @@
         "predicted_class_id": "166"
       },
       "source_filename": "ILSVRC2012_val_00001128.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "167",
-      "image_id": "0",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -6686642.5,
-          "lif": 0.8091248273849487,
-          "morph": 2.819563865661621,
-          "segment": 5.0650954246521
-        },
-        "DeepLift": {
-          "fidelity": -25.148773193359375,
-          "lif": 1.6967190504074097,
-          "morph": 4.5575642585754395,
-          "segment": 5.56231689453125
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.016254544258117676,
-          "lif": 3.150435447692871,
-          "morph": 4.540437698364258,
-          "segment": 5.388307571411133
-        },
-        "GuidedGradCam": {
-          "fidelity": 0.0018290281295776367,
-          "lif": 3.9081501960754395,
-          "morph": 4.540437698364258,
-          "segment": 5.637880325317383
-        }
-      },
-      "original_url": "/imagenet-pico/val/167/ILSVRC2012_val_00002246.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__167__0__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__167__0__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__167__0__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__167__0__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.18488062918186188,
-        "predicted_class_id": "166"
-      },
-      "source_filename": "ILSVRC2012_val_00002246.webp"
     },
     {
       "attribution_failures": {},
@@ -71633,49 +70386,6 @@
       "class_id": "170",
       "image_id": "0",
       "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -11827161.0,
-          "lif": 0.6101685762405396,
-          "morph": 1.290236234664917,
-          "segment": 3.0851731300354004
-        },
-        "DeepLift": {
-          "fidelity": -3.3795723915100098,
-          "lif": 1.1797934770584106,
-          "morph": 2.110936403274536,
-          "segment": 4.040109634399414
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.019468188285827637,
-          "lif": 1.243558406829834,
-          "morph": 2.010239601135254,
-          "segment": 3.626307725906372
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.0005743503570556641,
-          "lif": 1.6890650987625122,
-          "morph": 2.010239601135254,
-          "segment": 3.6756539344787598
-        }
-      },
-      "original_url": "/imagenet-pico/val/170/ILSVRC2012_val_00001765.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__170__0__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__170__0__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__170__0__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__170__0__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.3248218595981598,
-        "predicted_class_id": "172"
-      },
-      "source_filename": "ILSVRC2012_val_00001765.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "170",
-      "image_id": "0",
-      "interpretability_metrics": {
         "CB-RISE": {
           "fidelity": 0.0,
           "lif": 4.343626022338867,
@@ -72498,49 +71208,6 @@
         "predicted_class_id": "158"
       },
       "source_filename": "ILSVRC2012_val_00035423.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "171",
-      "image_id": "2",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -42723632.0,
-          "lif": 0.0921042263507843,
-          "morph": 0.4115663468837738,
-          "segment": -0.07988505065441132
-        },
-        "DeepLift": {
-          "fidelity": -0.6233505010604858,
-          "lif": -0.051947981119155884,
-          "morph": 0.7652270793914795,
-          "segment": 0.42347609996795654
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.11450469493865967,
-          "lif": 1.2062017917633057,
-          "morph": 0.7334158420562744,
-          "segment": 0.056888971477746964
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.0058629512786865234,
-          "lif": 1.1036850214004517,
-          "morph": 0.7347756028175354,
-          "segment": 0.3601691722869873
-        }
-      },
-      "original_url": "/imagenet-pico/val/171/ILSVRC2012_val_00020613.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__171__2__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__171__2__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__171__2__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__171__2__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.060170602053403854,
-        "predicted_class_id": "208"
-      },
-      "source_filename": "ILSVRC2012_val_00020613.webp"
     },
     {
       "attribution_failures": {},
@@ -74339,49 +73006,6 @@
     {
       "attribution_failures": {},
       "class_id": "176",
-      "image_id": "0",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -21387600.0,
-          "lif": 0.9492509365081787,
-          "morph": 2.9186296463012695,
-          "segment": 5.7375383377075195
-        },
-        "DeepLift": {
-          "fidelity": -13.635221481323242,
-          "lif": 2.000901699066162,
-          "morph": 3.6759517192840576,
-          "segment": 5.675889015197754
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.00611722469329834,
-          "lif": 3.0451741218566895,
-          "morph": 3.796055793762207,
-          "segment": 6.2249274253845215
-        },
-        "GuidedGradCam": {
-          "fidelity": 0.004088878631591797,
-          "lif": 3.568265914916992,
-          "morph": 3.9019737243652344,
-          "segment": 6.357406139373779
-        }
-      },
-      "original_url": "/imagenet-pico/val/176/ILSVRC2012_val_00001576.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__176__0__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__176__0__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__176__0__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__176__0__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.30033308267593384,
-        "predicted_class_id": "176"
-      },
-      "source_filename": "ILSVRC2012_val_00001576.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "176",
       "image_id": "1",
       "interpretability_metrics": {
         "CB-RISE": {
@@ -74516,49 +73140,6 @@
         "predicted_class_id": "176"
       },
       "source_filename": "ILSVRC2012_val_00040201.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "176",
-      "image_id": "1",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -5670868.0,
-          "lif": 1.1032238006591797,
-          "morph": 2.6697745323181152,
-          "segment": 4.491848945617676
-        },
-        "DeepLift": {
-          "fidelity": 0.5059162974357605,
-          "lif": 2.336203098297119,
-          "morph": 3.4188225269317627,
-          "segment": 5.076200485229492
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.10058844089508057,
-          "lif": 3.5292916297912598,
-          "morph": 3.4217944145202637,
-          "segment": 5.254628658294678
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.028245925903320312,
-          "lif": 4.321074962615967,
-          "morph": 3.4437968730926514,
-          "segment": 5.261948585510254
-        }
-      },
-      "original_url": "/imagenet-pico/val/176/ILSVRC2012_val_00009666.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__176__1__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__176__1__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__176__1__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__176__1__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.4016692638397217,
-        "predicted_class_id": "176"
-      },
-      "source_filename": "ILSVRC2012_val_00009666.webp"
     },
     {
       "attribution_failures": {},
@@ -76770,49 +75351,6 @@
     },
     {
       "attribution_failures": {},
-      "class_id": "181",
-      "image_id": "2",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -5621043.0,
-          "lif": 2.0729029178619385,
-          "morph": 3.1617050170898438,
-          "segment": 5.598287582397461
-        },
-        "DeepLift": {
-          "fidelity": -3.4693760871887207,
-          "lif": 4.702866554260254,
-          "morph": 4.317378997802734,
-          "segment": 5.894646644592285
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.013083457946777344,
-          "lif": 4.7866058349609375,
-          "morph": 4.331554889678955,
-          "segment": 5.758021354675293
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.0005995035171508789,
-          "lif": 4.954133987426758,
-          "morph": 4.337882995605469,
-          "segment": 5.709705352783203
-        }
-      },
-      "original_url": "/imagenet-pico/val/181/ILSVRC2012_val_00027241.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__181__2__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__181__2__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__181__2__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__181__2__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.36266234517097473,
-        "predicted_class_id": "181"
-      },
-      "source_filename": "ILSVRC2012_val_00027241.webp"
-    },
-    {
-      "attribution_failures": {},
       "class_id": "182",
       "image_id": "0",
       "interpretability_metrics": {
@@ -77641,49 +76179,6 @@
     },
     {
       "attribution_failures": {},
-      "class_id": "183",
-      "image_id": "2",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -9179572.0,
-          "lif": 1.2967190742492676,
-          "morph": 2.7081573009490967,
-          "segment": 5.090386390686035
-        },
-        "DeepLift": {
-          "fidelity": -1.975677251815796,
-          "lif": 2.1704206466674805,
-          "morph": 4.071866989135742,
-          "segment": 4.866811752319336
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.10015511512756348,
-          "lif": 2.6347525119781494,
-          "morph": 4.145918369293213,
-          "segment": 4.8863019943237305
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.011679768562316895,
-          "lif": 3.8729395866394043,
-          "morph": 4.145918369293213,
-          "segment": 5.003133773803711
-        }
-      },
-      "original_url": "/imagenet-pico/val/183/ILSVRC2012_val_00041776.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__183__2__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__183__2__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__183__2__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__183__2__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.2219620645046234,
-        "predicted_class_id": "183"
-      },
-      "source_filename": "ILSVRC2012_val_00041776.webp"
-    },
-    {
-      "attribution_failures": {},
       "class_id": "184",
       "image_id": "0",
       "interpretability_metrics": {
@@ -78095,49 +76590,6 @@
         "predicted_class_id": "184"
       },
       "source_filename": "ILSVRC2012_val_00043837.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "184",
-      "image_id": "2",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -7748011.5,
-          "lif": 0.8597962856292725,
-          "morph": 2.331441640853882,
-          "segment": 3.141484498977661
-        },
-        "DeepLift": {
-          "fidelity": 0.41411203145980835,
-          "lif": 2.1092677116394043,
-          "morph": 2.974829912185669,
-          "segment": 3.800464630126953
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.10367131233215332,
-          "lif": 2.330897808074951,
-          "morph": 2.8697917461395264,
-          "segment": 4.039238929748535
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.01316821575164795,
-          "lif": 3.1858456134796143,
-          "morph": 2.8700382709503174,
-          "segment": 4.051107883453369
-        }
-      },
-      "original_url": "/imagenet-pico/val/184/ILSVRC2012_val_00039027.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__184__2__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__184__2__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__184__2__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__184__2__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.16853086650371552,
-        "predicted_class_id": "184"
-      },
-      "source_filename": "ILSVRC2012_val_00039027.webp"
     },
     {
       "attribution_failures": {},
@@ -82006,49 +80458,6 @@
     {
       "attribution_failures": {},
       "class_id": "194",
-      "image_id": "0",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -3627165.5,
-          "lif": 1.5275973081588745,
-          "morph": 3.5107526779174805,
-          "segment": 5.84083366394043
-        },
-        "DeepLift": {
-          "fidelity": -2.4516658782958984,
-          "lif": 3.854461669921875,
-          "morph": 4.820860385894775,
-          "segment": 6.555654525756836
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.03307497501373291,
-          "lif": 3.143381357192993,
-          "morph": 5.501730918884277,
-          "segment": 6.518442153930664
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.008690476417541504,
-          "lif": 4.250860214233398,
-          "morph": 5.3931403160095215,
-          "segment": 6.560482025146484
-        }
-      },
-      "original_url": "/imagenet-pico/val/194/ILSVRC2012_val_00012834.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__194__0__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__194__0__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__194__0__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__194__0__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.5262084603309631,
-        "predicted_class_id": "194"
-      },
-      "source_filename": "ILSVRC2012_val_00012834.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "194",
       "image_id": "1",
       "interpretability_metrics": {
         "CB-RISE": {
@@ -82321,92 +80730,6 @@
         "predicted_class_id": "194"
       },
       "source_filename": "ILSVRC2012_val_00044284.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "194",
-      "image_id": "2",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -5094112.5,
-          "lif": 0.8691422939300537,
-          "morph": 3.3236589431762695,
-          "segment": 6.037331581115723
-        },
-        "DeepLift": {
-          "fidelity": -3.3120803833007812,
-          "lif": 2.9456686973571777,
-          "morph": 5.013233661651611,
-          "segment": 6.260206699371338
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.03300964832305908,
-          "lif": 2.259788990020752,
-          "morph": 4.996313095092773,
-          "segment": 6.325186729431152
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.006147146224975586,
-          "lif": 3.420020818710327,
-          "morph": 5.002503395080566,
-          "segment": 6.166339874267578
-        }
-      },
-      "original_url": "/imagenet-pico/val/194/ILSVRC2012_val_00035844.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__194__2__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__194__2__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__194__2__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__194__2__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.5507568120956421,
-        "predicted_class_id": "194"
-      },
-      "source_filename": "ILSVRC2012_val_00035844.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "195",
-      "image_id": "0",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -3260050.25,
-          "lif": 1.9480992555618286,
-          "morph": 3.8017401695251465,
-          "segment": 6.017203330993652
-        },
-        "DeepLift": {
-          "fidelity": -3.1291966438293457,
-          "lif": 4.569828033447266,
-          "morph": 4.430656909942627,
-          "segment": 7.654768943786621
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.011970281600952148,
-          "lif": 4.1255998611450195,
-          "morph": 4.440106391906738,
-          "segment": 8.454431533813477
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.0001575946807861328,
-          "lif": 5.459636688232422,
-          "morph": 4.440106391906738,
-          "segment": 8.614140510559082
-        }
-      },
-      "original_url": "/imagenet-pico/val/195/ILSVRC2012_val_00010290.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__195__0__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__195__0__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__195__0__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__195__0__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.7450774908065796,
-        "predicted_class_id": "195"
-      },
-      "source_filename": "ILSVRC2012_val_00010290.webp"
     },
     {
       "attribution_failures": {},
@@ -83101,49 +81424,6 @@
     {
       "attribution_failures": {},
       "class_id": "196",
-      "image_id": "1",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -3442310.25,
-          "lif": 0.4652838706970215,
-          "morph": 2.423276901245117,
-          "segment": 4.055111885070801
-        },
-        "DeepLift": {
-          "fidelity": -3.3434643745422363,
-          "lif": 2.8315505981445312,
-          "morph": 2.8012535572052,
-          "segment": 5.229137420654297
-        },
-        "GuidedBackprop": {
-          "fidelity": 0.02366429567337036,
-          "lif": 3.0943679809570312,
-          "morph": 2.761303663253784,
-          "segment": 4.741833209991455
-        },
-        "GuidedGradCam": {
-          "fidelity": 0.016546130180358887,
-          "lif": 3.620424270629883,
-          "morph": 2.761303663253784,
-          "segment": 4.730472564697266
-        }
-      },
-      "original_url": "/imagenet-pico/val/196/ILSVRC2012_val_00038992.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__196__1__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__196__1__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__196__1__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__196__1__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.2054339349269867,
-        "predicted_class_id": "196"
-      },
-      "source_filename": "ILSVRC2012_val_00038992.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "196",
       "image_id": "2",
       "interpretability_metrics": {
         "CB-RISE": {
@@ -83278,49 +81558,6 @@
         "predicted_class_id": "196"
       },
       "source_filename": "ILSVRC2012_val_00023774.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "196",
-      "image_id": "2",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -7678683.5,
-          "lif": 0.9906458854675293,
-          "morph": 2.404639482498169,
-          "segment": 4.568613529205322
-        },
-        "DeepLift": {
-          "fidelity": -4.012336730957031,
-          "lif": 3.0499696731567383,
-          "morph": 2.6857407093048096,
-          "segment": 4.740435600280762
-        },
-        "GuidedBackprop": {
-          "fidelity": 0.01605778932571411,
-          "lif": 2.577780246734619,
-          "morph": 2.4020814895629883,
-          "segment": 5.107502460479736
-        },
-        "GuidedGradCam": {
-          "fidelity": 0.0022262930870056152,
-          "lif": 3.6580851078033447,
-          "morph": 2.411358594894409,
-          "segment": 4.846246242523193
-        }
-      },
-      "original_url": "/imagenet-pico/val/196/ILSVRC2012_val_00047084.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__196__2__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__196__2__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__196__2__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__196__2__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.17737990617752075,
-        "predicted_class_id": "188"
-      },
-      "source_filename": "ILSVRC2012_val_00047084.webp"
     },
     {
       "attribution_failures": {},
@@ -84011,49 +82248,6 @@
         "predicted_class_id": "198"
       },
       "source_filename": "ILSVRC2012_val_00022042.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "198",
-      "image_id": "1",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -2592496.25,
-          "lif": 0.9243777990341187,
-          "morph": 3.344735860824585,
-          "segment": 5.885697364807129
-        },
-        "DeepLift": {
-          "fidelity": -11.582314491271973,
-          "lif": 3.198415994644165,
-          "morph": 3.925100803375244,
-          "segment": 7.358122825622559
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.07792937755584717,
-          "lif": 2.717419147491455,
-          "morph": 4.010528087615967,
-          "segment": 7.280324935913086
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.007997870445251465,
-          "lif": 3.740055561065674,
-          "morph": 3.992501735687256,
-          "segment": 7.464191436767578
-        }
-      },
-      "original_url": "/imagenet-pico/val/198/ILSVRC2012_val_00025606.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__198__1__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__198__1__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__198__1__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__198__1__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.6805142760276794,
-        "predicted_class_id": "198"
-      },
-      "source_filename": "ILSVRC2012_val_00025606.webp"
     },
     {
       "attribution_failures": {},
@@ -85300,49 +83494,6 @@
     {
       "attribution_failures": {},
       "class_id": "201",
-      "image_id": "1",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -3790866.75,
-          "lif": 1.2192435264587402,
-          "morph": 3.114476442337036,
-          "segment": 5.993826389312744
-        },
-        "DeepLift": {
-          "fidelity": -6.800520420074463,
-          "lif": 1.2196083068847656,
-          "morph": 3.816330671310425,
-          "segment": 5.528020858764648
-        },
-        "GuidedBackprop": {
-          "fidelity": 0.02361774444580078,
-          "lif": 1.1443102359771729,
-          "morph": 3.794020652770996,
-          "segment": 6.871573448181152
-        },
-        "GuidedGradCam": {
-          "fidelity": 0.0069048404693603516,
-          "lif": 2.3033676147460938,
-          "morph": 3.8507916927337646,
-          "segment": 6.304734230041504
-        }
-      },
-      "original_url": "/imagenet-pico/val/201/ILSVRC2012_val_00028192.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__201__1__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__201__1__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__201__1__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__201__1__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.41296809911727905,
-        "predicted_class_id": "201"
-      },
-      "source_filename": "ILSVRC2012_val_00028192.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "201",
       "image_id": "2",
       "interpretability_metrics": {
         "CB-RISE": {
@@ -86308,92 +84459,6 @@
     },
     {
       "attribution_failures": {},
-      "class_id": "203",
-      "image_id": "2",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -5127981.0,
-          "lif": 2.263629674911499,
-          "morph": 3.349881172180176,
-          "segment": 6.2659525871276855
-        },
-        "DeepLift": {
-          "fidelity": -10.719843864440918,
-          "lif": 4.399003505706787,
-          "morph": 3.170980453491211,
-          "segment": 6.752643585205078
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.04107820987701416,
-          "lif": 3.7484865188598633,
-          "morph": 3.21574330329895,
-          "segment": 7.618147850036621
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.007609724998474121,
-          "lif": 4.479037284851074,
-          "morph": 3.207493782043457,
-          "segment": 7.4029693603515625
-        }
-      },
-      "original_url": "/imagenet-pico/val/203/ILSVRC2012_val_00034576.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__203__2__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__203__2__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__203__2__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__203__2__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.48389118909835815,
-        "predicted_class_id": "203"
-      },
-      "source_filename": "ILSVRC2012_val_00034576.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "204",
-      "image_id": "0",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -6938977.5,
-          "lif": 0.7504793405532837,
-          "morph": 2.392890691757202,
-          "segment": 5.363987922668457
-        },
-        "DeepLift": {
-          "fidelity": -0.7237814664840698,
-          "lif": 0.9630235433578491,
-          "morph": 3.2158873081207275,
-          "segment": 5.479755401611328
-        },
-        "GuidedBackprop": {
-          "fidelity": 0.03564560413360596,
-          "lif": 1.6884920597076416,
-          "morph": 3.2475690841674805,
-          "segment": 5.893752098083496
-        },
-        "GuidedGradCam": {
-          "fidelity": 0.018191397190093994,
-          "lif": 2.5371499061584473,
-          "morph": 3.2653939723968506,
-          "segment": 6.1748552322387695
-        }
-      },
-      "original_url": "/imagenet-pico/val/204/ILSVRC2012_val_00001955.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__204__0__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__204__0__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__204__0__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__204__0__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.3081001043319702,
-        "predicted_class_id": "204"
-      },
-      "source_filename": "ILSVRC2012_val_00001955.webp"
-    },
-    {
-      "attribution_failures": {},
       "class_id": "204",
       "image_id": "0",
       "interpretability_metrics": {
@@ -87225,49 +85290,6 @@
       "class_id": "206",
       "image_id": "0",
       "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -38705004.0,
-          "lif": 1.9760653972625732,
-          "morph": 2.0536608695983887,
-          "segment": 4.245331764221191
-        },
-        "DeepLift": {
-          "fidelity": -3.592846393585205,
-          "lif": 3.8112239837646484,
-          "morph": 3.496532440185547,
-          "segment": 4.524255275726318
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.12203896045684814,
-          "lif": 5.241517066955566,
-          "morph": 3.483927011489868,
-          "segment": 5.468140602111816
-        },
-        "GuidedGradCam": {
-          "fidelity": 0.005701005458831787,
-          "lif": 5.3822526931762695,
-          "morph": 3.448056697845459,
-          "segment": 5.629829406738281
-        }
-      },
-      "original_url": "/imagenet-pico/val/206/ILSVRC2012_val_00005699.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__206__0__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__206__0__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__206__0__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__206__0__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.16113099455833435,
-        "predicted_class_id": "205"
-      },
-      "source_filename": "ILSVRC2012_val_00005699.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "206",
-      "image_id": "0",
-      "interpretability_metrics": {
         "CB-RISE": {
           "fidelity": 0.06485658884048462,
           "lif": 6.201603889465332,
@@ -88093,49 +86115,6 @@
     },
     {
       "attribution_failures": {},
-      "class_id": "207",
-      "image_id": "2",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -22520488.0,
-          "lif": 1.5315159559249878,
-          "morph": 3.7158894538879395,
-          "segment": 6.595528602600098
-        },
-        "DeepLift": {
-          "fidelity": -9.38057804107666,
-          "lif": 3.4786860942840576,
-          "morph": 5.110750675201416,
-          "segment": 6.654470920562744
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.23716092109680176,
-          "lif": 3.2545104026794434,
-          "morph": 5.424912929534912,
-          "segment": 6.116171360015869
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.04662132263183594,
-          "lif": 4.182097911834717,
-          "morph": 5.446115493774414,
-          "segment": 6.196777820587158
-        }
-      },
-      "original_url": "/imagenet-pico/val/207/ILSVRC2012_val_00034584.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__207__2__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__207__2__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__207__2__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__207__2__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.6334794163703918,
-        "predicted_class_id": "207"
-      },
-      "source_filename": "ILSVRC2012_val_00034584.webp"
-    },
-    {
-      "attribution_failures": {},
       "class_id": "208",
       "image_id": "0",
       "interpretability_metrics": {
@@ -88823,49 +86802,6 @@
         "predicted_class_id": "209"
       },
       "source_filename": "ILSVRC2012_val_00017470.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "209",
-      "image_id": "1",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -4105242.25,
-          "lif": 0.5855609178543091,
-          "morph": 3.186814308166504,
-          "segment": 6.109936714172363
-        },
-        "DeepLift": {
-          "fidelity": -7.136560440063477,
-          "lif": 3.475114107131958,
-          "morph": 3.6781702041625977,
-          "segment": 6.533285140991211
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.00242006778717041,
-          "lif": 5.345515251159668,
-          "morph": 3.683854579925537,
-          "segment": 6.751585960388184
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.00010073184967041016,
-          "lif": 5.70706844329834,
-          "morph": 3.700382947921753,
-          "segment": 6.7671709060668945
-        }
-      },
-      "original_url": "/imagenet-pico/val/209/ILSVRC2012_val_00021369.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__209__1__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__209__1__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__209__1__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__209__1__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.5057135820388794,
-        "predicted_class_id": "209"
-      },
-      "source_filename": "ILSVRC2012_val_00021369.webp"
     },
     {
       "attribution_failures": {},
@@ -90108,49 +88044,6 @@
         "predicted_class_id": "212"
       },
       "source_filename": "ILSVRC2012_val_00012739.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "212",
-      "image_id": "1",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -3059405.25,
-          "lif": 0.4325161874294281,
-          "morph": 2.53524112701416,
-          "segment": 4.4527997970581055
-        },
-        "DeepLift": {
-          "fidelity": -0.018145084381103516,
-          "lif": 1.7295472621917725,
-          "morph": 3.1897969245910645,
-          "segment": 4.743040084838867
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.06207013130187988,
-          "lif": 1.479395866394043,
-          "morph": 3.247323989868164,
-          "segment": 4.003718376159668
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.010323643684387207,
-          "lif": 2.762416362762451,
-          "morph": 3.214012622833252,
-          "segment": 4.342949867248535
-        }
-      },
-      "original_url": "/imagenet-pico/val/212/ILSVRC2012_val_00006837.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__212__1__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__212__1__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__212__1__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__212__1__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.20888476073741913,
-        "predicted_class_id": "212"
-      },
-      "source_filename": "ILSVRC2012_val_00006837.webp"
     },
     {
       "attribution_failures": {},
@@ -91811,49 +89704,6 @@
     {
       "attribution_failures": {},
       "class_id": "216",
-      "image_id": "1",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -2948755.25,
-          "lif": 0.9136548042297363,
-          "morph": 2.9224138259887695,
-          "segment": 4.984377861022949
-        },
-        "DeepLift": {
-          "fidelity": -13.154699325561523,
-          "lif": 2.8823602199554443,
-          "morph": 3.907032012939453,
-          "segment": 5.78626823425293
-        },
-        "GuidedBackprop": {
-          "fidelity": 0.018511712551116943,
-          "lif": 2.856135606765747,
-          "morph": 3.7888734340667725,
-          "segment": 5.382364273071289
-        },
-        "GuidedGradCam": {
-          "fidelity": 0.0048885345458984375,
-          "lif": 4.078083038330078,
-          "morph": 3.796839714050293,
-          "segment": 5.146611213684082
-        }
-      },
-      "original_url": "/imagenet-pico/val/216/ILSVRC2012_val_00015213.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__216__1__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__216__1__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__216__1__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__216__1__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.3956136405467987,
-        "predicted_class_id": "216"
-      },
-      "source_filename": "ILSVRC2012_val_00015213.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "216",
       "image_id": "2",
       "interpretability_metrics": {
         "CB-RISE": {
@@ -92402,49 +90252,6 @@
         "predicted_class_id": "217"
       },
       "source_filename": "ILSVRC2012_val_00049218.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "217",
-      "image_id": "2",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -3002418.5,
-          "lif": 0.6868746280670166,
-          "morph": 2.8921799659729004,
-          "segment": 4.239577293395996
-        },
-        "DeepLift": {
-          "fidelity": -5.648962020874023,
-          "lif": 1.6680831909179688,
-          "morph": 3.4583702087402344,
-          "segment": 5.338450908660889
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.02553093433380127,
-          "lif": 1.6556060314178467,
-          "morph": 3.4203310012817383,
-          "segment": 5.1340718269348145
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.004887580871582031,
-          "lif": 3.675837516784668,
-          "morph": 3.423907518386841,
-          "segment": 5.132900238037109
-        }
-      },
-      "original_url": "/imagenet-pico/val/217/ILSVRC2012_val_00015694.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__217__2__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__217__2__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__217__2__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__217__2__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.4044332504272461,
-        "predicted_class_id": "217"
-      },
-      "source_filename": "ILSVRC2012_val_00015694.webp"
     },
     {
       "attribution_failures": {},
@@ -93139,49 +90946,6 @@
     {
       "attribution_failures": {},
       "class_id": "219",
-      "image_id": "1",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -2935762.0,
-          "lif": 0.7111712098121643,
-          "morph": 3.9029242992401123,
-          "segment": 3.971353530883789
-        },
-        "DeepLift": {
-          "fidelity": -1.4828860759735107,
-          "lif": 0.5036371350288391,
-          "morph": 5.1657023429870605,
-          "segment": 4.813746452331543
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.031726717948913574,
-          "lif": 0.7326852679252625,
-          "morph": 5.820178031921387,
-          "segment": 4.697209358215332
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.005666494369506836,
-          "lif": 1.2007390260696411,
-          "morph": 5.730094909667969,
-          "segment": 5.0739898681640625
-        }
-      },
-      "original_url": "/imagenet-pico/val/219/ILSVRC2012_val_00017713.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__219__1__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__219__1__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__219__1__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__219__1__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.7849128246307373,
-        "predicted_class_id": "219"
-      },
-      "source_filename": "ILSVRC2012_val_00017713.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "219",
       "image_id": "2",
       "interpretability_metrics": {
         "CB-RISE": {
@@ -93868,92 +91632,6 @@
         "predicted_class_id": "233"
       },
       "source_filename": "ILSVRC2012_val_00030920.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "221",
-      "image_id": "0",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -4148211.75,
-          "lif": 1.6173344850540161,
-          "morph": 3.1231026649475098,
-          "segment": 4.971044540405273
-        },
-        "DeepLift": {
-          "fidelity": -3.689080238342285,
-          "lif": 3.7615294456481934,
-          "morph": 4.066198825836182,
-          "segment": 5.034433364868164
-        },
-        "GuidedBackprop": {
-          "fidelity": 0.019461214542388916,
-          "lif": 4.202243804931641,
-          "morph": 4.032004356384277,
-          "segment": 5.287400245666504
-        },
-        "GuidedGradCam": {
-          "fidelity": 0.006777286529541016,
-          "lif": 4.877839088439941,
-          "morph": 4.017923831939697,
-          "segment": 5.398293495178223
-        }
-      },
-      "original_url": "/imagenet-pico/val/221/ILSVRC2012_val_00003628.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__221__0__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__221__0__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__221__0__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__221__0__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.4263952374458313,
-        "predicted_class_id": "221"
-      },
-      "source_filename": "ILSVRC2012_val_00003628.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "221",
-      "image_id": "1",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -5541307.0,
-          "lif": 1.4500452280044556,
-          "morph": 3.1144039630889893,
-          "segment": 5.396842002868652
-        },
-        "DeepLift": {
-          "fidelity": -4.198528289794922,
-          "lif": 4.486208915710449,
-          "morph": 4.1871490478515625,
-          "segment": 5.562649726867676
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.10329294204711914,
-          "lif": 6.039958953857422,
-          "morph": 4.409570693969727,
-          "segment": 6.418170928955078
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.023583531379699707,
-          "lif": 6.152670860290527,
-          "morph": 4.409570693969727,
-          "segment": 6.4507293701171875
-        }
-      },
-      "original_url": "/imagenet-pico/val/221/ILSVRC2012_val_00018530.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__221__1__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__221__1__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__221__1__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__221__1__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.3509964942932129,
-        "predicted_class_id": "221"
-      },
-      "source_filename": "ILSVRC2012_val_00018530.webp"
     },
     {
       "attribution_failures": {},
@@ -95064,49 +92742,6 @@
       "class_id": "224",
       "image_id": "0",
       "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -9765318.0,
-          "lif": 2.5538339614868164,
-          "morph": 2.8063461780548096,
-          "segment": 5.241166591644287
-        },
-        "DeepLift": {
-          "fidelity": -1.7471680641174316,
-          "lif": 5.64183235168457,
-          "morph": 3.588644504547119,
-          "segment": 5.728962421417236
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.10219073295593262,
-          "lif": 5.90777063369751,
-          "morph": 3.624859094619751,
-          "segment": 5.7205047607421875
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.007557868957519531,
-          "lif": 5.702951908111572,
-          "morph": 3.626244306564331,
-          "segment": 5.6707916259765625
-        }
-      },
-      "original_url": "/imagenet-pico/val/224/ILSVRC2012_val_00003026.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__224__0__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__224__0__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__224__0__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__224__0__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.17515282332897186,
-        "predicted_class_id": "224"
-      },
-      "source_filename": "ILSVRC2012_val_00003026.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "224",
-      "image_id": "0",
-      "interpretability_metrics": {
         "CB-RISE": {
           "fidelity": -0.2547416687011719,
           "lif": 5.333329677581787,
@@ -95795,49 +93430,6 @@
     {
       "attribution_failures": {},
       "class_id": "225",
-      "image_id": "1",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -4652754.5,
-          "lif": 0.678951621055603,
-          "morph": 2.260399580001831,
-          "segment": 4.375377655029297
-        },
-        "DeepLift": {
-          "fidelity": -2.9770092964172363,
-          "lif": 2.4470744132995605,
-          "morph": 3.41931414604187,
-          "segment": 5.141770839691162
-        },
-        "GuidedBackprop": {
-          "fidelity": 0.05709129571914673,
-          "lif": 3.4735169410705566,
-          "morph": 3.4153289794921875,
-          "segment": 4.939326286315918
-        },
-        "GuidedGradCam": {
-          "fidelity": 0.023749887943267822,
-          "lif": 4.27907657623291,
-          "morph": 3.4034934043884277,
-          "segment": 5.3394927978515625
-        }
-      },
-      "original_url": "/imagenet-pico/val/225/ILSVRC2012_val_00035189.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__225__1__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__225__1__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__225__1__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__225__1__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.2154124677181244,
-        "predicted_class_id": "225"
-      },
-      "source_filename": "ILSVRC2012_val_00035189.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "225",
       "image_id": "2",
       "interpretability_metrics": {
         "CB-RISE": {
@@ -96386,49 +93978,6 @@
         "predicted_class_id": "226"
       },
       "source_filename": "ILSVRC2012_val_00031131.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "226",
-      "image_id": "2",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -4680984.5,
-          "lif": 1.6490004062652588,
-          "morph": 3.469498634338379,
-          "segment": 5.880617618560791
-        },
-        "DeepLift": {
-          "fidelity": -13.88114070892334,
-          "lif": 3.8196277618408203,
-          "morph": 4.387739658355713,
-          "segment": 6.695086479187012
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.04531514644622803,
-          "lif": 4.936147212982178,
-          "morph": 4.330082893371582,
-          "segment": 7.071913719177246
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.00798487663269043,
-          "lif": 5.692241191864014,
-          "morph": 4.2564287185668945,
-          "segment": 7.26834774017334
-        }
-      },
-      "original_url": "/imagenet-pico/val/226/ILSVRC2012_val_00046402.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__226__2__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__226__2__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__226__2__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__226__2__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.7129429578781128,
-        "predicted_class_id": "226"
-      },
-      "source_filename": "ILSVRC2012_val_00046402.webp"
     },
     {
       "attribution_failures": {},
@@ -97263,49 +94812,6 @@
       "class_id": "229",
       "image_id": "0",
       "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -14676430.0,
-          "lif": 0.5260897278785706,
-          "morph": 2.514627695083618,
-          "segment": 4.593593597412109
-        },
-        "DeepLift": {
-          "fidelity": -15.805334091186523,
-          "lif": 2.8206098079681396,
-          "morph": 2.9690911769866943,
-          "segment": 6.034744739532471
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.023305535316467285,
-          "lif": 3.3090484142303467,
-          "morph": 2.9869325160980225,
-          "segment": 5.8136396408081055
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.0005755424499511719,
-          "lif": 4.308112144470215,
-          "morph": 2.9869325160980225,
-          "segment": 6.029656410217285
-        }
-      },
-      "original_url": "/imagenet-pico/val/229/ILSVRC2012_val_00017560.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__229__0__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__229__0__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__229__0__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__229__0__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.2458115965127945,
-        "predicted_class_id": "229"
-      },
-      "source_filename": "ILSVRC2012_val_00017560.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "229",
-      "image_id": "0",
-      "interpretability_metrics": {
         "CB-RISE": {
           "fidelity": 0.059283554553985596,
           "lif": 7.059842109680176,
@@ -97990,49 +95496,6 @@
         "predicted_class_id": "230"
       },
       "source_filename": "ILSVRC2012_val_00020678.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "230",
-      "image_id": "1",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -12886361.0,
-          "lif": 0.43650537729263306,
-          "morph": 1.5517728328704834,
-          "segment": 2.9410836696624756
-        },
-        "DeepLift": {
-          "fidelity": -1.0178446769714355,
-          "lif": 2.5271830558776855,
-          "morph": 2.098074197769165,
-          "segment": 4.212707042694092
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.12839162349700928,
-          "lif": 1.7798256874084473,
-          "morph": 2.1632113456726074,
-          "segment": 3.5773448944091797
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.015545964241027832,
-          "lif": 2.909046173095703,
-          "morph": 2.162473201751709,
-          "segment": 3.9180238246917725
-        }
-      },
-      "original_url": "/imagenet-pico/val/230/ILSVRC2012_val_00045056.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__230__1__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__230__1__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__230__1__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__230__1__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.04926957190036774,
-        "predicted_class_id": "232"
-      },
-      "source_filename": "ILSVRC2012_val_00045056.webp"
     },
     {
       "attribution_failures": {},
@@ -99275,49 +96738,6 @@
         "predicted_class_id": "233"
       },
       "source_filename": "ILSVRC2012_val_00019712.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "233",
-      "image_id": "1",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -8612959.0,
-          "lif": 1.019913911819458,
-          "morph": 1.8580492734909058,
-          "segment": 2.9349162578582764
-        },
-        "DeepLift": {
-          "fidelity": -2.3263230323791504,
-          "lif": 2.5963797569274902,
-          "morph": 2.3290672302246094,
-          "segment": 4.392796516418457
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.07428336143493652,
-          "lif": 2.77813720703125,
-          "morph": 2.2681119441986084,
-          "segment": 4.107776641845703
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.014962553977966309,
-          "lif": 3.3124117851257324,
-          "morph": 2.2681119441986084,
-          "segment": 4.435449600219727
-        }
-      },
-      "original_url": "/imagenet-pico/val/233/ILSVRC2012_val_00041947.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__233__1__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__233__1__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__233__1__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__233__1__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.08953288197517395,
-        "predicted_class_id": "233"
-      },
-      "source_filename": "ILSVRC2012_val_00041947.webp"
     },
     {
       "attribution_failures": {},
@@ -100704,49 +98124,6 @@
       "class_id": "237",
       "image_id": "0",
       "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -4865587.0,
-          "lif": 2.1353578567504883,
-          "morph": 3.097226142883301,
-          "segment": 5.124636650085449
-        },
-        "DeepLift": {
-          "fidelity": -26.223873138427734,
-          "lif": 5.4706525802612305,
-          "morph": 5.08474063873291,
-          "segment": 6.162434101104736
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.035959482192993164,
-          "lif": 5.3336687088012695,
-          "morph": 5.0215888023376465,
-          "segment": 6.249887943267822
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.00761723518371582,
-          "lif": 5.917652130126953,
-          "morph": 5.027019023895264,
-          "segment": 6.464191436767578
-        }
-      },
-      "original_url": "/imagenet-pico/val/237/ILSVRC2012_val_00005902.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__237__0__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__237__0__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__237__0__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__237__0__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.462924063205719,
-        "predicted_class_id": "237"
-      },
-      "source_filename": "ILSVRC2012_val_00005902.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "237",
-      "image_id": "0",
-      "interpretability_metrics": {
         "CB-RISE": {
           "fidelity": 0.0,
           "lif": 5.158453941345215,
@@ -101293,49 +98670,6 @@
         "predicted_class_id": "238"
       },
       "source_filename": "ILSVRC2012_val_00004666.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "238",
-      "image_id": "0",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -5363128.5,
-          "lif": 1.5803110599517822,
-          "morph": 2.4098823070526123,
-          "segment": 5.451472282409668
-        },
-        "DeepLift": {
-          "fidelity": -9.492117881774902,
-          "lif": 5.01563024520874,
-          "morph": 3.4588828086853027,
-          "segment": 5.699018478393555
-        },
-        "GuidedBackprop": {
-          "fidelity": 0.0017275214195251465,
-          "lif": 4.873414039611816,
-          "morph": 3.617725372314453,
-          "segment": 6.3606061935424805
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.0013916492462158203,
-          "lif": 5.5943498611450195,
-          "morph": 3.7238688468933105,
-          "segment": 6.175305366516113
-        }
-      },
-      "original_url": "/imagenet-pico/val/238/ILSVRC2012_val_00003139.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__238__0__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__238__0__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__238__0__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__238__0__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.3515985608100891,
-        "predicted_class_id": "238"
-      },
-      "source_filename": "ILSVRC2012_val_00003139.webp"
     },
     {
       "attribution_failures": {},
@@ -102446,49 +99780,6 @@
       "class_id": "241",
       "image_id": "0",
       "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -4765092.0,
-          "lif": 0.819076657295227,
-          "morph": 3.133073568344116,
-          "segment": 5.762123107910156
-        },
-        "DeepLift": {
-          "fidelity": -8.183492660522461,
-          "lif": 2.9332778453826904,
-          "morph": 5.769048690795898,
-          "segment": 5.480520248413086
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.003206491470336914,
-          "lif": 3.438577175140381,
-          "morph": 6.752587795257568,
-          "segment": 5.65005350112915
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.001109004020690918,
-          "lif": 4.441880226135254,
-          "morph": 6.79139518737793,
-          "segment": 5.905696868896484
-        }
-      },
-      "original_url": "/imagenet-pico/val/241/ILSVRC2012_val_00002492.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__241__0__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__241__0__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__241__0__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__241__0__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.20940758287906647,
-        "predicted_class_id": "240"
-      },
-      "source_filename": "ILSVRC2012_val_00002492.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "241",
-      "image_id": "0",
-      "interpretability_metrics": {
         "CB-RISE": {
           "fidelity": 0.0,
           "lif": 7.15334415435791,
@@ -102759,49 +100050,6 @@
         "predicted_class_id": "240"
       },
       "source_filename": "ILSVRC2012_val_00031461.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "241",
-      "image_id": "1",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -39711348.0,
-          "lif": 2.17537784576416,
-          "morph": 3.2386703491210938,
-          "segment": 5.791041374206543
-        },
-        "DeepLift": {
-          "fidelity": -18.09834861755371,
-          "lif": 6.222196102142334,
-          "morph": 5.62600564956665,
-          "segment": 6.660938739776611
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.25862300395965576,
-          "lif": 4.950992107391357,
-          "morph": 5.8389410972595215,
-          "segment": 6.047844886779785
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.03204154968261719,
-          "lif": 5.208746433258057,
-          "morph": 5.825558185577393,
-          "segment": 6.131016731262207
-        }
-      },
-      "original_url": "/imagenet-pico/val/241/ILSVRC2012_val_00027751.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__241__1__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__241__1__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__241__1__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__241__1__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.3353823125362396,
-        "predicted_class_id": "241"
-      },
-      "source_filename": "ILSVRC2012_val_00027751.webp"
     },
     {
       "attribution_failures": {},
@@ -103078,49 +100326,6 @@
         "predicted_class_id": "676"
       },
       "source_filename": "ILSVRC2012_val_00009553.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "242",
-      "image_id": "0",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -4953089.5,
-          "lif": 2.046800374984741,
-          "morph": 3.2078871726989746,
-          "segment": 5.607521057128906
-        },
-        "DeepLift": {
-          "fidelity": -5.300353527069092,
-          "lif": 4.732500076293945,
-          "morph": 4.280586242675781,
-          "segment": 6.3831658363342285
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.11213874816894531,
-          "lif": 5.521376609802246,
-          "morph": 4.476668834686279,
-          "segment": 6.5803093910217285
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.03022444248199463,
-          "lif": 6.206936836242676,
-          "morph": 4.604084491729736,
-          "segment": 6.6083574295043945
-        }
-      },
-      "original_url": "/imagenet-pico/val/242/ILSVRC2012_val_00003522.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__242__0__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__242__0__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__242__0__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__242__0__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.563631534576416,
-        "predicted_class_id": "242"
-      },
-      "source_filename": "ILSVRC2012_val_00003522.webp"
     },
     {
       "attribution_failures": {},
@@ -105195,49 +102400,6 @@
     {
       "attribution_failures": {},
       "class_id": "247",
-      "image_id": "0",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -5123811.5,
-          "lif": 1.3587102890014648,
-          "morph": 2.4403955936431885,
-          "segment": 5.377774238586426
-        },
-        "DeepLift": {
-          "fidelity": -3.569674491882324,
-          "lif": 2.602567672729492,
-          "morph": 3.6094512939453125,
-          "segment": 4.996557235717773
-        },
-        "GuidedBackprop": {
-          "fidelity": 0.0166628360748291,
-          "lif": 3.650322675704956,
-          "morph": 3.602952003479004,
-          "segment": 5.226865768432617
-        },
-        "GuidedGradCam": {
-          "fidelity": 0.001185595989227295,
-          "lif": 4.104793548583984,
-          "morph": 3.5933303833007812,
-          "segment": 5.173928737640381
-        }
-      },
-      "original_url": "/imagenet-pico/val/247/ILSVRC2012_val_00013885.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__247__0__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__247__0__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__247__0__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__247__0__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.28330883383750916,
-        "predicted_class_id": "247"
-      },
-      "source_filename": "ILSVRC2012_val_00013885.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "247",
       "image_id": "1",
       "interpretability_metrics": {
         "CB-RISE": {
@@ -105786,49 +102948,6 @@
         "predicted_class_id": "248"
       },
       "source_filename": "ILSVRC2012_val_00002004.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "248",
-      "image_id": "1",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -136369024.0,
-          "lif": 1.8881416320800781,
-          "morph": 2.3799822330474854,
-          "segment": 4.532383918762207
-        },
-        "DeepLift": {
-          "fidelity": -17.66196632385254,
-          "lif": 3.1166200637817383,
-          "morph": 3.625915288925171,
-          "segment": 4.49227237701416
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.10529446601867676,
-          "lif": 2.8178558349609375,
-          "morph": 3.90962290763855,
-          "segment": 3.99072527885437
-        },
-        "GuidedGradCam": {
-          "fidelity": 0.01509326696395874,
-          "lif": 3.5098681449890137,
-          "morph": 3.7807719707489014,
-          "segment": 4.270473480224609
-        }
-      },
-      "original_url": "/imagenet-pico/val/248/ILSVRC2012_val_00005446.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__248__1__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__248__1__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__248__1__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__248__1__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.09885707497596741,
-        "predicted_class_id": "248"
-      },
-      "source_filename": "ILSVRC2012_val_00005446.webp"
     },
     {
       "attribution_failures": {},
@@ -106519,49 +103638,6 @@
         "predicted_class_id": "250"
       },
       "source_filename": "ILSVRC2012_val_00023615.webp"
-    },
-    {
-      "attribution_failures": {},
-      "class_id": "250",
-      "image_id": "0",
-      "interpretability_metrics": {
-        "Deconvolution": {
-          "fidelity": -6575910.5,
-          "lif": 0.8505445122718811,
-          "morph": 2.436105489730835,
-          "segment": 4.670226097106934
-        },
-        "DeepLift": {
-          "fidelity": -8.267455101013184,
-          "lif": 2.5380446910858154,
-          "morph": 3.0430963039398193,
-          "segment": 4.670290946960449
-        },
-        "GuidedBackprop": {
-          "fidelity": -0.09382343292236328,
-          "lif": 1.956044316291809,
-          "morph": 3.247807264328003,
-          "segment": 4.807145118713379
-        },
-        "GuidedGradCam": {
-          "fidelity": -0.019201159477233887,
-          "lif": 3.1845970153808594,
-          "morph": 3.246281147003174,
-          "segment": 4.748874664306641
-        }
-      },
-      "original_url": "/imagenet-pico/val/250/ILSVRC2012_val_00030708.webp",
-      "outputs": {
-        "Deconvolution": "/outputs/images/mobilenet_v2__imagenet-pico__250__0__Deconvolution.avif",
-        "DeepLift": "/outputs/images/mobilenet_v2__imagenet-pico__250__0__DeepLift.avif",
-        "GuidedBackprop": "/outputs/images/mobilenet_v2__imagenet-pico__250__0__GuidedBackprop.avif",
-        "GuidedGradCam": "/outputs/images/mobilenet_v2__imagenet-pico__250__0__GuidedGradCam.avif"
-      },
-      "prediction": {
-        "confidence": 0.13946524262428284,
-        "predicted_class_id": "248"
-      },
-      "source_filename": "ILSVRC2012_val_00030708.webp"
     },
     {
       "attribution_failures": {},

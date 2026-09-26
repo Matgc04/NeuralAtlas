@@ -40,7 +40,7 @@
       "imagenet-pico"
     ]
   },
-  "generated_at": "2026-09-25T12:38:10.414365+00:00",
+  "generated_at": "2026-09-26T16:29:28.568672+00:00",
   "models": [
     "alexnet",
     "convnext_tiny",
@@ -89,7 +89,7 @@
     },
     "mobilenet_v2": {
       "imagenet-pico": {
-        "base_url": "https://huggingface.co/datasets/Matgc04/neuralatlas-attributions-mobilenet_v2/resolve/d069519d5ee9020480e51a3aa7227a177efddc30/images/imagenet-pico",
+        "base_url": "https://huggingface.co/datasets/Matgc04/neuralatlas-attributions-mobilenet_v2/resolve/038a359f507b17fb6d884cf1ddc8a5746e5acb8d/images/imagenet-pico",
         "images": "outputs/runs/mobilenet_v2/imagenet-pico/images.json",
         "summary": "outputs/runs/mobilenet_v2/imagenet-pico/summary.json"
       }
