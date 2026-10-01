@@ -12,13 +12,17 @@ const USE_LOCAL_ASSETS = import.meta.env.VITE_ASSET_SOURCE === 'local';
 const OverlayContext = createContext({ enabled: false, opacity: 0.5 });
 const useOverlay = () => useContext(OverlayContext);
 
+// Metric badges can be hidden, so a map can be judged by eye before its
+// numbers are seen. `?metrics=hidden` opens the viewer that way.
+const MetricsShownContext = createContext(true);
+
 // Aiming the context card at a subject is available anywhere a name is shown.
 // There is one reference surface on the page and this is how anything else
 // points at it.
 const WikiContext = createContext({ open: () => {} });
 const useWiki = () => useContext(WikiContext);
 
-const VS_KEYS = ['mode', 'model', 'dataset', 'classId', 'imageId', 'methods', 'models'];
+const VS_KEYS = ['mode', 'model', 'dataset', 'classId', 'imageId', 'methods', 'models', 'metrics'];
 
 function readStateFromUrl() {
   const params = new URLSearchParams(window.location.search);
@@ -414,12 +418,13 @@ function metricTitle(name) {
 const METRIC_ORDER = ['lif', 'morph', 'segment', 'fidelity', 'fidelity_superpixel'];
 
 function MetricBadges({ metrics }) {
+  const shown = useContext(MetricsShownContext);
   const items = METRIC_ORDER
     .map((name) => ({ name, title: metricTitle(name), rawValue: metrics?.[name] }))
     .filter(({ rawValue }) => rawValue != null && rawValue !== '' && Number.isFinite(Number(rawValue)))
     .map(({ name, title, rawValue }) => ({ name, title, value: Number(rawValue) }));
 
-  if (!items.length) return null;
+  if (!shown || !items.length) return null;
   return (
     <dl className="metric-badges" aria-label="Interpretability metrics">
       {items.map(({ name, title, value }) => (
@@ -484,6 +489,18 @@ function OverlayControl({ enabled, opacity, onToggle, onOpacity }) {
   );
 }
 
+function MetricsControl({ shown, onToggle }) {
+  return (
+    <button
+      type="button" className={`switch${shown ? ' is-on' : ''}`}
+      onClick={onToggle} role="switch" aria-checked={shown}
+    >
+      <span className="switch__track"><span className="switch__knob" /></span>
+      <span className="switch__label">Metric badges</span>
+    </button>
+  );
+}
+
 // Horizontal, and it rides with the images instead of sitting in the sidebar:
 // the scale is a property of the maps being read, not of the selection.
 function ColorbarLegend() {
@@ -499,7 +516,7 @@ function ColorbarLegend() {
 }
 
 // Render settings sit above the maps they change, sticky under the top bar.
-function RenderBar({ overlay, opacity, onToggle, onOpacity }) {
+function RenderBar({ overlay, opacity, onToggle, onOpacity, metricsShown, onToggleMetrics }) {
   const ref = useRef(null);
 
   // The compare header sticks flush under this bar, so its offset *is* this
@@ -526,7 +543,10 @@ function RenderBar({ overlay, opacity, onToggle, onOpacity }) {
   return (
     <div className="render-bar" ref={ref}>
       <div className="render-bar__controls">
-        <OverlayControl enabled={overlay} opacity={opacity} onToggle={onToggle} onOpacity={onOpacity} />
+        <div className="render-bar__switches">
+          <OverlayControl enabled={overlay} opacity={opacity} onToggle={onToggle} onOpacity={onOpacity} />
+          <MetricsControl shown={metricsShown} onToggle={onToggleMetrics} />
+        </div>
         <ColorbarLegend />
       </div>
     </div>
@@ -1846,6 +1866,7 @@ function ModelForm({ atlas, runs, datasets, labelSpaces }) {
 
   return (
     <OverlayContext.Provider value={{ enabled: overlay, opacity: overlayOpacity }}>
+    <MetricsShownContext.Provider value={vs.metrics !== 'hidden'}>
     <WikiContext.Provider value={wikiApi}>
     <TopBar
       mode={vs.mode} onModeChange={handleModeChange} readout={summaryText}
@@ -1927,6 +1948,8 @@ function ModelForm({ atlas, runs, datasets, labelSpaces }) {
         <RenderBar
           overlay={overlay} opacity={overlayOpacity}
           onToggle={() => setOverlay((v) => !v)} onOpacity={setOverlayOpacity}
+          metricsShown={vs.metrics !== 'hidden'}
+          onToggleMetrics={() => patch({ metrics: vs.metrics === 'hidden' ? null : 'hidden' })}
         />
 
         {vs.mode === 'model_grid' && (
@@ -1946,6 +1969,7 @@ function ModelForm({ atlas, runs, datasets, labelSpaces }) {
       </main>
     </div>
     </WikiContext.Provider>
+    </MetricsShownContext.Provider>
     </OverlayContext.Provider>
   );
 }

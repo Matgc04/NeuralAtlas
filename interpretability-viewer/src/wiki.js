@@ -337,7 +337,7 @@ export const WIKI_SECTIONS = [
         title: 'Guided Backpropagation',
         tags: ['Gradient', 'Sharp'],
         summary: 'Backpropagation with negative gradients clipped at every ReLU, producing sharp maps with limited class sensitivity.',
-        differs: 'Only positive gradients are propagated, so the maps emphasise edges. They often look similar across different target classes.',
+        differs: 'Only positive gradients are propagated, so the maps emphasise edges. They often look similar across different target classes. On GELU and SiLU models (ConvNeXt, EfficientNet) NeuralAtlas applies the same rule, relu(grad × f′(x)), an extension of ours: the original method is only defined for ReLU.',
         facts: [
           ['Family', 'Gradient, sharp'],
           ['Needs', 'One clipped backward pass'],
@@ -355,7 +355,7 @@ export const WIKI_SECTIONS = [
         title: 'Deconvolution',
         tags: ['Gradient', 'Sharp'],
         summary: 'A reconstruction method that uses the gradient sign at each ReLU instead of the forward activation.',
-        differs: 'It is included as a historical reference. In sanity checks, its maps can remain similar even after the model weights are randomised.',
+        differs: 'It is included as a historical reference. In sanity checks, its maps can remain similar even after the model weights are randomised. On GELU and SiLU models NeuralAtlas applies the same relu(grad) rule; with no max pooling in those networks the map barely depends on the image.',
         facts: [
           ['Family', 'Gradient, sharp'],
           ['Needs', 'One modified backward pass'],

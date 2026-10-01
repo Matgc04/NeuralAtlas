@@ -10,7 +10,7 @@
       "family": "convnext_tiny",
       "id": "convnext_tiny",
       "label": "convnext_tiny",
-      "parameter_count": null
+      "parameter_count": 28589128
     },
     {
       "family": "efficientnet_b0",
@@ -22,13 +22,13 @@
       "family": "efficientnet_b4",
       "id": "efficientnet_b4",
       "label": "efficientnet_b4",
-      "parameter_count": null
+      "parameter_count": 19341616
     },
     {
       "family": "inception_v3",
       "id": "inception_v3",
       "label": "inception_v3",
-      "parameter_count": null
+      "parameter_count": 27161264
     },
     {
       "family": "mobilenet_v2",
