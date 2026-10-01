@@ -2050,6 +2050,13 @@ body {
   pointer-events: none;
 }
 
+.render-bar__switches {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-md) var(--space-lg);
+}
+
 .overlay-control {
   display: flex;
   align-items: center;
