@@ -403,10 +403,13 @@ function OriginalImage({ src, alt, className }) {
   );
 }
 
+// Compact notation stops at T (1e15 prints as "1,000T"), and an unscaled
+// attribution drives fidelity to -1e35, so past a million switch to scientific.
 function formatMetricBadgeValue(value) {
-  return Math.abs(value) >= 1000
-    ? new Intl.NumberFormat('en-US', { notation: 'compact', maximumSignificantDigits: 3 }).format(value)
-    : value.toFixed(2);
+  const magnitude = Math.abs(value);
+  if (magnitude < 1000) return value.toFixed(2);
+  const notation = magnitude < 1e6 ? 'compact' : 'scientific';
+  return new Intl.NumberFormat('en-US', { notation, maximumSignificantDigits: 3 }).format(value);
 }
 
 // Display order only; each metric is described once, in the wiki.
