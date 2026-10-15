@@ -135,6 +135,11 @@ function normalize(v) {
   return String(v ?? '').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').trim();
 }
 
+// Image ids are 0-based positions within a class; people count from 1.
+function imageLabel(id) {
+  return `Image ${/^\d+$/.test(id) ? Number(id) + 1 : id}`;
+}
+
 function compareMixedIds(a, b) {
   const an = Number(a), bn = Number(b);
   return Number.isFinite(an) && Number.isFinite(bn) ? an - bn : String(a).localeCompare(String(b));
@@ -1200,7 +1205,10 @@ function CrumbSelect({ label, value, items, onSelect, placeholder, disabled }) {
                 aria-selected={item.value === value}
                 className={`combo__option${item.value === value ? ' is-on' : ''}`}
                 onClick={() => commit(item.value)}
-              >{item.label}</button>
+              >
+                {item.thumb && <img className="combo__thumb" src={resolveAssetUrl(item.thumb)} alt="" loading="lazy" />}
+                {item.label}
+              </button>
             ))}
           </div>
         </div>
@@ -1259,7 +1267,7 @@ function ModelGridView({ records, methods, ready, labels }) {
         <article key={`${record.model}__${record.dataset}__${record.classId}__${record.imageId}`} className="model-grid-card">
           <header className="model-grid-card__meta">
             <h3>Class {record.classId} - {record.classLabel}</h3>
-            <p>Image {record.imageId}{record.filename ? ` - ${record.filename}` : ''}</p>
+            <p>{imageLabel(record.imageId)}</p>
             <PredictionBadge prediction={record.prediction} classId={record.classId} labels={labels} />
           </header>
           <div className="model-grid-card__images">
@@ -1448,6 +1456,7 @@ function ClassCompareView({ matrix, methods, ready, labels, onHideModel, totalMo
   if (!matrix.rows.length) return <EmptyState title="No aligned rows found" description="No images are available for this class across the selected models." />;
 
   const style = { '--compare-columns': matrix.models.length + 1 };
+  const rowThumbs = matrix.rows.map((r) => r.cells.find((c) => c.record?.originalUrl)?.record?.originalUrl ?? null);
   return (
     <section className="compare-matrix" style={style} aria-label="Class comparison matrix">
       <div className="compare-header">
@@ -1473,7 +1482,8 @@ function ClassCompareView({ matrix, methods, ready, labels, onHideModel, totalMo
       {matrix.rows.map((row, rowIndex) => {
         const origUrl = row.cells.find((c) => c.record?.originalUrl)?.record?.originalUrl ?? null;
         const methodRows = compareMethodRows(methods, row.cells);
-        const rowLabel = `Image ${row.imageId}`;
+        const predicted = row.cells.filter((c) => c.record?.prediction);
+        const correct = predicted.filter((c) => String(c.record.prediction.predicted_class_id) === classTarget(labels, row.classId)).length;
         // The original spans every method row, so the grid needs those rows to
         // be explicit — an implicit grid has nothing for `1 / -1` to reach.
         // Two rows per method: the name, then the band of maps it names.
@@ -1486,7 +1496,7 @@ function ClassCompareView({ matrix, methods, ready, labels, onHideModel, totalMo
             <article className="compare-cell compare-cell--original">
               <div className="compare-original__content">
                 <MiniImage
-                  caption={rowLabel} src={origUrl} alt={`Original ${rowLabel.toLowerCase()}`}
+                  caption="Image" src={origUrl} alt={`Original image ${rowIndex + 1}`}
                   missingText="Original unavailable" variant="original"
                   captionActions={(
                     <nav className="compare-nav" aria-label={`Image ${rowIndex + 1} of ${matrix.rows.length}`}>
@@ -1504,6 +1514,28 @@ function ClassCompareView({ matrix, methods, ready, labels, onHideModel, totalMo
                     </nav>
                   )}
                 />
+                {/* Under the caption, filling the first method row's height:
+                    the verdict count you would otherwise tally across the
+                    badges, and the class's images as row navigation. */}
+                <div className="compare-original__extras">
+                {predicted.length > 0 && (
+                  <p className="compare-original__agreement">
+                    {correct} of {predicted.length} models correct
+                  </p>
+                )}
+                <div className="compare-strip" role="group" aria-label="Images in this class">
+                  {rowThumbs.map((src, i) => (
+                    <button
+                      type="button" key={i}
+                      className={`compare-strip__thumb${i === rowIndex ? ' is-on' : ''}`}
+                      aria-label={`Image ${i + 1}`} aria-current={i === rowIndex || undefined}
+                      onClick={() => scrollToRow(i)}
+                    >
+                      {src && <img src={resolveAssetUrl(src)} alt="" loading="lazy" />}
+                    </button>
+                  ))}
+                </div>
+                </div>
               </div>
             </article>
             {/* Row 1 of the matrix: what each model called this image. The
@@ -1654,7 +1686,8 @@ function ModelForm({ atlas, runs, datasets, labelSpaces }) {
 
   const imageOptions = useMemo(() => modelGridRecords.map((r) => ({
     value: r.imageId,
-    label: r.originalUrl ? `${r.imageId} - ${r.filename}` : r.imageId,
+    label: imageLabel(r.imageId),
+    thumb: r.originalUrl,
   })), [modelGridRecords]);
 
   const effectiveImageId = vs.mode === 'single' ? resolveSelection(imageOptions, vs.imageId) : null;
@@ -1903,7 +1936,7 @@ function ModelForm({ atlas, runs, datasets, labelSpaces }) {
         <CrumbSelect
           label="Image" value={effectiveImageId} items={imageOptions}
           onSelect={(v) => patch({ imageId: v })}
-          placeholder="Search image id / filename"
+          placeholder="Search image"
           disabled={!effectiveClassId}
         />
       )}

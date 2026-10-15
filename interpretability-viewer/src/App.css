@@ -941,6 +941,21 @@ body {
   transition: background-color var(--t-micro) ease, color var(--t-micro) ease;
 }
 
+.combo__option:has(.combo__thumb) {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.combo__thumb {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  object-fit: cover;
+  border-radius: var(--radius-control);
+  background: var(--surface2);
+}
+
 .combo__option:hover,
 .combo__option:focus-visible {
   outline: none;
@@ -1871,12 +1886,105 @@ body {
   left: var(--compare-sticky-left);
   z-index: 3;
   align-self: stretch;
+  display: grid;
+  grid-template-rows: subgrid;
+  row-gap: var(--compare-gap);
   background: var(--bg);
 }
 
+/* The original shares the row's tracks — verdicts, first method name, first
+   maps — so its picture starts on the same line as the first maps and its
+   caption sits beside the verdicts: both describe the image, not a method. */
 .compare-original__content {
+  grid-row: 1 / 4;
+  display: grid;
+  grid-template-rows: subgrid;
   position: sticky;
   top: calc(var(--chrome-h) + var(--renderbar-h) + 48px);
+}
+
+.compare-original__content .mini-image {
+  display: contents;
+}
+
+/* The caption heads the verdict row, level with the prediction badges, and
+   draws no rule of its own. */
+.compare-original__content figcaption {
+  grid-row: 1;
+  align-self: center;
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+/* The buttons hang over the caption's line instead of heightening it, so the
+   caption is as tall as its text and that text lands level with the method's. */
+.compare-original__content .compare-nav {
+  margin-block: calc((1lh - 26px) / 2);
+}
+
+.compare-original__content .mini-image__asset,
+.compare-original__content .mini-image__missing {
+  grid-row: 3;
+}
+
+/* Pulled up across the row gap so it hangs right under the caption. */
+.compare-original__extras {
+  grid-row: 2;
+  align-self: start;
+  margin-top: calc(var(--space-xs) - var(--compare-gap));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+
+.compare-original__agreement {
+  margin: 0;
+  font-size: var(--fs-caption);
+  color: var(--text2);
+}
+
+.compare-strip {
+  display: flex;
+  gap: var(--space-xs);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.compare-strip__thumb {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: var(--radius-control);
+  background: var(--surface2);
+  overflow: hidden;
+  opacity: 0.55;
+  cursor: pointer;
+  transition: opacity var(--t-micro) ease, border-color var(--t-micro) ease;
+}
+
+.compare-strip__thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.compare-strip__thumb:hover,
+.compare-strip__thumb.is-on {
+  opacity: 1;
+}
+
+.compare-strip__thumb.is-on {
+  border-color: var(--accent);
+}
+
+.compare-strip__thumb:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 /* The last row has no next row to scroll into, so the page would end with its
@@ -2428,7 +2536,36 @@ body {
   .compare-cell--original {
     grid-column: auto;
     grid-row: auto;
+    display: flex;
     background: transparent;
+  }
+
+  .compare-original__content {
+    display: block;
+  }
+
+  .compare-original__content .mini-image {
+    display: flex;
+  }
+
+  .compare-original__content figcaption {
+    align-self: auto;
+    margin-bottom: var(--space-sm);
+    padding-bottom: var(--space-sm);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .compare-original__content .compare-nav {
+    margin-block: 0;
+  }
+
+  /* The stacked cards have no verdict row to fill, and the nav already pages. */
+  .compare-strip {
+    display: none;
+  }
+
+  .compare-original__agreement {
+    margin-top: var(--space-xs);
   }
 
   .compare-cell--original::after {
