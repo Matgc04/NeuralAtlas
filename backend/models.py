@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass
 from functools import partial
 from pathlib import Path
@@ -22,7 +21,7 @@ from torchvision.models.resnet import (
 )
 
 from backend import config
-from backend.datasets import load_label_space
+from backend.datasets import SCHEMA_VERSION, _read, load_label_space
 
 @dataclass(slots=True)
 class ModelRuntime:
@@ -35,6 +34,7 @@ class ModelRuntime:
     # Id of the label space the model's outputs index; a dataset is run only
     # against models that predict its label space.
     label_space: str
+    preprocess: Preprocess
 
 
 def _overwrite_named_param_strict(
@@ -301,9 +301,46 @@ def model_ids(specs_dir: Path = config.MODEL_SPECS_DIR) -> list[str]:
 
 
 def load_model_spec(model_id: str, specs_dir: Path = config.MODEL_SPECS_DIR) -> ModelSpec:
-    payload = json.loads((specs_dir / f"{model_id}.json").read_text())
-    return ModelSpec(payload["architecture"], payload["weights"], payload["label_space"],
-                     Preprocess(**payload["preprocess"]))
+    path = specs_dir / f"{model_id}.json"
+    if not path.is_file():
+        raise SystemExit(f"Model spec not found: {path}")
+    payload = _read(path)
+    if payload.get("schema_version") != SCHEMA_VERSION:
+        raise SystemExit(f"{path}: unsupported schema_version {payload.get('schema_version')!r}.")
+
+    architecture = payload.get("architecture")
+    if architecture not in INTERP_RESNETS and architecture not in models.list_models():
+        raise SystemExit(f"{path}: `architecture` {architecture!r} is not a torchvision builder name.")
+
+    weights = payload.get("weights")
+    if not isinstance(weights, str) or not weights:
+        raise SystemExit(f"{path}: `weights` must be \"DEFAULT\" or a state_dict path relative to {specs_dir}.")
+    if weights != "DEFAULT" and not (specs_dir / weights).is_file():
+        raise SystemExit(f"{path}: `weights` file not found: {specs_dir / weights}")
+
+    label_space = payload.get("label_space")
+    if not isinstance(label_space, str) or not label_space:
+        raise SystemExit(f"{path}: `label_space` is required.")
+    load_label_space(label_space)
+
+    preprocess = payload.get("preprocess")
+    if not isinstance(preprocess, dict):
+        raise SystemExit(f"{path}: `preprocess` must be an object with resize, crop, mean and std.")
+    for key in ("resize", "crop"):
+        value = preprocess.get(key)
+        if not isinstance(value, int) or isinstance(value, bool) or value <= 0:
+            raise SystemExit(f"{path}: `preprocess.{key}` must be a positive integer.")
+    for key in ("mean", "std"):
+        value = preprocess.get(key)
+        if (not isinstance(value, list) or len(value) != 3
+                or not all(isinstance(v, (int, float)) and not isinstance(v, bool) for v in value)):
+            raise SystemExit(f"{path}: `preprocess.{key}` must be a list of three numbers, one per RGB channel.")
+    if any(v <= 0 for v in preprocess["std"]):
+        raise SystemExit(f"{path}: `preprocess.std` values must be positive.")
+
+    return ModelSpec(architecture, weights, label_space,
+                     Preprocess(preprocess["resize"], preprocess["crop"],
+                                [float(v) for v in preprocess["mean"]], [float(v) for v in preprocess["std"]]))
 
 
 def _build_network(spec: ModelSpec, specs_dir: Path) -> nn.Module:
@@ -359,4 +396,5 @@ def build_model_runtime(model_id: str, specs_dir: Path = config.MODEL_SPECS_DIR)
         last_conv_layer=last_conv_layer,
         parameter_count=parameter_count,
         label_space=spec.label_space,
+        preprocess=spec.preprocess,
     )

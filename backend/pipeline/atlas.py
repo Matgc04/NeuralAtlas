@@ -172,6 +172,9 @@ def build_output_filename(
 class AttributionRenderer:
     out_px: int = 224
     outlier_perc: float = 2.0
+    # Side of the viewer's Resize(256) + CenterCrop(224) view in units of the model's crop,
+    # so every map is stored in that one view; beyond the crop it is padded with zeros.
+    frame: float = 1.0
 
     @staticmethod
     def _cumulative_sum_threshold(values: np.ndarray, percentile: float) -> float:
@@ -222,7 +225,9 @@ class AttributionRenderer:
         outlier_perc = float(kwargs.get("outlier_perc", self.outlier_perc))
         attr_np = self._normalize_absolute_heatmap(attr, outlier_perc)
         gray = (attr_np * 255).round().astype(np.uint8)
-        img = Image.fromarray(gray, mode='L').resize((self.out_px, self.out_px), Image.LANCZOS)
+        side, margin = gray.shape[0], gray.shape[0] * (1 - self.frame) / 2
+        box = (round(margin), round(margin), round(side - margin), round(side - margin))
+        img = Image.fromarray(gray, mode='L').crop(box).resize((self.out_px, self.out_px), Image.LANCZOS)
 
         filename = build_output_filename(
             model_name=model_name,

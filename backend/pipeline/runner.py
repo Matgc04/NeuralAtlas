@@ -10,7 +10,7 @@ from backend.datasets import load_dataset
 from backend.methods import build_interp_methods, method_catalog
 from backend.models import build_model_runtime
 from backend.persistence import ModelCatalogEntry, OutputRepository
-from backend.pipeline.atlas import AtlasRunner, dataset_keys
+from backend.pipeline.atlas import AtlasRunner, AttributionRenderer, dataset_keys
 from backend.sample_selection import load_sample_selection, resolve_sample_indices
 
 
@@ -99,6 +99,7 @@ def run_generation(args: Namespace) -> None:
         interp_methods = build_interp_methods(
             runtime.last_conv_layer,
             runtime.device,
+            runtime.preprocess.crop,
         )
         if selected_methods:
             selected = set(selected_methods)
@@ -127,6 +128,7 @@ def run_generation(args: Namespace) -> None:
         runtime.model,
         dataset,
         interp_methods,
+        renderer=AttributionRenderer(frame=0.875 * runtime.preprocess.resize / runtime.preprocess.crop),
         transform=runtime.transform,
     )
 

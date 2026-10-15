@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from functools import lru_cache
+from functools import lru_cache, partial
 from typing import TYPE_CHECKING, Callable
 
 import numpy as np
@@ -18,9 +18,7 @@ if TYPE_CHECKING:
 LOCAL_FAMILY = "local"
 GLOBAL_FAMILY = "global"
 
-# Every model in the catalog is Resize(256) + CenterCrop(224) on RGB, so the
-# lift to input space and the zero baselines all share one shape.
-INPUT_SIZE = 224
+# The input side comes from each model's crop in model_specs/; all inputs are RGB.
 INPUT_CHANNELS = 3
 
 
@@ -62,7 +60,7 @@ class InsufficientFeaturesError(ValueError):
         )
 
 
-def to_input_space(attr: object) -> torch.Tensor:
+def to_input_space(attr: object, size: int) -> torch.Tensor:
     """Lift a layer attribution to input resolution, keeping its sign and total.
 
     Sum layer channels to preserve signed evidence, then divide across input
@@ -79,12 +77,12 @@ def to_input_space(attr: object) -> torch.Tensor:
     layer_cells = attr.shape[-2] * attr.shape[-1]
     attr = LayerAttribution.interpolate(
         attr,
-        (INPUT_SIZE, INPUT_SIZE),
+        (size, size),
         interpolate_mode="bilinear",
     )
-    # Bilinear upsampling preserves values, inflating the sum by INPUT_SIZE^2 / layer_cells.
+    # Bilinear upsampling preserves values, inflating the sum by size^2 / layer_cells.
     # Rescale so the lifted map sums to the original layer attribution.
-    attr = attr * (layer_cells / (INPUT_SIZE * INPUT_SIZE))
+    attr = attr * (layer_cells / (size * size))
     return attr.expand(-1, INPUT_CHANNELS, -1, -1) / INPUT_CHANNELS
 
 
@@ -282,6 +280,7 @@ def extra_metric_keys(metrics: set[str]) -> dict[str, set[str]]:
 def build_interp_methods(
     last_conv_layer: "nn.Module",
     device: "torch.device",
+    input_size: int,
 ) -> list[AttributionConfig]:
     from captum.attr import (
         Deconvolution,
@@ -325,7 +324,7 @@ def build_interp_methods(
     # One reference point for the attribution baselines and the fidelity removal,
     # so a removed patch means the same thing everywhere.
     zero_baseline = torch.full(
-        (1, INPUT_CHANNELS, INPUT_SIZE, INPUT_SIZE),
+        (1, INPUT_CHANNELS, input_size, input_size),
         config.FIDELITY_SQUARE_BASELINE,
         device=device,
     )
@@ -381,7 +380,7 @@ def build_interp_methods(
             layer=last_conv_layer,
             # Preserve the sign for infidelity.
             relu_attributions=False,
-            callback=to_input_space,
+            callback=partial(to_input_space, size=input_size),
         ),
         AttributionConfig(
             DeepLift,
@@ -424,6 +423,6 @@ def build_interp_methods(
             baselines=zero_baseline,
             n_steps=50,
             attribute_to_layer_input=False,
-            callback=to_input_space,
+            callback=partial(to_input_space, size=input_size),
         ),
     ]
