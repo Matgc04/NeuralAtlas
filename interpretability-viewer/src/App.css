@@ -1532,6 +1532,25 @@ body {
   color: var(--text2);
 }
 
+/* A metric's definition, set as an equation in a paper: on the image bed,
+   one line, scrolling sideways on a phone rather than wrapping mid-formula. */
+.context-card__formula {
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-element);
+  background: var(--surface2);
+  color: var(--text1);
+  overflow-x: auto;
+}
+
+.context-card__formula .katex-display {
+  margin: 0;
+}
+
+.context-card__formula .katex {
+  font-size: 1.05em;
+}
+
 .context-card__tags {
   display: flex;
   flex-wrap: wrap;
@@ -1589,7 +1608,6 @@ body {
 }
 
 .context-card__slot-text {
-  max-width: 68ch;
   font-size: var(--fs-body-sm);
   line-height: 1.5;
   color: var(--text1);

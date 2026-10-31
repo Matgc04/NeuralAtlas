@@ -3,6 +3,8 @@ import { createPortal } from 'react-dom';
 import { AtlasMark } from './AtlasMark';
 import { useAtlasFavicon } from './atlas-mark';
 import './App.css';
+import katex from 'katex';
+import 'katex/dist/katex.min.css';
 import { FACT_KEYS, lookupWiki } from './wiki';
 
 const BASE_URL = import.meta.env.BASE_URL ?? '/';
@@ -849,19 +851,23 @@ const CONTEXT_TABS = [
   { kind: 'dataset', label: 'Dataset' },
   { kind: 'model', label: 'Model' },
   { kind: 'method', label: 'Method' },
+  { kind: 'metric', label: 'Metrics' },
 ];
 
 function ContextCard({
   dataset, model, method, methodOptions = [], onMethod,
-  modelOptions = [], onModel,
+  modelOptions = [], onModel, metric, onMetric,
   tab, onTab, expanded, onExpand,
 }) {
-  const ids = { dataset, model, method };
+  const ids = { dataset, model, method, metric };
   // Methods and models ask the same question of the card — "which of the ones
   // on screen am I reading?" — so both answer it with the same chip row.
   const pickers = {
     method: { options: uniqueWikiMethods(methodOptions, method), active: method, onPick: onMethod },
     model: { options: wikiEntryOptions('model', modelOptions), active: model, onPick: onModel },
+    // Named as the badges under each map name them, so the chip is the bridge
+    // from "lif 0.42" to what lif is.
+    metric: { options: METRIC_ORDER.map((id) => ({ id, label: id })), active: metric, onPick: onMetric },
   };
 
   // A tab exists only when its subject is documented: a dataset with no entry
@@ -923,6 +929,15 @@ function ContextCard({
             </svg>
           </button>
         </div>
+
+        {/* The definition is the answer to "what is this number", so it is
+            on the card itself, not behind "Read more". */}
+        {entry.formula && (
+          <div
+            className="context-card__formula"
+            dangerouslySetInnerHTML={{ __html: katex.renderToString(entry.formula, { displayMode: true, throwOnError: false }) }}
+          />
+        )}
 
         {expanded && (
           <div className="context-card__detail">
@@ -1887,6 +1902,7 @@ function ModelForm({ atlas, runs, datasets, labelSpaces }) {
   const [contextShown, setContextShown] = useState(false);
   const [pickedMethod, setPickedMethod] = useState(null);
   const [pickedModel, setPickedModel] = useState(null);
+  const [pickedMetric, setPickedMetric] = useState(METRIC_ORDER[0]);
   // A method named from the sidebar may not be checked, so it is enough that
   // it be documented — otherwise fall back to the first one on screen.
   const contextMethod = pickedMethod && selectedMethods.includes(pickedMethod)
@@ -1903,6 +1919,7 @@ function ModelForm({ atlas, runs, datasets, labelSpaces }) {
       if (kind) setContextTab(kind);
       if (kind === 'method' && id) setPickedMethod(id);
       if (kind === 'model' && id) setPickedModel(id);
+      if (kind === 'metric' && id) setPickedMetric(id);
       scrollContextCardIntoView();
     },
   }), []);
@@ -2108,6 +2125,7 @@ function ModelForm({ atlas, runs, datasets, labelSpaces }) {
             methodOptions={selectedMethods} onMethod={setPickedMethod}
             modelOptions={showModelFacet ? selectedModels : []}
             onModel={showModelFacet ? setPickedModel : null}
+            metric={pickedMetric} onMetric={setPickedMetric}
             tab={contextTab} onTab={setContextTab}
             expanded={contextOpen} onExpand={setContextOpen}
           />
