@@ -198,6 +198,8 @@ body {
 .colorbar-legend__title,
 .facet-filter__group-label,
 .overlay-control__opacity,
+.sort-menu__label,
+.sort-menu__group,
 .panel-toggle__label {
   font-size: var(--fs-label);
   font-weight: 600;
@@ -2252,6 +2254,148 @@ body {
 .overlay-control__opacity input {
   width: 120px;
   accent-color: var(--accent);
+}
+
+/* The order control. Closed it is one line saying how the maps are ranked;
+   tinted while a metric ranks them, because then the order on screen is not
+   the one the sidebar shows. */
+.sort-menu {
+  position: relative;
+}
+
+.sort-menu__trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-xs) var(--space-sm) var(--space-xs) 10px;
+  border: 1px solid var(--border-visible);
+  border-radius: var(--radius-control);
+  background: var(--surface1);
+  font-size: var(--fs-body-sm);
+  color: var(--text1);
+  white-space: nowrap;
+  transition: border-color var(--t-micro) ease, background-color var(--t-micro) ease;
+}
+
+.sort-menu__trigger:hover,
+.sort-menu__trigger[aria-expanded='true'] {
+  border-color: var(--accent);
+}
+
+.sort-menu__trigger:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.sort-menu__trigger.is-active {
+  border-color: var(--accent);
+  background: var(--accent-subtle);
+  color: var(--accent-strong);
+}
+
+.sort-menu__icon {
+  width: 14px;
+  height: 14px;
+  color: var(--text2);
+}
+
+.sort-menu__trigger.is-active .sort-menu__icon,
+.sort-menu__trigger.is-active .sort-menu__label {
+  color: var(--accent);
+}
+
+.sort-menu__value {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.sort-menu__pop {
+  position: absolute;
+  z-index: 60;
+  top: calc(100% + var(--space-xs));
+  left: 0;
+  width: 240px;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-xs);
+  background: var(--surface1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-input);
+  box-shadow: var(--shadow-3);
+  animation: combo-fade-in var(--t-popover) ease;
+}
+
+.sort-menu__list {
+  display: flex;
+  flex-direction: column;
+}
+
+.sort-menu__group {
+  padding: var(--space-sm) var(--space-md) var(--space-xs);
+}
+
+.sort-menu__rule {
+  height: 1px;
+  margin: var(--space-xs) 6px;
+  background: var(--border);
+}
+
+.sort-menu__option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px var(--space-md);
+  border-radius: var(--radius-element);
+}
+
+.sort-menu__check {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--accent);
+}
+
+/* The direction is a two-way state, so a small segmented pair rather than
+   two more list rows. Disabled until a metric is picked: sidebar order has
+   no direction. */
+.sort-menu__dirs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2xs);
+  margin: var(--space-2xs) 6px var(--space-xs);
+  padding: var(--space-2xs);
+  background: var(--surface3);
+  border-radius: var(--radius-control);
+}
+
+.sort-menu__dirs button {
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-element);
+  font-size: var(--fs-caption);
+  color: var(--text2);
+  white-space: nowrap;
+  transition: color var(--t-micro) ease, background-color var(--t-micro) ease;
+}
+
+.sort-menu__dirs button:hover:not(:disabled) {
+  color: var(--text1);
+}
+
+.sort-menu__dirs button.is-on {
+  background: var(--surface1);
+  color: var(--accent-strong);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(18, 24, 38, 0.12);
+}
+
+.sort-menu__dirs button:disabled {
+  color: var(--text3);
+  cursor: default;
+}
+
+.sort-menu__dirs button:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 /* ── Motion ─────────────────────────────────────────────────────
