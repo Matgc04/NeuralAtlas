@@ -3,6 +3,8 @@ import { createPortal } from 'react-dom';
 import { AtlasMark } from './AtlasMark';
 import { useAtlasFavicon } from './atlas-mark';
 import './App.css';
+import katex from 'katex';
+import 'katex/dist/katex.min.css';
 import { FACT_KEYS, lookupWiki } from './wiki';
 
 const BASE_URL = import.meta.env.BASE_URL ?? '/';
@@ -16,13 +18,17 @@ const useOverlay = () => useContext(OverlayContext);
 // numbers are seen. `?metrics=hidden` opens the viewer that way.
 const MetricsShownContext = createContext(true);
 
+// Maps follow the sidebar's method order unless `?sort=<metric>` ranks them
+// by that score, highest first; `&dir=asc` flips it to lowest first.
+const MethodSortContext = createContext(null);
+
 // Aiming the context card at a subject is available anywhere a name is shown.
 // There is one reference surface on the page and this is how anything else
 // points at it.
 const WikiContext = createContext({ open: () => {} });
 const useWiki = () => useContext(WikiContext);
 
-const VS_KEYS = ['mode', 'model', 'dataset', 'classId', 'imageId', 'methods', 'models', 'metrics'];
+const VS_KEYS = ['mode', 'model', 'dataset', 'classId', 'imageId', 'methods', 'models', 'metrics', 'sort', 'dir'];
 
 function readStateFromUrl() {
   const params = new URLSearchParams(window.location.search);
@@ -167,12 +173,41 @@ function resolveMethodEntries(methods, outputs = {}) {
   return (methods ?? []).filter((m) => outputs?.[m]).map((m) => [m, outputs[m]]);
 }
 
+function metricNumber(raw) {
+  return raw == null || raw === '' ? NaN : Number(raw);
+}
+
+// Every metric reads higher-is-better, so `desc` puts the best first. Methods
+// without a score sink to the end in either direction; the sort is stable, so
+// ties and the unscored keep sidebar order.
+function sortByScore(methods, scoreOf, dir) {
+  return [...methods].sort((a, b) => {
+    const sa = scoreOf(a), sb = scoreOf(b);
+    if (!Number.isFinite(sa) || !Number.isFinite(sb)) return Number.isFinite(sb) - Number.isFinite(sa);
+    return dir === 'asc' ? sa - sb : sb - sa;
+  });
+}
+
+// `sort` is `{ metric, dir }`, or null for sidebar order.
+function sortMethods(methods, metricsByMethod, sort) {
+  if (!sort) return methods;
+  return sortByScore(methods, (m) => metricNumber(metricsByMethod?.[m]?.[sort.metric]), sort.dir);
+}
+
 // Same list, but for the whole row of models at once: a method earns a row in
 // the comparison matrix if any model on screen produced it. The models that
 // did not get a hole in that row rather than a shorter column, so what sits
 // side by side is always the same method.
-function compareMethodRows(methods, cells) {
-  return (methods ?? []).filter((m) => cells.some((c) => c.record?.outputs?.[m]));
+function compareMethodRows(methods, cells, sort) {
+  const rows = (methods ?? []).filter((m) => cells.some((c) => c.record?.outputs?.[m]));
+  if (!sort) return rows;
+  // A row is shared by every model on screen, so it ranks by their mean.
+  return sortByScore(rows, (m) => {
+    const values = cells
+      .map((c) => metricNumber(c.record?.interpretabilityMetrics?.[m]?.[sort.metric]))
+      .filter(Number.isFinite);
+    return values.length ? values.reduce((sum, v) => sum + v, 0) / values.length : NaN;
+  }, sort.dir);
 }
 
 // Heavy image binaries live on Hugging Face; JSON metadata stays local (in git). A run's
@@ -497,6 +532,95 @@ function OverlayControl({ enabled, opacity, onToggle, onOpacity }) {
   );
 }
 
+const DIRECTIONS = [
+  { dir: 'desc', label: '↓ High → low' },
+  { dir: 'asc', label: '↑ Low → high' },
+];
+
+// One compact button that says what the order is; the menu holds the metric
+// and the direction. Picking a metric leaves it open, so flipping the
+// direction is one more click and not another trip through the menu.
+function SortMenu({ sort, onChange }) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef(null);
+  const arrow = sort?.dir === 'asc' ? '↑' : '↓';
+
+  // Same outside-click and Escape dismissal as CrumbSelect.
+  useEffect(() => {
+    if (!open) return undefined;
+    const onDown = (e) => { if (!rootRef.current?.contains(e.target)) setOpen(false); };
+    const onKey = (e) => { if (e.key === 'Escape') setOpen(false); };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  const option = (metric, label) => {
+    const on = (sort?.metric ?? null) === metric;
+    return (
+      <button
+        type="button" key={metric ?? ''} role="option" aria-selected={on}
+        className={`combo__option sort-menu__option${on ? ' is-on' : ''}`}
+        onClick={() => {
+          onChange(metric ? { metric, dir: sort?.dir ?? 'desc' } : null);
+          if (!metric) setOpen(false);
+        }}
+      >
+        {label}
+        {on && (
+          <svg className="sort-menu__check" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20 6 9 17l-5-5" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        )}
+      </button>
+    );
+  };
+
+  return (
+    <div className="sort-menu" ref={rootRef}>
+      <button
+        type="button" className={`sort-menu__trigger${sort ? ' is-active' : ''}`}
+        aria-haspopup="true" aria-expanded={open} onClick={() => setOpen((o) => !o)}
+      >
+        <svg className="sort-menu__icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M7 4v16M3 16l4 4 4-4M17 20V4M13 8l4-4 4 4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        <span className="sort-menu__label">Order</span>
+        <span className="sort-menu__value">{sort ? `${sort.metric} ${arrow}` : 'Sidebar'}</span>
+        <svg className="crumb__caret" viewBox="0 0 10 6" aria-hidden="true">
+          <path d="M1 1.5 5 5 9 1.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+      {open && (
+        <div className="sort-menu__pop">
+          <div role="listbox" aria-label="Order maps by" className="sort-menu__list">
+            {option(null, 'Sidebar order')}
+            <div className="sort-menu__rule" />
+            <div className="sort-menu__group">Rank by metric</div>
+            {METRIC_ORDER.map((name) => option(name, name))}
+          </div>
+          <div className="sort-menu__rule" />
+          <div className="sort-menu__group" id="sort-menu-dir">Direction</div>
+          <div className="sort-menu__dirs" role="radiogroup" aria-labelledby="sort-menu-dir">
+            {DIRECTIONS.map(({ dir, label }) => (
+              <button
+                type="button" key={dir} role="radio" aria-checked={sort?.dir === dir}
+                className={sort?.dir === dir ? 'is-on' : ''} disabled={!sort}
+                onClick={() => onChange({ ...sort, dir })}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function MetricsControl({ shown, onToggle }) {
   return (
     <button
@@ -524,7 +648,7 @@ function ColorbarLegend() {
 }
 
 // Render settings sit above the maps they change, sticky under the top bar.
-function RenderBar({ overlay, opacity, onToggle, onOpacity, metricsShown, onToggleMetrics }) {
+function RenderBar({ overlay, opacity, onToggle, onOpacity, metricsShown, onToggleMetrics, sort, onSort }) {
   const ref = useRef(null);
 
   // The compare header sticks flush under this bar, so its offset *is* this
@@ -554,6 +678,7 @@ function RenderBar({ overlay, opacity, onToggle, onOpacity, metricsShown, onTogg
         <div className="render-bar__switches">
           <OverlayControl enabled={overlay} opacity={opacity} onToggle={onToggle} onOpacity={onOpacity} />
           <MetricsControl shown={metricsShown} onToggle={onToggleMetrics} />
+          <SortMenu sort={sort} onChange={onSort} />
         </div>
         <ColorbarLegend />
       </div>
@@ -726,19 +851,23 @@ const CONTEXT_TABS = [
   { kind: 'dataset', label: 'Dataset' },
   { kind: 'model', label: 'Model' },
   { kind: 'method', label: 'Method' },
+  { kind: 'metric', label: 'Metrics' },
 ];
 
 function ContextCard({
   dataset, model, method, methodOptions = [], onMethod,
-  modelOptions = [], onModel,
+  modelOptions = [], onModel, metric, onMetric,
   tab, onTab, expanded, onExpand,
 }) {
-  const ids = { dataset, model, method };
+  const ids = { dataset, model, method, metric };
   // Methods and models ask the same question of the card — "which of the ones
   // on screen am I reading?" — so both answer it with the same chip row.
   const pickers = {
     method: { options: uniqueWikiMethods(methodOptions, method), active: method, onPick: onMethod },
     model: { options: wikiEntryOptions('model', modelOptions), active: model, onPick: onModel },
+    // Named as the badges under each map name them, so the chip is the bridge
+    // from "lif 0.42" to what lif is.
+    metric: { options: METRIC_ORDER.map((id) => ({ id, label: id })), active: metric, onPick: onMetric },
   };
 
   // A tab exists only when its subject is documented: a dataset with no entry
@@ -800,6 +929,15 @@ function ContextCard({
             </svg>
           </button>
         </div>
+
+        {/* The definition is the answer to "what is this number", so it is
+            on the card itself, not behind "Read more". */}
+        {entry.formula && (
+          <div
+            className="context-card__formula"
+            dangerouslySetInnerHTML={{ __html: katex.renderToString(entry.formula, { displayMode: true, throwOnError: false }) }}
+          />
+        )}
 
         {expanded && (
           <div className="context-card__detail">
@@ -974,7 +1112,8 @@ function FacetFilter({
 }
 
 function MethodFigures({ methods, outputs, imageId, originalSrc, interpretabilityMetrics }) {
-  const entries = resolveMethodEntries(methods, outputs);
+  const sort = useContext(MethodSortContext);
+  const entries = resolveMethodEntries(sortMethods(methods, interpretabilityMetrics, sort), outputs);
   if (!entries.length) return <MiniImage caption="Method" missingText="No method checked in the sidebar." />;
   return entries.map(([name, url]) => (
     <MiniImage
@@ -1284,6 +1423,7 @@ function ModelGridView({ records, methods, ready, labels }) {
 }
 
 function ClassCompareView({ matrix, methods, ready, labels, onHideModel, totalModels }) {
+  const sort = useContext(MethodSortContext);
   const rowRefs = useRef([]);
   const activeRowRef = useRef(null);
   // How far position: sticky is holding the last row below its place in the
@@ -1481,7 +1621,7 @@ function ClassCompareView({ matrix, methods, ready, labels, onHideModel, totalMo
       </div>
       {matrix.rows.map((row, rowIndex) => {
         const origUrl = row.cells.find((c) => c.record?.originalUrl)?.record?.originalUrl ?? null;
-        const methodRows = compareMethodRows(methods, row.cells);
+        const methodRows = compareMethodRows(methods, row.cells, sort);
         const predicted = row.cells.filter((c) => c.record?.prediction);
         const correct = predicted.filter((c) => String(c.record.prediction.predicted_class_id) === classTarget(labels, row.classId)).length;
         // The original spans every method row, so the grid needs those rows to
@@ -1599,6 +1739,12 @@ function ModelForm({ atlas, runs, datasets, labelSpaces }) {
   const [overlayOpacity, setOverlayOpacity] = useState(0.5);
 
   const patch = (update) => { const next = { ...vs, ...update }; setVs(next); writeStateToUrl(next); };
+
+  // The URL keeps `sort` and `dir` flat; everything below reads them as one value.
+  const sort = useMemo(
+    () => (vs.sort ? { metric: vs.sort, dir: vs.dir === 'asc' ? 'asc' : 'desc' } : null),
+    [vs.sort, vs.dir],
+  );
 
   // Where the rail lies down across the top of the content, the bar that opens
   // it is sticky but the panel it opens is not: tapping it three screens down
@@ -1756,6 +1902,7 @@ function ModelForm({ atlas, runs, datasets, labelSpaces }) {
   const [contextShown, setContextShown] = useState(false);
   const [pickedMethod, setPickedMethod] = useState(null);
   const [pickedModel, setPickedModel] = useState(null);
+  const [pickedMetric, setPickedMetric] = useState(METRIC_ORDER[0]);
   // A method named from the sidebar may not be checked, so it is enough that
   // it be documented — otherwise fall back to the first one on screen.
   const contextMethod = pickedMethod && selectedMethods.includes(pickedMethod)
@@ -1772,6 +1919,7 @@ function ModelForm({ atlas, runs, datasets, labelSpaces }) {
       if (kind) setContextTab(kind);
       if (kind === 'method' && id) setPickedMethod(id);
       if (kind === 'model' && id) setPickedModel(id);
+      if (kind === 'metric' && id) setPickedMetric(id);
       scrollContextCardIntoView();
     },
   }), []);
@@ -1808,12 +1956,12 @@ function ModelForm({ atlas, runs, datasets, labelSpaces }) {
     if (!r) return null;
     return {
       original: r.originalUrl,
-      outputs: Object.fromEntries(resolveMethodEntries(selectedMethods, r.outputs)),
+      outputs: Object.fromEntries(resolveMethodEntries(sortMethods(selectedMethods, r.interpretabilityMetrics, sort), r.outputs)),
       interpretabilityMetrics: r.interpretabilityMetrics,
       prediction: r.prediction,
       classId: r.classId,
     };
-  }, [imageRecords, vs.mode, effectiveModel, effectiveDataset, effectiveClassId, effectiveImageId, selectedMethods]);
+  }, [imageRecords, vs.mode, effectiveModel, effectiveDataset, effectiveClassId, effectiveImageId, selectedMethods, sort]);
 
   const classCompareMatrix = useMemo(
     () => getClassCompareMatrix(imageRecords, {
@@ -1903,6 +2051,7 @@ function ModelForm({ atlas, runs, datasets, labelSpaces }) {
   return (
     <OverlayContext.Provider value={{ enabled: overlay, opacity: overlayOpacity }}>
     <MetricsShownContext.Provider value={vs.metrics !== 'hidden'}>
+    <MethodSortContext.Provider value={sort}>
     <WikiContext.Provider value={wikiApi}>
     <TopBar
       mode={vs.mode} onModeChange={handleModeChange} readout={summaryText}
@@ -1976,6 +2125,7 @@ function ModelForm({ atlas, runs, datasets, labelSpaces }) {
             methodOptions={selectedMethods} onMethod={setPickedMethod}
             modelOptions={showModelFacet ? selectedModels : []}
             onModel={showModelFacet ? setPickedModel : null}
+            metric={pickedMetric} onMetric={setPickedMetric}
             tab={contextTab} onTab={setContextTab}
             expanded={contextOpen} onExpand={setContextOpen}
           />
@@ -1986,6 +2136,7 @@ function ModelForm({ atlas, runs, datasets, labelSpaces }) {
           onToggle={() => setOverlay((v) => !v)} onOpacity={setOverlayOpacity}
           metricsShown={vs.metrics !== 'hidden'}
           onToggleMetrics={() => patch({ metrics: vs.metrics === 'hidden' ? null : 'hidden' })}
+          sort={sort} onSort={(next) => patch({ sort: next?.metric ?? null, dir: next?.dir === 'asc' ? 'asc' : null })}
         />
 
         {vs.mode === 'model_grid' && (
@@ -2005,6 +2156,7 @@ function ModelForm({ atlas, runs, datasets, labelSpaces }) {
       </main>
     </div>
     </WikiContext.Provider>
+    </MethodSortContext.Provider>
     </MetricsShownContext.Provider>
     </OverlayContext.Provider>
   );
