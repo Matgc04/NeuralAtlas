@@ -582,7 +582,9 @@ export const WIKI_SECTIONS = [
           ['Removes', 'Pixels, least important first'],
           ['Limit', 'Scattered pixel deletion makes inputs the model never saw in training'],
         ],
-        links: [],
+        links: [
+          { label: 'RISE paper, deletion metric (arXiv 1806.07421)', href: 'https://arxiv.org/abs/1806.07421' },
+        ],
       },
       {
         id: 'morph',
@@ -597,11 +599,13 @@ export const WIKI_SECTIONS = [
           ['Removes', 'Everything outside the region, then its border'],
           ['Limit', 'Depends on the threshold τ; coarser than the pixel curves'],
         ],
-        links: [],
+        links: [
+          { label: 'Paper (CACIC 2025, SEDICI)', href: 'https://sedici.unlp.edu.ar/handle/10915/191363' },
+        ],
       },
       {
         id: 'segment',
-        title: 'SAS — Segment-wise Ablation Score',
+        title: 'SAS — Segment\u2011wise Ablation Score',
         tags: ['Robustness', 'Segment deletion'],
         summary: 'Splits the image into segments, ranks them by mean attribution and removes them from least to most important.',
         formula: String.raw`h(S_k) = \tfrac{1}{|S_k|} \textstyle\sum_{u \in S_k} h(u),\quad \mathcal{Q}_{\psi_i}(h) = \text{least important segments up to } \psi_i|\Omega| \;\Rightarrow\; \mathrm{SAS}(h) = \mathrm{AUC}\big(\{ f(I \setminus \mathcal{Q}_{\psi_i}(h)) \}_{i=0}^{N}\big)`,
@@ -612,7 +616,9 @@ export const WIKI_SECTIONS = [
           ['Removes', 'Segments (k-means in L*a*b* + xy), least important first'],
           ['Limit', 'The result depends on the segmentation used'],
         ],
-        links: [],
+        links: [
+          { label: 'IROF paper (arXiv 2003.08747)', href: 'https://arxiv.org/abs/2003.08747' },
+        ],
       },
       {
         id: 'fidelity',
@@ -644,7 +650,9 @@ export const WIKI_SECTIONS = [
           ['Removes', 'One sampled superpixel per draw'],
           ['Limit', 'Only LIME and KernelSHAP; undefined if the model never reacts'],
         ],
-        links: [],
+        links: [
+          { label: 'Infidelity paper (arXiv 1901.09392)', href: 'https://arxiv.org/abs/1901.09392' },
+        ],
       },
     ],
   },

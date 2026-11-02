@@ -1506,10 +1506,12 @@ body {
   gap: var(--space-sm) var(--space-xl);
 }
 
+/* A fixed column, as wide as the longest name ("SAS — Segment-wise Ablation
+   Score", ~317px), so every title sits on one line and switching entries
+   never moves the sentence. */
 .context-card__ident {
-  flex: 0 0 auto;
-  min-width: 180px;
-  max-width: 260px;
+  flex: 0 0 320px;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
@@ -1520,6 +1522,7 @@ body {
   font-size: var(--fs-subheading);
   font-weight: 600;
   line-height: 1.2;
+  white-space: nowrap;
 }
 
 /* A measure, not a column width: the card is as wide as the page and a
